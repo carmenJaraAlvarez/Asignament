@@ -119,23 +119,31 @@
 
 
  Logico checkTasks(ArrayPTasks tasks){
-	  Logico res=TRUE;
-	 //TODO
+	  Logico res=FALSE;
+	  if(tasks!=NULL){
+		  res=TRUE;
+	  }
 	  return res;
  }
  Logico checkResources(ArrayPResources resources){
-	  Logico res=TRUE;
-	 //TODO
+	  Logico res=FALSE;
+	  if(resources!=NULL){
+		  res=TRUE;
+	  }
 	  return res;
  }
  Logico checkMatrix(double values[]){
-	  Logico res=TRUE;
-	 //TODO
+	  Logico res=FALSE;
+	  if(values!=NULL){
+		  res=TRUE;
+	  }
 	  return res;
  }
  Logico checkInt(numTasks){
-	  Logico res=TRUE;
-	 //TODO
+	  Logico res=FALSE;
+	  if(numTasks!=NULL && numTasks>0){
+		  res=TRUE;
+	  }
 	  return res;
  }
 
