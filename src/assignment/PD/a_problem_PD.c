@@ -7,6 +7,8 @@
 #include "a_problem_PD.h"
 
 
+
+
   Logico is_base_case(Aproblem ap){
 	  return TRUE;
   }

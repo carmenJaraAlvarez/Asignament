@@ -9,6 +9,10 @@
 #ifndef ASSIGNMENT_PD_A_PROBLEM_PD_H_
 #define ASSIGNMENT_PD_A_PROBLEM_PD_H_
 
+typedef struct
+  {
+	Aproblem aproblem;
+  } AproblemPD;
 
   Logico is_base_case(Aproblem);
   void get_subproblem(PAproblem );
