@@ -8,21 +8,19 @@
 #ifndef ASSIGNMENT_ALTERNATIVE_H_
 #define ASSIGNMENT_ALTERNATIVE_H_
 
-#include "resource.h"
+
 #define TAM_ARRAY_ALTERNATIVE 100
 
 typedef struct
   {
 
-	ArrayPResources resources;
-
-	int lengt;
+	int indexResource;//index resource, in this problem
 
   } Alternative;
 
   typedef Alternative* PAlternative;
   typedef PAlternative ArrayPAlternatives[TAM_ARRAY_ALTERNATIVE];
 
+  int initAlternative(PAlternative,int);
 
-
-#endif /* ASSIGNMENT_ALTERNATIVE_H_ */
+  #endif /* ASSIGNMENT_ALTERNATIVE_H_ */

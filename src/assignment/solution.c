@@ -12,7 +12,16 @@ int solutionToString(PSolution ps){
 	printf("Solution: %f\n",ps->acum);
 	int l=ps->lengthArrays;
 	for(int i=0;i<l; i++){
-		printf("task %s - resource %s\n", ps->tasks[i]->name, ps->resources[i]->name);
+		printf("task %d - resource %s\n", i, ps->resources[i]->name);
 	}
+	return res;
+}
+int updateSolution(PSolution ps, PAlternative pa, double value){
+	int res=0;
+	ps->lengthArrays=ps->lengthArrays+1;
+	ps->acum=(ps->acum)+value;
+	Resource resource;
+	initResource(&resource,"test");//TODO
+	ps->resources[(ps->lengthArrays)-1]=&resource;
 	return res;
 }

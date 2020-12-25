@@ -16,7 +16,7 @@
 		 printf("Resources error\n");
 		 return -1;
 	 }
-	 //TODO check matrix
+	 //TODO check values
 	 if(!checkInt(numTasks) || !checkInt(numResources)){
 		 printf("Matrix dimension error\n");
 		 return -1;
@@ -118,6 +118,7 @@
  }
 
 
+ ////////////////////////////CHECKERS////////////////////////////////////////
  Logico checkTasks(ArrayPTasks tasks){
 	  Logico res=FALSE;
 	  if(tasks!=NULL){

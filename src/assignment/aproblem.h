@@ -7,8 +7,9 @@
 #include "mpi.h"
 #include "../common/logico.h"
 #include "../common/cadena.h"
+#include "solution.h"
 #include "task.h"
-#include "resource.h"
+
 
 #define TAM_ARRAY_PROBLEM 130
 #define TAM_MAX_READ 100
@@ -18,13 +19,13 @@ typedef struct
   {
 //tasks array
 	ArrayPTasks tasks;
+//resources array
 	ArrayPResources resources;
 	int numTask;
-//resources array
-
 	int numResources;
 //values matrix task*resources
 	double values[TAM_ARRAY_PROBLEM];
+
 
   } Aproblem;
 

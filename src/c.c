@@ -15,6 +15,7 @@
 #include "../tests/test_resource.c"
 #include "../tests/test_task.c"
 #include "../tests/test_aproblem.c"
+#include "../tests/test_aproblemPD.c"
 #include "PD/problem_PD.h"
 
 int main(int argc, char* argv[]){
@@ -25,6 +26,8 @@ int main(int argc, char* argv[]){
 	testInit4();
 	testInit5();
 	testInit6();
+	testInit7();
+	testInit8();
 	//num nodes
 /*	int totalProcess=2;
 	//gui

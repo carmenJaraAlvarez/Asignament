@@ -8,12 +8,14 @@
 #ifndef ASSIGNMENT_SOLUTION_H_
 #define ASSIGNMENT_SOLUTION_H_
 #include "resource.h"
-#include "task.h"
+//#include "task.h"
+#include "alternative.h"
+#define TAM_ARRAY_SOLUTION
 
 typedef struct
   {
 	//same position in both arrays is an assigned pair
-	ArrayPTasks tasks;//is not necessary if we take initial task enum
+	//ArrayPTasks tasks;//is not necessary if we take initial task enum
 	ArrayPResources resources;
 
 	int lengthArrays;
@@ -23,8 +25,9 @@ typedef struct
   } Solution;
 
   typedef Solution* PSolution;
-  typedef PSolution ArrayPSolutions[TAM_ARRAY_PROBLEM];
+  typedef PSolution ArrayPSolutions[TAM_ARRAY_SOLUTION];
 
   int solutionToString(PSolution);
+  int updateSolution(PSolution, PAlternative, double);
 
 #endif /* ASSIGNMENT_SOLUTION_H_ */
