@@ -7,7 +7,7 @@
 
 
 
- int initAProblem(PAproblem pa,ArrayPTasks tasks,ArrayPResources resources,int numTasks, int numResources, double *values){
+ int initAProblem(PAproblem pa,ArrayTasks tasks,ArrayResources resources,int numTasks, int numResources, double *values){
 	 if(!checkTasks(tasks)){
 		 printf("Tasks error\n");
 		 return -1;
@@ -23,6 +23,14 @@
 	 }
 	 pa->numTask=numTasks;
 	 pa->numResources=numResources;
+	 for (int i=0;i<numTasks;i++){
+	 			pa->tasks[i]=tasks[i];
+
+	 }
+	 for (int i=0;i<numResources;i++){
+	 			pa->resources[i]=resources[i];
+
+	 }
 	 double aux;
 	 int numValues=numTasks*numResources;
 
@@ -34,20 +42,31 @@
 	 }
 	 return 0;
  }
- void showAproblem(PAproblem pap){
-	 printf("inside showAproblem");
-	 int m=pap->numTask;
-	 int n=pap->numResources;
-	 printf("\n");
+ void showAproblem(Aproblem ap){
+	 printf("inside showAproblem\n");
+	 int m=ap.numTask;
+	 int j=0;
+	 for(int i=0;i<m;i++){
+		 printf("%s ",ap.tasks[i].name);
+	 }
+	 int n=ap.numResources;
+
+	 printf("\n%s ",ap.resources[j].name);
 	 for(int i=0;i<m*n;i++){
 		 double r=(i+1)%m;
 		 if(r!=0.){
+			 if(i>0 &&  i%m==0){
+				printf("%s ",ap.resources[j].name);
+				printf("%f ",ap.values[i]);
+				j++;
 
-			 printf("%f ",pap->values[i]);
+			 }else{
+
+				printf("%f ",ap.values[i]);
+			 }
 		 }
 		 else{
-			 printf("%f \n",pap->values[i]);
-
+				 printf("%f \n",ap.values[i]);
 		 }
 
 	 }
@@ -69,8 +88,8 @@
 	 Cadena c;
 	 Resource resource;
 	 Task task;
-	 ArrayPTasks parrayT;
-	 ArrayPResources parrayR;
+	 ArrayTasks arrayT;
+	 ArrayResources arrayR;
 	 int numValues=numResources*numTasks;
 	 double values[numValues];
 	 Aproblem ap;
@@ -92,15 +111,15 @@
 		 for(j=0;j<numTasks;j++){
 			 fgets(c,TAM_MAX_READ,f);
 			 quitaSaltoDeLinea(c);
-			 initTask(&task,c);
-			 parrayT[j]=&task;
+			 init_task(&task,c);
+			 arrayT[j]=task;
 		 }
 		 //resources
 		 for(j=0;j<numResources;j++){
 			 fgets(c,TAM_MAX_READ,f);
 			 quitaSaltoDeLinea(c);
-			 initResource(&resource,c);
-			 parrayR[j]=&resource;
+			 init_resource(&resource,c);
+			 arrayR[j]=resource;
 		 }
 		 //values
 
@@ -110,7 +129,7 @@
 			 aux=atof(c);
 			 values[i]=aux;
 		 }
-		 res=initAProblem(pap,parrayT,parrayR,numTasks,numResources, values);
+		 res=initAProblem(pap,arrayT,arrayR,numTasks,numResources, values);
 
 	 }
 	 fclose(f);
@@ -119,14 +138,14 @@
 
 
  ////////////////////////////CHECKERS////////////////////////////////////////
- Logico checkTasks(ArrayPTasks tasks){
+ Logico checkTasks(ArrayTasks tasks){
 	  Logico res=FALSE;
 	  if(tasks!=NULL){
 		  res=TRUE;
 	  }
 	  return res;
  }
- Logico checkResources(ArrayPResources resources){
+ Logico checkResources(ArrayResources resources){
 	  Logico res=FALSE;
 	  if(resources!=NULL){
 		  res=TRUE;

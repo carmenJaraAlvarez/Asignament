@@ -76,7 +76,9 @@ int initAProblemPD(PAproblemPD papd,Aproblem pa){
 	  papd->solution.lengthArrays+=1;
 	  Cadena resourceName;
 	  //TODO
-//	  strcpy(resourceName,papd->aproblem.resources[alternative]->name);
+	  //papd->aproblem.resources[alternative].name
+	  Resource aux=papd->aproblem.resources[alternative];
+	  strcpy(resourceName,aux.name);
 	  strcpy(papd->solution.resources[(papd->solution.lengthArrays)-1].name,resourceName);
 
 	  return res;

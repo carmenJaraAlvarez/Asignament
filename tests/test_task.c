@@ -10,11 +10,11 @@ void testInit4();
 
 
 void testInitTask(PTask pt,const Cadena name){
-	printf("*** testInitTask ***\n");
-	int res = initTask(pt, name);
+
+	int res = init_task(pt, name);
 
 		if (res == -1) {
-			printf("error initTask.\n");
+			perror("error initTask.\n");
 		} else {
 			printf("ok initTask\n");
 			showTask(pt);
@@ -26,10 +26,13 @@ void testInitTask(PTask pt,const Cadena name){
 
 
 void testInit3(){
+	printf("\n3***********************\n");
 	Task t;
+	printf("\nexpected: error\n");
 	testInitTask(&t,"");
 }
 void testInit4(){
+	printf("\n4***********************\n");
 	Task t;
 	testInitTask(&t,"T1");
 }

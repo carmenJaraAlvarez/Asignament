@@ -21,7 +21,7 @@ int updateSolution(PSolution ps, PAlternative pa, double value){
 	ps->lengthArrays=ps->lengthArrays+1;
 	ps->acum=(ps->acum)+value;
 	Resource resource;
-	initResource(&resource,"test");//TODO
+	init_resource(&resource,"test");//TODO
 	ps->resources[(ps->lengthArrays)-1]=resource;
 	return res;
 }

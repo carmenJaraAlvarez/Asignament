@@ -23,8 +23,9 @@ typedef struct
 
   typedef Task* PTask;
   typedef PTask ArrayPTasks[TAM_ARRAY_TASKS];
+  typedef Task ArrayTasks[TAM_ARRAY_TASKS];
 
-  int initTask(PTask,const Cadena);
+  int init_task(PTask,const Cadena);
   void showTask(PTask);
   void showTasks();
 

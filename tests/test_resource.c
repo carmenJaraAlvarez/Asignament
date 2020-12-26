@@ -10,11 +10,11 @@ void testInit2();
 
 
 void testInitResource(PResource pr,const Cadena name){
-	printf("*** testInitResource ***\n");
-	int res = initResource(pr, name);
+
+	int res = init_resource(pr, name);
 
 		if (res == -1) {
-			printf("error initResource.\n");
+			perror("error initResource.\n");
 		} else {
 			printf("ok initResource.\n");
 			showResource(pr);
@@ -26,10 +26,13 @@ void testInitResource(PResource pr,const Cadena name){
 
 
 void testInit1(){
+	printf("\n1***********************\n");
 	Resource r;
+	printf("\nexpected: error\n");
 	testInitResource(&r,"");
 }
 void testInit2(){
+	printf("\n2***********************\n");
 	Resource r;
 	testInitResource(&r,"R1");
 }

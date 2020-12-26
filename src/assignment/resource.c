@@ -6,7 +6,7 @@
  */
 #include "resource.h"
 
-  int initResource(PResource pr,const Cadena name){
+  int init_resource(PResource pr,const Cadena name){
 	  int res=-1;
 	  if(!check_name(name)){
 		  printf("error: no resource's name\n");

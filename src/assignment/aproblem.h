@@ -18,9 +18,9 @@
 typedef struct
   {
 //tasks array
-	ArrayPTasks tasks;
+	ArrayTasks tasks;
 //resources array
-	ArrayPResources resources;
+	ArrayResources resources;
 	int numTask;
 	int numResources;
 //values matrix task*resources
@@ -32,14 +32,14 @@ typedef struct
   typedef Aproblem* PAproblem;
   typedef PAproblem ArrayPAproblems[TAM_ARRAY_PROBLEM];
 
-  int initAProblem(PAproblem,ArrayPTasks,ArrayPResources,int, int, double values[]);
-  void showAproblem(PAproblem);
+  int initAProblem(PAproblem,ArrayTasks,ArrayResources,int, int, double values[]);
+  void showAproblem(Aproblem);
   void showAproblems();
   int readAproblemFile(PAproblem pap, const int numTasks, const int numResources,const Cadena url);
 
 
-  Logico checkTasks(ArrayPTasks);
-  Logico checkResources(ArrayPResources);
+  Logico checkTasks(ArrayTasks);
+  Logico checkResources(ArrayResources);
   Logico checkMatrix(double values[]);
   Logico checkInt(int);
 

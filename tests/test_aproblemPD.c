@@ -26,28 +26,29 @@ void testInitAProblemPD(PAproblemPD papd, Aproblem a){
 
 
 void testInit7(){
+	printf("\n7***********************\n");
+	Cadena url="/home/practica/eclipse-workspace/c/files/data1.txt";
 	Aproblem ap;
-	ArrayPTasks tasks={};
-	ArrayPResources resources={};
 	int numTasks=3;
 	int numResources=3;
-	double vector[9]={1.,20000.,3.,0.,0.,1.,9.,8.,700.};
-	testInitAProblem(&ap,tasks,resources, numTasks,numResources,vector);
+	readAproblemFile(&ap, numTasks, numResources, url);
 	AproblemPD appd;
 	testInitAProblemPD(&appd, ap);
-	showAproblem(&(appd.aproblem));
+	showAproblem(appd.aproblem);
 }
 void testInit8(){
+	printf("\n8***********************\n");
+	Cadena url="/home/practica/eclipse-workspace/c/files/data1.txt";
 	Aproblem ap;
-	ArrayPTasks tasks={};
-	ArrayPResources resources={};
 	int numTasks=3;
 	int numResources=3;
-	double vector[9]={1.,20000.,3.,0.,0.,1.,9.,8.,700.};
-	testInitAProblem(&ap,tasks,resources, numTasks,numResources,vector);
+	readAproblemFile(&ap, numTasks, numResources, url);
+
+	//double vector[9]={1.,20000.,3.,0.,0.,1.,9.,8.,700.};
+	//testInitAProblem(&ap,tasks,resources, numTasks,numResources,vector);
 	AproblemPD appd;
 	testInitAProblemPD(&appd, ap);
-	showAproblem(&(appd.aproblem));
+	showAproblem(appd.aproblem);
 	Logico b=is_base_case(&appd);
 	printf("is base case...%d\n", b);//?????????????
 	//change to base case

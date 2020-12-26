@@ -24,8 +24,10 @@ int main(int argc, char* argv[]){
 	testInit2();
 	testInit3();
 	testInit4();
+	//aproblem
 	testInit5();
 	testInit6();
+	//
 	testInit7();
 	testInit8();
 	//num nodes

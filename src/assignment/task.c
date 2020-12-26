@@ -7,7 +7,7 @@
 
 #include "task.h"
 
-  int initTask(PTask pt,const Cadena name){
+  int init_task(PTask pt,const Cadena name){
 	  int res=-1;
 	  if(!check_name(name)){
 		  printf("error: no task's name\n");
