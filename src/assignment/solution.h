@@ -16,7 +16,7 @@ typedef struct
   {
 	//same position in both arrays is an assigned pair
 	//ArrayPTasks tasks;//is not necessary if we take initial task enum
-	ArrayPResources resources;
+	ArrayResources resources;
 
 	int lengthArrays;
 
@@ -27,7 +27,7 @@ typedef struct
   typedef Solution* PSolution;
   typedef PSolution ArrayPSolutions[TAM_ARRAY_SOLUTION];
 
-  int solutionToString(PSolution);
+  int solutionToString(Solution);
   int updateSolution(PSolution, PAlternative, double);
 
 #endif /* ASSIGNMENT_SOLUTION_H_ */

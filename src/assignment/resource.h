@@ -24,6 +24,7 @@ typedef struct
 
   typedef Resource* PResource;
   typedef PResource ArrayPResources[TAM_ARRAY_RESOURCES];
+  typedef Resource ArrayResources[TAM_ARRAY_RESOURCES];
 
   int initResource(PResource,const Cadena);
   void showResource(PResource);

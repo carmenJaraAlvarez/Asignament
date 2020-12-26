@@ -7,12 +7,12 @@
 
 #include "solution.h"
 
-int solutionToString(PSolution ps){
+int solutionToString(Solution s){
 	int res=0;
-	printf("Solution: %f\n",ps->acum);
-	int l=ps->lengthArrays;
+	printf("Solution: %f\n",s.acum);
+	int l=s.lengthArrays;
 	for(int i=0;i<l; i++){
-		printf("task %d - resource %s\n", i, ps->resources[i]->name);
+		printf("task %d - resource %s\n", i, s.resources[i].name);
 	}
 	return res;
 }
@@ -22,6 +22,6 @@ int updateSolution(PSolution ps, PAlternative pa, double value){
 	ps->acum=(ps->acum)+value;
 	Resource resource;
 	initResource(&resource,"test");//TODO
-	ps->resources[(ps->lengthArrays)-1]=&resource;
+	ps->resources[(ps->lengthArrays)-1]=resource;
 	return res;
 }

@@ -64,8 +64,8 @@ void testInit8(){
 	printf("is base case...%d\n", b);
 	if(b){
 		printf("getting base case solution...\n");
-		get_solution_base_case(&appd, &sol);
-		solutionToString(&sol);
+		get_solution_base_case(&appd);
+		solutionToString(appd.solution);
 
 	}
 

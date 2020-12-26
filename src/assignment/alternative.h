@@ -14,12 +14,12 @@
 typedef struct
   {
 
-	int indexResource;//index resource, in this problem
+	int indexResource;//position in matrix, in this problem
 
   } Alternative;
 
   typedef Alternative* PAlternative;
-  typedef PAlternative ArrayPAlternatives[TAM_ARRAY_ALTERNATIVE];
+  typedef Alternative ArrayAlternatives[TAM_ARRAY_ALTERNATIVE];
 
   int initAlternative(PAlternative,int);
 

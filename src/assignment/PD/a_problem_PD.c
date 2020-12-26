@@ -19,50 +19,65 @@ int initAProblemPD(PAproblemPD papd,Aproblem pa){
 	  }
 	  return res;
   }
-  int get_alternatives(PAproblemPD papd, ArrayPAlternatives as){
+  //return num alternatives and modified array of alternatives with index resources
+  int get_alternatives(PAproblemPD papd, ArrayAlternatives as){
 	  int res=0;
 	  int numResources=papd->aproblem.numResources;
-	  for(int i=0;i<numResources;i++){
-		  Alternative a;
-		  initAlternative(&a,((papd->index)*numResources+i));
-		  as[i]=&a;//TODO is not working, is the same direction
-	  }
-	  return res;
-  }
- int select_alternative(PAproblemPD papd,ArrayPAlternatives as,double* selectedValue ){
-	 int selected=-1;
-	 double min=-9999.;
-	  selectedValue=&min;//TODO
-	  //where we are in values array
-	  int indexLast=papd->index*papd->aproblem.numResources;
-	  for(int i=0;i<papd->aproblem.numResources;i++){
-		  int indexNow=indexLast+as[i]->indexResource;
-		  double actualValue=papd->aproblem.values[indexNow];
-		  if(actualValue>*selectedValue){
-			  selectedValue=&actualValue;
-			  selected=as[i]->indexResource;
+	  ArrayAlternatives aux;
+	  for(int i=0;i<numResources;i++){//for every resource
+		  if(is_alternative(papd,i)){//filter
+			  Alternative a;
+			  initAlternative(&a,i);
+			  aux[res]=a;
+			  res++;
 		  }
 	  }
+	  for(int i=0;i<res;i++){
+		  as[i]=aux[i];
+	  }
+	  //*pas=aux;//not seen in father function
+	  return res;
+
+  }
+ //check resource with index i, is an option
+ Logico is_alternative(PAproblemPD papd, int i){
+	 Logico res=TRUE;
+	 //TODO
+	 return res;
+ }
+ int select_alternative(PAproblemPD papd,ArrayAlternatives as,int numAlternatives, double* selectedValue ){
+	 int selected=-1;
+	 double max=-9999.;//TODO
+	 //get values array
+	  int indexValue=papd->index*papd->aproblem.numResources;//where we begin
+	  for(int i=0;i<numAlternatives;i++){
+
+		  double actualValue=papd->aproblem.values[indexValue+as[i].indexResource];
+		  if(actualValue>max){
+			  max=actualValue;
+			  selected=as[i].indexResource;
+		  }
+	  }
+
+	  *selectedValue=max;
 	  return selected;
   }
-  int get_solution_base_case(PAproblemPD papd, PSolution ps){
+  int get_solution_base_case(PAproblemPD papd){
 	  int res=0;
-	  //get array alternatives (a=estruct with int)
-	  ArrayPAlternatives alternatives;
-	  get_alternatives(papd, alternatives);
-	  //select resource max or min value
+	  int numAlternatives=0;
 	  double selectedValue;
-	  int alternative=select_alternative(papd, alternatives, &selectedValue);
+	  //get array alternatives (a=estruct with int)
+	  ArrayAlternatives alternatives;
+	  numAlternatives=get_alternatives(papd, alternatives);
+	  //select resource max or min value
+	  int alternative=select_alternative(papd, alternatives, numAlternatives, &selectedValue);
 	  //solution.acum+=selected value
 	  papd->solution.acum+=selectedValue;
-	  //solution.resurces+=selected resource
+	  papd->solution.lengthArrays+=1;
 	  Cadena resourceName;
 	  //TODO
 //	  strcpy(resourceName,papd->aproblem.resources[alternative]->name);
-
-	  papd->solution.lengthArrays+=1;
-	  strcpy(papd->solution.resources[papd->solution.lengthArrays]->name,
-			  resourceName);
+	  strcpy(papd->solution.resources[(papd->solution.lengthArrays)-1].name,resourceName);
 
 	  return res;
   }

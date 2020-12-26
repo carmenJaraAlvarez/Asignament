@@ -25,11 +25,12 @@ typedef PAproblemPD ArrayPAproblemPD[TAM_ARRAY_PROBLEM];
 
   int initAProblemPD(PAproblemPD,Aproblem);
   Logico is_base_case(PAproblemPD);
-  int get_alternatives(PAproblemPD pa, ArrayPAlternatives as);
-  int get_solution_base_case(PAproblemPD pa, PSolution ps);
+  int get_alternatives(PAproblemPD, ArrayAlternatives);
+  int get_solution_base_case(PAproblemPD);
   int get_subproblem(const PAproblemPD fatherProblem, PAproblemPD newProblem,Alternative a );
-  int select_alternative(PAproblemPD pa,ArrayPAlternatives as, double*);
-
+  int select_alternative(PAproblemPD,ArrayAlternatives, int,double*);
+  //check resource with index i, is an option
+  Logico is_alternative(PAproblemPD, int);
   /*
   get_tipo();
   new_solution();

@@ -6,8 +6,8 @@
  */
 #include "alternative.h"
 
-int initAlternative(PAlternative pa,int i){
+int initAlternative(PAlternative a,int i){
 	int res=0;
-	pa->indexResource=i;
+	a->indexResource=i;
 	return res;
 }
