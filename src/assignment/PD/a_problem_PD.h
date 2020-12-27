@@ -13,6 +13,8 @@
 #include "../solution.h"
 #include "../../PD/Sp_PD.h"
 
+#define GREAT 999999.
+#define SMALL -999999.
 typedef struct
   {
 	Aproblem aproblem;
@@ -22,9 +24,10 @@ typedef struct
   } AproblemPD;
 
 typedef AproblemPD* PAproblemPD;
-typedef PAproblemPD ArrayPAproblemPD[TAM_ARRAY_PROBLEM];
+typedef AproblemPD ArrayAproblemPD[TAM_ARRAY_PROBLEM];
 
   int initAProblemPD(PAproblemPD,Aproblem);
+  int size(AproblemPD);
   Type get_type(PAproblemPD);
   Logico is_base_case(PAproblemPD);
   int get_alternatives(PAproblemPD, ArrayAlternatives);
@@ -34,12 +37,10 @@ typedef PAproblemPD ArrayPAproblemPD[TAM_ARRAY_PROBLEM];
   int combine_solutions(AproblemPD, PSolution,SpPD);
   int get_num_subproblems();//here is 1
   int get_subproblem(const PAproblemPD, PAproblemPD,Alternative, int);
+  double get_estimate(AproblemPD);
+  int get_solution(AproblemPD);
+  int get_target(AproblemPD);
 
-
-  /*
- get_estimated_result();
-  get_solution();
-  */
 
 
 

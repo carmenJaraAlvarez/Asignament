@@ -12,6 +12,11 @@ int initAProblemPD(PAproblemPD papd,Aproblem pa){
 	  papd->aproblem=pa;
 	  return res;
 }
+int size(AproblemPD appd){
+	int res;
+	res=appd.aproblem.numTask;
+	return res;
+}
 Type get_type(PAproblemPD appd){
 	  Type res;
 	  res=getAproblemType(appd->aproblem);
@@ -126,3 +131,25 @@ Type get_type(PAproblemPD appd){
 	  updateSolution(&(new->solution), &a, value);
 	  return res;
   }
+  double get_estimate(AproblemPD appd){//the minimum value my problem will get
+	  double res;
+	  //if not pruning and in this problem
+	  res=GREAT;
+	  //if not//TODO
+	  return res;
+  }
+  int get_best(AproblemPD appd){
+	  int res;
+	  //if not pruning and in this problem
+	  res=SMALL;
+	  //if not//TODO
+	  return res;
+  }
+  int get_target(AproblemPD appd){
+	  int res=0;
+	  //TODO
+	  return res;
+  }
+
+
+
