@@ -5,8 +5,5 @@
 
 #include "../common/logico.h"
 
-  int getTypePD(ProblemPD pd){
-	  int res;
-	  return res;
-  }
+
 

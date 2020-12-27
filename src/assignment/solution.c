@@ -7,6 +7,11 @@
 
 #include "solution.h"
 
+int init_solution(PSolution ps){
+	ps->acum=0.;
+	ps->lengthArrays=0;
+}
+
 int solutionToString(Solution s){
 	int res=0;
 	printf("Solution: %f\n",s.acum);

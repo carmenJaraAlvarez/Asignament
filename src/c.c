@@ -16,7 +16,7 @@
 #include "../tests/test_task.c"
 #include "../tests/test_aproblem.c"
 #include "../tests/test_aproblemPD.c"
-#include "PD/problem_PD.h"
+
 
 int main(int argc, char* argv[]){
 	/*tests*//////////////

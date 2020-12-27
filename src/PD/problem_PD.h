@@ -5,20 +5,11 @@
 #include <string.h>
 #include "mpi.h"
 #include "../common/logico.h"
-
+#include "../common/type.h"
 #define TAM_ARRAY 100
 
 
-typedef struct
-  {
 
-    enum{MAX,MIN,OTHER} type;
-
-  } ProblemPD;
-  typedef ProblemPD* PproblemPD;
-  typedef PproblemPD ArrayPproblemPDs[TAM_ARRAY];
-
-  int getTypePD(ProblemPD);
 
 
   

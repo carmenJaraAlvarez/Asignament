@@ -7,8 +7,10 @@
 #include "mpi.h"
 #include "../common/logico.h"
 #include "../common/cadena.h"
+#include "../common/type.h"
 #include "solution.h"
 #include "task.h"
+
 
 
 #define TAM_ARRAY_PROBLEM 130
@@ -25,6 +27,8 @@ typedef struct
 	int numResources;
 //values matrix task*resources
 	double values[TAM_ARRAY_PROBLEM];
+//problem type: min, max, other
+	Type type;
 
 
   } Aproblem;
@@ -36,7 +40,7 @@ typedef struct
   void showAproblem(Aproblem);
   void showAproblems();
   int readAproblemFile(PAproblem pap, const int numTasks, const int numResources,const Cadena url);
-
+  Type getAproblemType(Aproblem);
 
   Logico checkTasks(ArrayTasks);
   Logico checkResources(ArrayResources);

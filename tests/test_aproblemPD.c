@@ -53,6 +53,7 @@ void testInit8(){
 	printf("is base case...%d\n", b);//?????????????
 	//change to base case
 	Solution sol;
+	init_solution(&sol);
 	Alternative a;
 	for(int i=0;i<2;i++){
 		a.indexResource=i;
@@ -63,11 +64,18 @@ void testInit8(){
 
 	b=is_base_case(&appd);
 	printf("is base case...%d\n", b);
+	SpPD sp;
 	if(b){
 		printf("getting base case solution...\n");
-		get_solution_base_case(&appd);
-		solutionToString(appd.solution);
-
+		get_solution_base_case(&appd, &sp);
+		//solutionToString(appd.solution);
+		printf("Partial solution: resource %d \nValue %f\n",sp.alternative.indexResource, sp.value);
+		combine_solutions(appd,&sol,sp);
+		printf("combined solution value %f\n", sol.acum);
+		AproblemPD new;
+		int i=get_num_subproblems();
+		get_subproblem(&appd, &new,a, i);
+		showAproblem(new.aproblem);
 	}
 
 

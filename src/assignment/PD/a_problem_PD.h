@@ -11,6 +11,7 @@
 #include "../aproblem.h"
 #include "../alternative.h"
 #include "../solution.h"
+#include "../../PD/Sp_PD.h"
 
 typedef struct
   {
@@ -24,19 +25,19 @@ typedef AproblemPD* PAproblemPD;
 typedef PAproblemPD ArrayPAproblemPD[TAM_ARRAY_PROBLEM];
 
   int initAProblemPD(PAproblemPD,Aproblem);
+  Type get_type(PAproblemPD);
   Logico is_base_case(PAproblemPD);
   int get_alternatives(PAproblemPD, ArrayAlternatives);
   Logico is_alternative(PAproblemPD, int);
   int select_alternative(PAproblemPD,ArrayAlternatives, int,double*);
-  int get_solution_base_case(PAproblemPD);
-  int get_subproblem(const PAproblemPD fatherProblem, PAproblemPD newProblem,Alternative a );
+  int get_solution_base_case(PAproblemPD,PSpPD);
+  int combine_solutions(AproblemPD, PSolution,SpPD);
+  int get_num_subproblems();//here is 1
+  int get_subproblem(const PAproblemPD, PAproblemPD,Alternative, int);
 
-  //check resource with index i, is an option
 
   /*
-  get_tipo();
-  new_solution();
-  get_estimated_result();
+ get_estimated_result();
   get_solution();
   */
 

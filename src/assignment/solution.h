@@ -27,6 +27,7 @@ typedef struct
   typedef Solution* PSolution;
   typedef PSolution ArrayPSolutions[TAM_ARRAY_SOLUTION];
 
+  int init_solution(PSolution);
   int solutionToString(Solution);
   int updateSolution(PSolution, PAlternative, double);
 

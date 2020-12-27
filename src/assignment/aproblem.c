@@ -76,7 +76,6 @@
  	int i;
  	for(i=0;i<nGP;i++){
  		printf("Problem %d:",i+1);
- //		showGproblem(res[i]);
  	}
  }
 
@@ -135,7 +134,11 @@
 	 fclose(f);
 	 return res;
  }
-
+ Type getAproblemType(Aproblem ap){
+	 Type res;
+	 res=ap.type;
+	 return res;
+ }
 
  ////////////////////////////CHECKERS////////////////////////////////////////
  Logico checkTasks(ArrayTasks tasks){
