@@ -16,7 +16,7 @@
 #include "../tests/test_task.c"
 #include "../tests/test_aproblem.c"
 #include "../tests/test_aproblemPD.c"
-
+#include "../tests/test_aPD_algorithm.c"
 
 int main(int argc, char* argv[]){
 	/*tests*//////////////
@@ -30,6 +30,7 @@ int main(int argc, char* argv[]){
 	//
 	testInit7();
 	testInit8();
+	testInit9();
 	//num nodes
 /*	int totalProcess=2;
 	//gui

@@ -51,7 +51,7 @@
 	  }
 	  return res;
   }
-  int updateBest(PalgorithmPD palg){
+  int update_best(PalgorithmPD palg){
 	  int res=0;
 	  double target=get_target(palg->ppd);
 	  if(is_min(palg) && target<palg->best){
@@ -83,24 +83,41 @@
   	  	  // p.getSolutionCaseBAse
 	  }
 	  else{	//else
-		  //for every alternative
-		  	  ArrayAlternatives as;
-		 	  get_alternatives(&(palg->ppd), as);
-		 	  randomize(palg,as);
-		  for(int i=0;i<1;i++){//TODO
-
-
-	  	  	  	  	  //if not prune
-	  	  	  	  	  	  //get num subproblems(i am not going to use)
-	  	  	  	  	  	  	  //get subproblems(only one in this case)
-	  	  	  	  	  	  	  //get subproblem solution//PD recursive
-	  	  	  	  	  	  	  //add array subproblem solutions (only one here)
-	  	  	  	  	  	  //combine solutions
-	  	  	  	  	  	  //array of alternative solutions add
-	  	  	  	  	  	  //select best of ^
-	  	  	  //array of partial solution add
+		 //get alternatives
+		  ArrayAlternatives as;
+		  int numAlternatives=get_alternatives(&(palg->ppd), as);
+		  randomize(palg,as);
+		 //for every alternative
+		  for(int i=0;i<numAlternatives;i++){
+			  //if not prune
+			  if((is_min(palg) && get_estimate(palg->ppd)>=palg->best)
+					  || (is_max(palg) && get_estimate(palg->ppd)<=palg->best)){
+				  int numSubproblems=get_num_subproblems();
+				  Logico existsSolution=TRUE;
+				  for(int j=0;j<numSubproblems;j++){
+					  AproblemPD appdNew;
+					  get_subproblem(&palg->ppd, &appdNew, as[i],numSubproblems);
+					  palg->ppd=appdNew;
+					  pD(palg, sp);
+					  if(!sp){//TODO we need a var for no existing solution
+						  existsSolution=FALSE;
+						  break;
+					  }
+				  //sp subproblem to array //here not used
+				  ArraySpPD arraySp={sp};
+				  }
+			  if (existsSolution){
+				  //combine_solutions();//TODO
+				  //add to alternatives array
+				  //select the best
+			  }
+			  //filter alternatives
+			  //if exists alternative in array>>select
+			  //sp is ready to return
+			  //array of partial solution add
+			  }
 		  }
-	  //update best
+		  update_best(palg);
 	  }
 	  return res;
   }
