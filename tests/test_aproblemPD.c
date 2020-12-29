@@ -57,7 +57,7 @@ void testInit8(){
 	Alternative a;
 	for(int i=0;i<2;i++){
 		a.indexResource=i;
-		updateSolution(&sol, &a, i);
+		updateSolution(&sol, &a, i,appd.aproblem);
 	}
 	appd.solution=sol;
 	appd.index=2;

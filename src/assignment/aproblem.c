@@ -56,7 +56,7 @@
 		 double r=(i+1)%m;
 		 if(r!=0.){
 			 if(i>0 &&  i%m==0){
-				printf("%s ",ap.resources[j].name);
+				printf("%s ",ap.resources[j+1].name);
 				printf("%f ",ap.values[i]);
 				j++;
 

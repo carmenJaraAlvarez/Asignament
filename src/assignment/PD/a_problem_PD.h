@@ -40,7 +40,8 @@ typedef AproblemPD ArrayAproblemPD[TAM_ARRAY_PROBLEM];
   double get_estimate(AproblemPD);
   int get_solution(AproblemPD);
   int get_target(AproblemPD);
-
+///////////////////AUX
+  int updateSolution(PSolution, PAlternative, double ,Aproblem);
 
 
 

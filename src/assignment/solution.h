@@ -29,6 +29,6 @@ typedef struct
 
   int init_solution(PSolution);
   int solutionToString(Solution);
-  int updateSolution(PSolution, PAlternative, double);
+
 
 #endif /* ASSIGNMENT_SOLUTION_H_ */

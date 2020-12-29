@@ -33,11 +33,11 @@ typedef struct
 
   Logico is_min(PalgorithmPD);
   Logico is_max(PalgorithmPD);
-  int init_algorithmPD(PalgorithmPD, ArrayAproblemPD);
+  int init_algorithmPD(PalgorithmPD, ArrayAproblemPD,AproblemPD);
   int randomize(PalgorithmPD,ArrayAlternatives);
   int exec_algorithm(PalgorithmPD);
   int update_best(PalgorithmPD);
   int get_PDsolution(PalgorithmPD, PSolution);
-  int pD(PalgorithmPD, PSpPD);
+  int pD(PalgorithmPD,AproblemPD, PSpPD);
 
 #endif /* PD_PD_ALGORITHM_H_ */

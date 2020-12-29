@@ -57,7 +57,7 @@ Type get_type(PAproblemPD appd){
 	 }
 	 else{//if it is not the first time>>if the resource is in previous solution, it is not valid.
 		 for(int j=0;j<papd->solution.lengthArrays;j++){
-			 if(papd->solution.resources[j].name==papd->aproblem.resources[i].name){
+			 if(strcmp(papd->solution.resources[j].name,papd->aproblem.resources[i].name)==0){
 			 res=FALSE;
 			 break;
 			 }
@@ -126,9 +126,9 @@ Type get_type(PAproblemPD appd){
 
 	  //update
 	  value=father->aproblem.values[(father->index)*(father->aproblem.numResources)+a.indexResource];
-	  new->index+=1;
+	  new->index=father->index+1;
 	  new->solution=father->solution;
-	  updateSolution(&(new->solution), &a, value);
+	  updateSolution(&(new->solution), &a, value,father->aproblem);
 	  return res;
   }
   double get_estimate(AproblemPD appd){//the minimum value my problem will get
@@ -151,5 +151,14 @@ Type get_type(PAproblemPD appd){
 	  return res;
   }
 
-
+///////////////AUX
+  int updateSolution(PSolution ps, PAlternative pa, double value, Aproblem ap){
+  	int res=0;
+  	ps->lengthArrays=ps->lengthArrays+1;
+  	ps->acum=(ps->acum)+value;
+  	Resource resource;
+  	init_resource(&resource,ap.resources[pa->indexResource].name);
+  	ps->resources[(ps->lengthArrays)-1]=resource;
+  	return res;
+  }
 

@@ -21,12 +21,4 @@ int solutionToString(Solution s){
 	}
 	return res;
 }
-int updateSolution(PSolution ps, PAlternative pa, double value){
-	int res=0;
-	ps->lengthArrays=ps->lengthArrays+1;
-	ps->acum=(ps->acum)+value;
-	Resource resource;
-	init_resource(&resource,"test");//TODO
-	ps->resources[(ps->lengthArrays)-1]=resource;
-	return res;
-}
+

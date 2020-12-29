@@ -20,16 +20,16 @@
 
 int main(int argc, char* argv[]){
 	/*tests*//////////////
-	testInit1();
-	testInit2();
-	testInit3();
-	testInit4();
-	//aproblem
-	testInit5();
-	testInit6();
-	//
-	testInit7();
-	testInit8();
+//	testInit1();
+//	testInit2();
+//	testInit3();
+//	testInit4();
+//	//aproblem
+//	testInit5();
+//	testInit6();
+//	//
+//	testInit7();
+//	testInit8();
 	testInit9();
 	//num nodes
 /*	int totalProcess=2;
