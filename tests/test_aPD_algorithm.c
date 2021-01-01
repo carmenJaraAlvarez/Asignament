@@ -45,49 +45,15 @@ void testInit9(){
 	printf("best post init: %f",alg.best);
 	showAproblem(alg.ppd.aproblem);
 	exec_algorithm(&alg);
+	printf("\nAfter exec algoritm\n");
+	Solution sol;
+	get_PDsolution(&alg, &sol);
+	for(int i=0;i<alg.ppd.solution.lengthArrays;i++){
+		printf("\nResources: \n*%s\n",alg.ppd.solution.resources[i].name);
+	}
+	printf("Solution value: %f", alg.ppd.solution.acum);
 }
 void testInit10(){
 	printf("\n10***********************\n");
-	Cadena url="/home/practica/eclipse-workspace/c/files/data1.txt";
-	Aproblem ap;
-	int numTasks=3;
-	int numResources=3;
-	readAproblemFile(&ap, numTasks, numResources, url);
-
-	//double vector[9]={1.,20000.,3.,0.,0.,1.,9.,8.,700.};
-	//testInitAProblem(&ap,tasks,resources, numTasks,numResources,vector);
-	AproblemPD appd;
-	testInitAProblemPD(&appd, ap);
-	showAproblem(appd.aproblem);
-	Logico b=is_base_case(&appd);
-	printf("is base case...%d\n", b);//?????????????
-	//change to base case
-	Solution sol;
-	init_solution(&sol);
-	Alternative a;
-	for(int i=0;i<2;i++){
-		a.indexResource=i;
-		updateSolution(&sol, &a, i,appd.aproblem);
-	}
-	appd.solution=sol;
-	appd.index=2;
-
-	b=is_base_case(&appd);
-	printf("is base case...%d\n", b);
-	SpPD sp;
-	if(b){
-		printf("getting base case solution...\n");
-		get_solution_base_case(&appd, &sp);
-		//solutionToString(appd.solution);
-		printf("Partial solution: resource %d \nValue %f\n",sp.alternative.indexResource, sp.value);
-		combine_solutions(appd,&sol,sp);
-		printf("combined solution value %f\n", sol.acum);
-		AproblemPD new;
-		int i=get_num_subproblems();
-		get_subproblem(&appd, &new,a, i);
-		showAproblem(new.aproblem);
-	}
-
-
 
 }

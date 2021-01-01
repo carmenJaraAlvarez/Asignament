@@ -70,7 +70,7 @@ void testInit8(){
 		get_solution_base_case(&appd, &sp);
 		//solutionToString(appd.solution);
 		printf("Partial solution: resource %d \nValue %f\n",sp.alternative.indexResource, sp.value);
-		combine_solutions(appd,&sol,sp);
+		combine_solutions(appd,&sol,&sp);
 		printf("combined solution value %f\n", sol.acum);
 		AproblemPD new;
 		int i=get_num_subproblems();

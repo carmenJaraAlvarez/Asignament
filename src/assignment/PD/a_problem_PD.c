@@ -107,11 +107,11 @@ Type get_type(PAproblemPD appd){
 	  return res;
   }
 
-  int combine_solutions(AproblemPD appd, PSolution ps, SpPD sp ){
+  int combine_solutions(AproblemPD appd, PSolution ps, PSpPD sp ){
 	  int res=0;
-	  ps->acum+=sp.value;
+	  ps->acum+=sp->value;
 	  ps->lengthArrays+=1;
-	  strcpy( ps->resources[ ps->lengthArrays-1].name,appd.aproblem.resources[sp.alternative.indexResource].name);
+	  strcpy( ps->resources[ ps->lengthArrays-1].name,appd.aproblem.resources[sp->alternative.indexResource].name);
 	  return res;
 
   }

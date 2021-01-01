@@ -34,7 +34,7 @@ typedef AproblemPD ArrayAproblemPD[TAM_ARRAY_PROBLEM];
   Logico is_alternative(PAproblemPD, int);
   int select_alternative(PAproblemPD,ArrayAlternatives, int,double*);
   int get_solution_base_case(PAproblemPD,PSpPD);
-  int combine_solutions(AproblemPD, PSolution,SpPD);
+  int combine_solutions(AproblemPD, PSolution,PSpPD);
   int get_num_subproblems();//here is 1
   int get_subproblem(const PAproblemPD, PAproblemPD,Alternative, int);
   double get_estimate(AproblemPD);

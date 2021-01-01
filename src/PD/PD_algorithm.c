@@ -35,8 +35,8 @@
 	  for(int i=0;i<palg->num_problemas;i++){
 		  palg->problems[i]=problems[i];
 	  }
-	  palg->num_problemas=1;//TODO ?
-
+	  palg->num_problemas=1;
+	  palg->num_solved=0;
 	  return res;
   }
   int exec_algorithm(PalgorithmPD palg){
@@ -69,32 +69,58 @@
 	  return res;
   }
   int get_PDsolution(PalgorithmPD palg, PSolution psol){
-
 	  int res=0;
+	  if(palg->num_solved==0){
+		  printf("there is not solution");
+	  }
+	  else if(palg->num_solved==1){
+		  palg->ppd=palg->solvedProblems[0];
+		  printf("there is only one solution");
+	  }else{
+		  for(int i=0;i<palg->num_solved;i++){
+			  	  if(palg->solvedProblems[i].solution.acum>=palg->best){
+			  		palg->ppd=palg->solvedProblems[i];
+			  		palg->best=palg->solvedProblems[i].solution.acum;//TODO
+			  	  }
+			  }
+		  printf("Selected one of the best solutions");//TODO
+	  }
+
 	  return res;;
   }
+  int count=0;
   int pD(PalgorithmPD palg, AproblemPD appd,PSpPD sp){
+	  printf("\n\n*******************In pD: Round %d\n",count);
+	  count++;
 	  int res=0;
-	  ArraySpPD sps;
-	  //*****partial solution of an alternative
-	  //if array of Partial solution contains>>return
-	  if(FALSE){//TODO
+	  ArrayAlternatives as;
+	  int numAlternatives=get_alternatives(&appd, as);
+	  if(numAlternatives==0){
+		  return res;
+		  printf("\n no alternatives\n");
+	  }else{
+	  if(is_base_case(&appd)){
+			  SpPD sp;
+			  get_solution_base_case(&appd,&sp);
+			  appd.solution.acum+=sp.value;
+			  appd.solution.lengthArrays++;
+			  strcpy(appd.solution.resources[appd.solution.lengthArrays-1].name,
+					  appd.aproblem.resources[sp.alternative.indexResource].name);
+			  palg->solvedProblems[palg->num_solved]=appd;
+			  palg->num_solved++;
+			  printf("     is base case with solution: %s\n",appd.solution.resources[appd.solution.lengthArrays-1].name);
+		  }
+	  else{
 
-	  }//else is (case base)
-	  else if(is_base_case(&appd)){
-		  Solution sol;
-		  SpPD sp;
-		  get_solution_base_case(&appd,&sp);
-  	  	  //array of partial solution add p.getSolutionCaseBAse
-  	  	  // p.getSolutionCaseBAse
-	  }
-	  else{	//else
-		 //get alternatives
-		  ArrayAlternatives as;
-		  int numAlternatives=get_alternatives(&appd, as);
+		  printf("        Alternatives: ");
+		  for(int k=0;k<numAlternatives;k++){
+			  printf("%d ", as[k].indexResource);
+		  }
+		  printf("\n");
 		  randomize(palg,as);//not using
 		  Logico ismin;
 		  Logico ismax;
+		  Solution sol;
 		 //for every alternative
 		  for(int i=0;i<numAlternatives;i++){
 			  //if not prune
@@ -110,29 +136,15 @@
 					  AproblemPD appdNew;
 
 					  get_subproblem(&appd, &appdNew, as[i],numSubproblems);
-
+					  printf("     is NOT base case: last appdNew sol: %s\n",appdNew.solution.resources[appd.solution.lengthArrays-1].name);
+					  printf("     i=%d of %d alternatives",i, numAlternatives);
 					  //palg->ppd=appdNew;
 					  pD(palg,appdNew, sp);
-					  if(!sp){//TODO we need a var for no existing solution
-						  existsSolution=FALSE;
-						  break;
-					  }
-				  //sp subproblem to array //here not used
-				 // arraySp={sp};
 				  }
-			  if (existsSolution){
-				  //combine_solutions();//TODO
-				  //add to alternatives array
-				  //select the best
-			  }
-			  //filter alternatives
-			  //if exists alternative in array>>select
-			  //sp is ready to return
-			  //array of partial solution add
 			  }
 
 		  }
-		  update_best(palg);
+	  }
 	  }
 	  return res;
   }

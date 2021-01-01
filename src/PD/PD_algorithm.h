@@ -26,8 +26,10 @@ typedef struct
 //***************************************************
 	AproblemPD ppd;
 	ArrayAproblemPD problems;
-//***************************************************
 	int num_problemas;
+	ArrayAproblemPD solvedProblems;
+	int num_solved;
+//***************************************************
   } AlgorithmPD;
   typedef AlgorithmPD* PalgorithmPD;
 
