@@ -20,13 +20,13 @@
 typedef struct
   {
 //tasks array
-	ArrayTasks tasks;
+	Task *tasks;
 //resources array
-	ArrayResources resources;
+	Resource *resources;
 	int numTask;
 	int numResources;
 //values matrix task*resources
-	double values[TAM_ARRAY_PROBLEM];
+	double *values;
 //problem type: min, max, other
 	Type type;
 
@@ -37,6 +37,7 @@ typedef struct
   typedef PAproblem ArrayPAproblems[TAM_ARRAY_PROBLEM];
 
   int initAProblem(PAproblem,ArrayTasks,ArrayResources,int, int, double values[]);
+  int deleteAProblem(PAproblem);//free memory init
   void showAproblem(Aproblem);
   void showAproblems();
   int readAproblemFile(PAproblem pap, const int numTasks, const int numResources,const Cadena url);

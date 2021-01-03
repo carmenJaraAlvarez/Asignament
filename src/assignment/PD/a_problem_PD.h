@@ -26,7 +26,7 @@ typedef struct
 typedef AproblemPD* PAproblemPD;
 typedef AproblemPD ArrayAproblemPD[TAM_ARRAY_PROBLEM];
 
-  int initAProblemPD(PAproblemPD,Aproblem);
+  int initAProblemPD(PAproblemPD,PAproblem);
   int size(AproblemPD);
   Type get_type(PAproblemPD);
   Logico is_base_case(PAproblemPD);
@@ -43,6 +43,8 @@ typedef AproblemPD ArrayAproblemPD[TAM_ARRAY_PROBLEM];
   int get_size(const PAproblemPD);
 ///////////////////AUX
   int updateSolution(PSolution, PAlternative, double ,Aproblem);
+  int delete_problem_PD(PAproblemPD);
+  int copy_AproblemPD(PAproblemPD,AproblemPD);
 
 
 

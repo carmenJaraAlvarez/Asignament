@@ -21,6 +21,14 @@
 		 printf("Matrix dimension error\n");
 		 return -1;
 	 }
+	 int memoryArrayValues=sizeof(double)*numTasks*numResources;
+	 pa->values=(double*)malloc(memoryArrayValues);
+
+	 int memoryArrayResources=sizeof(Resource)*numResources;
+	 pa->resources=(Resource*)malloc(memoryArrayResources);
+
+	 int memoryArrayTasks=sizeof(Task)*numTasks;
+	 pa->tasks=(Task*)malloc(memoryArrayTasks);
 	 pa->numTask=numTasks;
 	 pa->numResources=numResources;
 	 for (int i=0;i<numTasks;i++){
@@ -40,7 +48,15 @@
 	 			pa->values[i]=aux;
 
 	 }
+	 pa->type=MAX;//default//TODO
 	 return 0;
+ }
+ int deleteAProblem(PAproblem pa){//free memory
+	 int res=0;
+	 free(pa->values);
+	 free(pa->tasks);
+	 free(pa->resources);
+	 return res;
  }
  void showAproblem(Aproblem ap){
 	 printf("inside showAproblem\n");

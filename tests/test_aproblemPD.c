@@ -14,7 +14,7 @@ void testInit8();
 void testInitAProblemPD(PAproblemPD papd, Aproblem a){
 	printf("\n*** testInitAProblemPD ***\n");
 	int res=-1;
-	res = initAProblemPD(papd, a);
+	res = initAProblemPD(papd, &a);
 
 	if(res == -1) {
 			perror("error initAProblemPD.\n");
@@ -35,6 +35,8 @@ void testInit7(){
 	AproblemPD appd;
 	testInitAProblemPD(&appd, ap);
 	showAproblem(appd.aproblem);
+//	deleteAProblem(&ap);
+	delete_problem_PD(&appd);
 }
 void testInit8(){
 	printf("\n8***********************\n");
@@ -50,10 +52,10 @@ void testInit8(){
 	testInitAProblemPD(&appd, ap);
 	showAproblem(appd.aproblem);
 	Logico b=is_base_case(&appd);
-	printf("is base case...%d\n", b);//?????????????
+	printf("is base case...%d\n", b);
 	//change to base case
 	Solution sol;
-	init_solution(&sol);
+	init_solution(&sol,numTasks);
 	Alternative a;
 	for(int i=0;i<2;i++){
 		a.indexResource=i;
@@ -76,6 +78,9 @@ void testInit8(){
 		int i=get_num_subproblems();
 		get_subproblem(&appd, &new,a, i);
 		showAproblem(new.aproblem);
+//		deleteAProblem(&ap);
+		delete_problem_PD(&appd);
+
 	}
 
 

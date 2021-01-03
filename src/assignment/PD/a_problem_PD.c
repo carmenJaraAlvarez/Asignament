@@ -6,10 +6,13 @@
  */
 #include "a_problem_PD.h"
 
-int initAProblemPD(PAproblemPD papd,Aproblem pa){
+int initAProblemPD(PAproblemPD papd,PAproblem pa){
 	  int res=0;
 	  papd->index=0;
-	  papd->aproblem=pa;
+	  papd->aproblem=*pa;
+	  Solution sol;
+	  init_solution(&sol,pa->numTask);
+	  papd->solution=sol;
 	  return res;
 }
 int size(AproblemPD appd){
@@ -86,6 +89,7 @@ Type get_type(PAproblemPD appd){
 	  for(int i=0;i<numAlternatives;i++){
 
 		  actualValue=papd->aproblem.values[indexValue+as[i].indexResource];
+		  int t=get_type(papd);
 		  if(get_type(papd)==0 && actualValue>bestValue){//MAX
 			  bestValue=actualValue;
 			  selected=as[i].indexResource;
@@ -166,7 +170,28 @@ Type get_type(PAproblemPD appd){
   	ps->acum=(ps->acum)+value;
   	Resource resource;
   	init_resource(&resource,ap.resources[pa->indexResource].name);
-  	ps->resources[(ps->lengthArrays)-1]=resource;
+  	int i=(ps->lengthArrays)-1;
+  	ps->resources[i]=resource;
   	return res;
   }
+  int delete_problem_PD(PAproblemPD papd){//free memory
+	  int res=-1;
+	  int res1=deleteAProblem(&(papd->aproblem));
+	  int res2=delete_solution(&(papd->solution));
+	  res= res1+res2;
+	  return res;
+  }
+  int copy_AproblemPD( PAproblemPD rcv,AproblemPD origin){
+	  rcv->aproblem=origin.aproblem;
+	  rcv->index=origin.index;
+	  Solution sol;
+	  init_solution(&sol,rcv->aproblem.numTask);
+	  rcv->solution=sol;
+	  rcv->solution.acum=origin.solution.acum;
+	  rcv->solution.lengthArrays=origin.solution.lengthArrays;
+	  for(int i=0;i<rcv->solution.lengthArrays;i++){
+		  rcv->solution.resources[i]=origin.solution.resources[i];
 
+	  }
+	  return 0;
+  }

@@ -52,6 +52,7 @@ void testInit5(){
 	double vector[9]={1.,200.,3.,0.,0.,1.,9.,8.,7.};
 	testInitAProblem(&ap,tasks,resources, numTasks,numResources,vector);
 	showAproblem(ap);
+	deleteAProblem(&ap);
 }
 void testInit6(){
 	printf("\n6***********************\n");
@@ -62,6 +63,7 @@ void testInit6(){
 	readAproblemFile(&ap, numTasks, numResources, url);
 	printf("Reading problem...");
 	showAproblem(ap);
+	deleteAProblem(&ap);
 }
 void testInit6b(){
 	Aproblem ap;
@@ -103,6 +105,7 @@ void testInit6b(){
 	}
 	testInitAProblem(&ap,tasks,resources, numTasks,numResources,values);
 	showAproblem(ap);
+	deleteAProblem(&ap);
 }
 
 

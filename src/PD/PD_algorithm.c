@@ -150,15 +150,17 @@
 							  if((ismin && estimated<=palg->best)
 							  					  || (ismax && estimated>=palg->best)){
 							  	  int numSubproblems=get_num_subproblems();
+							  	AproblemPD appdNew;
 								  for(int j=0;j<numSubproblems;j++){
-									  AproblemPD appdNew;
+									  initAProblemPD(&appdNew,&(palg->ppd.aproblem));
+
 									  get_subproblem(&problems[m], &appdNew, as[u],numSubproblems);
 									  printf("\n     is NOT base case: last appdNew sol: %s\n",appdNew.solution.resources[appdNew.solution.lengthArrays-1].name);
 									  printf("     i=%d of %d alternatives\n",u, numAlternatives);
 									  //if problem//TODO
 											  //add problem to new array
-									  newArrayAppd[lengthNewArrayAppd]=appdNew;
-									  lengthNewArrayAppd++;
+									  copy_AproblemPD( &(newArrayAppd[lengthNewArrayAppd]),appdNew);
+									 lengthNewArrayAppd++;
 
 								  }//end for num subproblem=1
 							  }//end if not prune
