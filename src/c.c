@@ -27,6 +27,7 @@ int main(int argc, char* argv[]){
 //	//aproblem
 //	testInit5();
 //	testInit6();
+//	testInit6b();
 //	//
 //	testInit7();
 //	testInit8();

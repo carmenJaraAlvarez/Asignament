@@ -26,8 +26,8 @@ typedef struct
 //***************************************************
 	AproblemPD ppd;
 	ArrayAproblemPD problems;
-	int num_problemas;
-	ArrayAproblemPD solvedProblems;
+	int num_problems;
+	AproblemPD solvedProblems[6];//TODO
 	int num_solved;
 //***************************************************
   } AlgorithmPD;
@@ -40,6 +40,7 @@ typedef struct
   int exec_algorithm(PalgorithmPD);
   int update_best(PalgorithmPD);
   int get_PDsolution(PalgorithmPD, PSolution);
-  int pD(PalgorithmPD,AproblemPD, PSpPD);
+  int pD(PalgorithmPD);
+  int getPreviousProblems(PalgorithmPD,ArrayAproblemPD);
 
 #endif /* PD_PD_ALGORITHM_H_ */

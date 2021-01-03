@@ -63,3 +63,46 @@ void testInit6(){
 	printf("Reading problem...");
 	showAproblem(ap);
 }
+void testInit6b(){
+	Aproblem ap;
+	int numTasks;
+	int numResources;
+	printf("\nNum tasks \n");
+	scanf("%d",&numTasks);
+	printf("\nNum tasks : %d\n", numTasks);
+	printf("\nNum resources \n");
+	scanf("%d",&numResources);
+	Cadena tasksNames[numTasks];
+	printf("\nName task \n");
+	for(int i=0;i<numTasks;i++){
+		scanf("%s",tasksNames[i]);
+	}
+	Cadena resourcesNames[numResources];
+	printf("\nName resource \n");
+	for(int i=0;i<numTasks;i++){
+		scanf("%s",resourcesNames[i]);
+	}
+	double values[numTasks*numResources];
+	printf("\nValues \n");
+	for(int i=0;i<numTasks*numResources;i++){
+		scanf("%lf",&values[i]);
+	}
+
+	Task t;
+	ArrayTasks tasks;
+	for(int i=0;i<numTasks;i++){
+		init_task(&t,tasksNames[i]);
+		tasks[i]=t;
+	}
+
+	Resource r;
+	ArrayResources resources;
+	for(int i=0;i<numResources;i++){
+		init_resource(&r,resourcesNames[i]);
+		resources[i]=r;
+	}
+	testInitAProblem(&ap,tasks,resources, numTasks,numResources,values);
+	showAproblem(ap);
+}
+
+

@@ -32,20 +32,20 @@
 	  }
 	  palg->ppd=ap;
 	  //palg->problems=problems;
-	  for(int i=0;i<palg->num_problemas;i++){
+	  for(int i=0;i<palg->num_problems;i++){
 		  palg->problems[i]=problems[i];
 	  }
-	  palg->num_problemas=1;
+	  palg->num_problems=1;//TODO
+	  palg->problems[0]=palg->ppd;
 	  palg->num_solved=0;
 	  return res;
   }
   int exec_algorithm(PalgorithmPD palg){
 	  int res=0;
 	  Solution sol;
-	  SpPD sp;
 	  do{
-		  for(int i=0;i<palg->num_problemas;i++){
-			  pD(palg,palg->ppd,&sp);
+		  for(int i=0;i<get_num_subproblems();i++){
+			  pD(palg);
 		  }
 	  }while(palg->isRandomize && get_PDsolution(palg,&sol)!=0);
 	  return res;
@@ -70,6 +70,7 @@
   }
   int get_PDsolution(PalgorithmPD palg, PSolution psol){
 	  int res=0;
+
 	  if(palg->num_solved==0){
 		  printf("there is not solution");
 	  }
@@ -88,63 +89,107 @@
 
 	  return res;;
   }
-  int count=0;
-  int pD(PalgorithmPD palg, AproblemPD appd,PSpPD sp){
-	  printf("\n\n*******************In pD: Round %d\n",count);
-	  count++;
-	  int res=0;
-	  ArrayAlternatives as;
-	  int numAlternatives=get_alternatives(&appd, as);
-	  if(numAlternatives==0){
-		  return res;
-		  printf("\n no alternatives\n");
-	  }else{
-	  if(is_base_case(&appd)){
-			  SpPD sp;
-			  get_solution_base_case(&appd,&sp);
-			  appd.solution.acum+=sp.value;
-			  appd.solution.lengthArrays++;
-			  strcpy(appd.solution.resources[appd.solution.lengthArrays-1].name,
-					  appd.aproblem.resources[sp.alternative.indexResource].name);
-			  palg->solvedProblems[palg->num_solved]=appd;
-			  palg->num_solved++;
-			  printf("     is base case with solution: %s\n",appd.solution.resources[appd.solution.lengthArrays-1].name);
-		  }
-	  else{
 
-		  printf("        Alternatives: ");
-		  for(int k=0;k<numAlternatives;k++){
-			  printf("%d ", as[k].indexResource);
-		  }
-		  printf("\n");
-		  randomize(palg,as);//not using
-		  Logico ismin;
-		  Logico ismax;
-		  Solution sol;
-		 //for every alternative
-		  for(int i=0;i<numAlternatives;i++){
-			  //if not prune
-			  ismin=is_min(palg);
-			  ismax=is_max(palg);
-			  double estimated=get_estimate(appd);
-			  ArraySpPD arraySp;
-			  if((ismin && estimated<=palg->best)
-					  || (ismax && estimated>=palg->best)){
-				  int numSubproblems=get_num_subproblems();
-				  Logico existsSolution=TRUE;
-				  for(int j=0;j<numSubproblems;j++){
-					  AproblemPD appdNew;
+  int pD(PalgorithmPD palg){
+	  int res;
+	  AproblemPD appd=palg->ppd;
+	  int size=get_size(&(palg->ppd));
 
-					  get_subproblem(&appd, &appdNew, as[i],numSubproblems);
-					  printf("     is NOT base case: last appdNew sol: %s\n",appdNew.solution.resources[appd.solution.lengthArrays-1].name);
-					  printf("     i=%d of %d alternatives",i, numAlternatives);
-					  //palg->ppd=appdNew;
-					  pD(palg,appdNew, sp);
-				  }
+	  int lengthNewArrayAppd=0;
+	  for(int i=0;i<size;i++){
+		  ArrayAproblemPD newArrayAppd;
+		  lengthNewArrayAppd=0;
+		  //get previous problems
+		  ArrayAproblemPD problems;
+		  int numPreviousProblems=getPreviousProblems(palg, problems);
+		  //if problems
+		  if(numPreviousProblems>0){//TODO delete?
+			  //for every previous problem
+			  for(int m=0;m<numPreviousProblems;m++){
+				  ArrayAlternatives as;
+				  int numAlternatives=get_alternatives(&(problems[m]), as);
+				  if(numAlternatives==0){//TODO
+						  return res;
+						  printf("\n no alternatives\n");
+					  }
+				  else{
+					  //if base
+					  if(is_base_case(&problems[m])){
+							  SpPD sp;
+							  get_solution_base_case(&problems[m],&sp);
+
+							  problems[m].solution.acum+=sp.value;//TODO update to a function
+							  problems[m].solution.lengthArrays++;
+							  strcpy(problems[m].solution.resources[problems[m].solution.lengthArrays-1].name,
+									  problems[m].aproblem.resources[sp.alternative.indexResource].name);
+							  //TODO is better solution
+							  if(problems[m].solution.acum>=palg->best){
+								  palg->solvedProblems[palg->num_solved]=problems[m];
+								  palg->num_solved++;
+								  update_best(palg);
+							  }
+							  printf("     is base case with solution: %s\n",appd.solution.resources[appd.solution.lengthArrays-1].name);
+						  }
+
+					  //else
+					  else{
+						  //get new problems
+						  printf("        Alternatives: ");
+						  for(int k=0;k<numAlternatives;k++){
+							  printf("%d ", as[k].indexResource);
+						  }
+						  printf("\n");
+						  randomize(palg,as);//not using
+						  Logico ismin;
+						  Logico ismax;
+						  for(int u=0;u<numAlternatives;u++){
+							  //prune
+							  ismin=is_min(palg);
+							  ismax=is_max(palg);
+							  double estimated=get_estimate(problems[m]);
+							  if((ismin && estimated<=palg->best)
+							  					  || (ismax && estimated>=palg->best)){
+							  	  int numSubproblems=get_num_subproblems();
+								  for(int j=0;j<numSubproblems;j++){
+									  AproblemPD appdNew;
+									  get_subproblem(&problems[m], &appdNew, as[u],numSubproblems);
+									  printf("\n     is NOT base case: last appdNew sol: %s\n",appdNew.solution.resources[appdNew.solution.lengthArrays-1].name);
+									  printf("     i=%d of %d alternatives\n",u, numAlternatives);
+									  //if problem//TODO
+											  //add problem to new array
+									  newArrayAppd[lengthNewArrayAppd]=appdNew;
+									  lengthNewArrayAppd++;
+
+								  }//end for num subproblem=1
+							  }//end if not prune
+						   }//end for alternatives
+					  }//end else (not base case)
+					}//end else (exits alternative)
+			  }//end for every previous problem
+			  //change problems array and add num problems to array
+			  palg->num_problems=lengthNewArrayAppd;
+			  for(int w=0; w<lengthNewArrayAppd;w++){
+				  palg->problems[w]=newArrayAppd[w];
 			  }
-
-		  }
-	  }
-	  }
+		  }//end if num previous>0
+	  }//end for size
 	  return res;
   }
+
+
+
+
+
+
+
+
+  int getPreviousProblems(PalgorithmPD palg,ArrayAproblemPD problems){
+
+	  for(int i=0;i<palg->num_problems;i++){
+		  problems[i]=palg->problems[i];
+
+	  }
+	  return palg->num_problems;
+
+  }
+

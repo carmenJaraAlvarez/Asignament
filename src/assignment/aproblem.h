@@ -13,7 +13,7 @@
 
 
 
-#define TAM_ARRAY_PROBLEM 10
+#define TAM_ARRAY_PROBLEM 24
 #define TAM_MAX_READ 100
 
 

@@ -33,6 +33,12 @@ Type get_type(PAproblemPD appd){
   int get_alternatives(PAproblemPD papd, ArrayAlternatives as){
 	  int res=0;
 	  int numResources=papd->aproblem.numResources;
+	  printf("\n Inside get alternative. In: ");
+	  for(int j=0;j<papd->solution.lengthArrays;j++ ){
+		  printf("%s ", papd->solution.resources[j].name);
+	  }
+	  printf("\n");
+
 	  ArrayAlternatives aux;
 	  for(int i=0;i<numResources;i++){//for every resource
 		  if(is_alternative(papd,i)){//filter
@@ -150,7 +156,9 @@ Type get_type(PAproblemPD appd){
 	  //TODO
 	  return res;
   }
-
+  int get_size(PAproblemPD papd){
+	  return papd->aproblem.numTask;
+  }
 ///////////////AUX
   int updateSolution(PSolution ps, PAlternative pa, double value, Aproblem ap){
   	int res=0;
