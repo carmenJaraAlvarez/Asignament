@@ -114,6 +114,18 @@ Type get_type(PAproblemPD appd){
 	  int alternative=select_alternative(papd, alternatives, numAlternatives, &selectedValue);
 	  psp->alternative.indexResource=alternative;
 	  psp->value=selectedValue;
+	  //**************
+
+	  papd->solution.acum+=psp->value;
+	  papd->solution.lengthArrays++;
+	  Resource resource;
+	  init_resource(&resource,papd->aproblem.resources[psp->alternative.indexResource].name);
+	  papd->solution.resources[papd->index]=resource;
+//	  strcpy(papd->solution.resources[papd->solution.lengthArrays-1].name,
+//			  papd->.aproblem.resources[sp.alternative.indexResource].name);
+
+
+	  //**************
 	  return res;
   }
 

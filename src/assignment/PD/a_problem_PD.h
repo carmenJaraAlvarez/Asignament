@@ -41,9 +41,9 @@ typedef AproblemPD ArrayAproblemPD[TAM_ARRAY_PROBLEM];
   int get_solution(AproblemPD);
   int get_target(AproblemPD);
   int get_size(const PAproblemPD);
-///////////////////AUX
+//*************************************AUX
   int updateSolution(PSolution, PAlternative, double ,Aproblem);
-  int delete_problem_PD(PAproblemPD);
+  int delete_problem_PD(PAproblemPD);//free memory
   int copy_AproblemPD(PAproblemPD,AproblemPD);
 
 

@@ -20,7 +20,7 @@
 	  }
 	  return res;
   }
-  int init_algorithmPD(PalgorithmPD palg, ArrayAproblemPD problems,AproblemPD ap){
+  int init_algorithmPD(PalgorithmPD palg,AproblemPD ap){
 	  int res=0;
 	  palg->isRandomize=FALSE;//we are not using
 	  palg->sizeRef=100;//we are not using
@@ -30,14 +30,21 @@
 	  else{
 		  palg->best=-999999.;//TODO
 	  }
+	  int num=get_max_num_problems(&(ap));
+	  palg->problems=(AproblemPD*)malloc(sizeof(AproblemPD)*num);
+
 	  palg->ppd=ap;
 	  //palg->problems=problems;
-	  for(int i=0;i<palg->num_problems;i++){
-		  palg->problems[i]=problems[i];
-	  }
-	  palg->num_problems=1;//TODO
-	  palg->problems[0]=palg->ppd;
+//	  for(int i=0;i<palg->num_problems;i++){
+		  copy_AproblemPD(&(palg->problems[0]),ap);
+//		//palg->problems[i]=problems[i];
+//	  }
+	  palg->num_problems=1;//TODO anothers alternatives
+
+	  //palg->problems[0]=palg->ppd;
 	  palg->num_solved=0;
+
+	  palg->solvedProblems=(AproblemPD*)malloc(sizeof(AproblemPD)*num);
 	  return res;
   }
   int exec_algorithm(PalgorithmPD palg){
@@ -109,22 +116,17 @@
 				  ArrayAlternatives as;
 				  int numAlternatives=get_alternatives(&(problems[m]), as);
 				  if(numAlternatives==0){//TODO
-						  return res;
+						  //TODO
 						  printf("\n no alternatives\n");
 					  }
 				  else{
 					  //if base
 					  if(is_base_case(&problems[m])){
 							  SpPD sp;
-							  get_solution_base_case(&problems[m],&sp);
-
-							  problems[m].solution.acum+=sp.value;//TODO update to a function
-							  problems[m].solution.lengthArrays++;
-							  strcpy(problems[m].solution.resources[problems[m].solution.lengthArrays-1].name,
-									  problems[m].aproblem.resources[sp.alternative.indexResource].name);
+							  get_solution_base_case(&(palg->problems[m]),&sp);
 							  //TODO is better solution
 							  if(problems[m].solution.acum>=palg->best){
-								  palg->solvedProblems[palg->num_solved]=problems[m];
+								  copy_AproblemPD( &(palg->solvedProblems[palg->num_solved]),palg->problems[m]);
 								  palg->num_solved++;
 								  update_best(palg);
 							  }
@@ -194,4 +196,13 @@
 	  return palg->num_problems;
 
   }
+  int delete_algorithmPD(PalgorithmPD palg){
+	  free(palg->solvedProblems);
+	  free(palg->problems);
+	  delete_problem_PD(&(palg->ppd));
+	  return 0;
+
+
+  }
+
 

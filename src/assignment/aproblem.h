@@ -42,6 +42,8 @@ typedef struct
   void showAproblems();
   int readAproblemFile(PAproblem pap, const int numTasks, const int numResources,const Cadena url);
   Type getAproblemType(Aproblem);
+  int get_max_num_sol(PAproblem);
+
 
   Logico checkTasks(ArrayTasks);
   Logico checkResources(ArrayResources);

@@ -25,9 +25,9 @@ typedef struct
 //The particular PD problem
 //***************************************************
 	AproblemPD ppd;
-	ArrayAproblemPD problems;
+	AproblemPD *problems;
 	int num_problems;
-	AproblemPD solvedProblems[6];//TODO
+	AproblemPD *solvedProblems;//TODO
 	int num_solved;
 //***************************************************
   } AlgorithmPD;
@@ -35,12 +35,13 @@ typedef struct
 
   Logico is_min(PalgorithmPD);
   Logico is_max(PalgorithmPD);
-  int init_algorithmPD(PalgorithmPD, ArrayAproblemPD,AproblemPD);
+  int init_algorithmPD(PalgorithmPD, AproblemPD);
   int randomize(PalgorithmPD,ArrayAlternatives);
   int exec_algorithm(PalgorithmPD);
   int update_best(PalgorithmPD);
   int get_PDsolution(PalgorithmPD, PSolution);
   int pD(PalgorithmPD);
   int getPreviousProblems(PalgorithmPD,ArrayAproblemPD);
+  int delete_algorithmPD(PalgorithmPD);
 
 #endif /* PD_PD_ALGORITHM_H_ */

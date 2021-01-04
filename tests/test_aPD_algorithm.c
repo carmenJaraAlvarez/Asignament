@@ -29,10 +29,10 @@ void testInit10();
 
 void testInit9(){
 	printf("\n 9 **********************\n");
-	Cadena url="/home/practica/eclipse-workspace/c/files/data1.txt";
+	Cadena url="/home/practica/eclipse-workspace/c/files/data3.txt";
 	Aproblem ap;
-	int numTasks=3;
-	int numResources=3;
+	int numTasks=4;
+	int numResources=4;
 	printf("%d , %d\n ",numTasks,numResources);
 	readAproblemFile(&ap, numTasks, numResources, url);
 	AproblemPD appd;
@@ -40,7 +40,7 @@ void testInit9(){
 	AlgorithmPD alg;
 	printf("\n 9 \n");
 	ArrayAproblemPD problems={};
-	init_algorithmPD(&alg, problems, appd);
+	init_algorithmPD(&alg, appd);
 
 	printf("best post init: %f",alg.best);
 	showAproblem(alg.ppd.aproblem);
@@ -52,6 +52,7 @@ void testInit9(){
 		printf("\nResources: \n*%s\n",alg.ppd.solution.resources[i].name);
 	}
 	printf("Solution value: %f", alg.ppd.solution.acum);
+	delete_algorithmPD(&alg);
 }
 void testInit10(){
 	printf("\n10***********************\n");

@@ -156,6 +156,14 @@
 	 return res;
  }
 
+ int get_max_num_problems(PAproblem pa){
+
+	 int numTasks=pa->numTask;
+	 for(int i=0;i<pa->numTask-1;i++){
+		 numTasks=numTasks*(pa->numTask-i-1);
+	 }
+	 return numTasks;
+ }
  ////////////////////////////CHECKERS////////////////////////////////////////
  Logico checkTasks(ArrayTasks tasks){
 	  Logico res=FALSE;
