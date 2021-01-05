@@ -22,11 +22,11 @@
 	  printf("Task: %s", t->name);
 
   }
-  void showTasks(ArrayPTasks res, int numr){
+  void showTasks(PTask res, int numr){
 	  	int i;
 	  	for(i=0;i<numr;i++){
 	  		printf("Task %d:",i+1);
-	  		showTask(res[i]);
+	  		showTask(&res[i]);
 	  	}
 	  }
 

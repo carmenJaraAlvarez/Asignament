@@ -57,7 +57,7 @@
 	  }while(palg->isRandomize && get_PDsolution(palg,&sol)!=0);
 	  return res;
   }
-  int randomize(PalgorithmPD palg,ArrayAlternatives as){
+  int randomize(PalgorithmPD palg,PAlternative as){
 	  int res=0;
 	  if(palg->isRandomize && size(palg->ppd)>palg->sizeRef){
 		  //TODO change as to new smaller random array of alternatives
@@ -113,8 +113,12 @@
 		  if(numPreviousProblems>0){//TODO delete?
 			  //for every previous problem
 			  for(int m=0;m<numPreviousProblems;m++){
-				  ArrayAlternatives as;
+
+				  Alternative * as;
+				  init_alternative_array(&as,50);
+				  //as=(Alternative*)malloc(sizeof(Alternative)*50);//TODO
 				  int numAlternatives=get_alternatives(&(problems[m]), as);
+				  //delete_alternatives(&as);
 				  if(numAlternatives==0){//TODO
 						  //TODO
 						  printf("\n no alternatives\n");
@@ -130,7 +134,7 @@
 								  palg->num_solved++;
 								  update_best(palg);
 							  }
-							  printf("     is base case with solution: %s\n",appd.solution.resources[appd.solution.lengthArrays-1].name);
+							  printf("     is base case and takes alternative: %d\n", sp.alternative.indexResource);
 						  }
 
 					  //else

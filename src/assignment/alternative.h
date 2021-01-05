@@ -9,8 +9,6 @@
 #define ASSIGNMENT_ALTERNATIVE_H_
 
 
-#define TAM_ARRAY_ALTERNATIVE 100
-
 typedef struct
   {
 
@@ -19,8 +17,10 @@ typedef struct
   } Alternative;
 
   typedef Alternative* PAlternative;
-  typedef Alternative ArrayAlternatives[TAM_ARRAY_ALTERNATIVE];
+
 
   int initAlternative(PAlternative,int);
+  int init_alternative_array(Alternative**,int);//int parameter is the max number of alternatives
+  int delete_alternatives(PAlternative*);//free memory
 
   #endif /* ASSIGNMENT_ALTERNATIVE_H_ */

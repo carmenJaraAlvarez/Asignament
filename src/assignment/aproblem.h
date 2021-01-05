@@ -13,7 +13,7 @@
 
 
 
-#define TAM_ARRAY_PROBLEM 24
+#define TAM_ARRAY_PROBLEM 120
 #define TAM_MAX_READ 100
 
 
@@ -36,7 +36,7 @@ typedef struct
   typedef Aproblem* PAproblem;
   typedef PAproblem ArrayPAproblems[TAM_ARRAY_PROBLEM];
 
-  int initAProblem(PAproblem,ArrayTasks,ArrayResources,int, int, double values[]);
+  int initAProblem(PAproblem,PTask,ArrayResources,int, int, double values[]);
   int deleteAProblem(PAproblem);//free memory init
   void showAproblem(Aproblem);
   void showAproblems();

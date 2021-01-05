@@ -30,9 +30,9 @@ typedef AproblemPD ArrayAproblemPD[TAM_ARRAY_PROBLEM];
   int size(AproblemPD);
   Type get_type(PAproblemPD);
   Logico is_base_case(PAproblemPD);
-  int get_alternatives(PAproblemPD, ArrayAlternatives);
+  int get_alternatives(PAproblemPD, PAlternative);//PAlternative is a pointer to a dinamic array
   Logico is_alternative(PAproblemPD, int);
-  int select_alternative(PAproblemPD,ArrayAlternatives, int,double*);
+  int select_alternative(PAproblemPD,PAlternative, int,double*);//PAlternative is a pointer to a dinamic array
   int get_solution_base_case(PAproblemPD,PSpPD);
   int combine_solutions(AproblemPD, PSolution,PSpPD);
   int get_num_subproblems();//here is 1

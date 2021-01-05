@@ -13,7 +13,7 @@
 #ifndef ASSIGNMENT_TASK_H_
 #define ASSIGNMENT_TASK_H_
 
-#define TAM_ARRAY_TASKS 100
+
 typedef struct
   {
 
@@ -22,8 +22,7 @@ typedef struct
   } Task;
 
   typedef Task* PTask;
-  typedef PTask ArrayPTasks[TAM_ARRAY_TASKS];
-  typedef Task ArrayTasks[TAM_ARRAY_TASKS];
+
 
   int init_task(PTask,const Cadena);
   void showTask(PTask);

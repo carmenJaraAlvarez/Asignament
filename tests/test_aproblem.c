@@ -6,12 +6,12 @@
 #include "../src/assignment/resource.h"
 
 
-void testInitAProblem(PAproblem pa,ArrayTasks tasks,ArrayResources resources,int numTasks, int numResources, double values[]);
+void testInitAProblem(PAproblem pa,PTask tasks,ArrayResources resources,int numTasks, int numResources, double values[]);
 void testInit5();
 void testInit6();
 
 
-void testInitAProblem(PAproblem pa,ArrayTasks tasks,ArrayResources resources,int numTasks, int numResources, double *values){
+void testInitAProblem(PAproblem pa,PTask tasks,ArrayResources resources,int numTasks, int numResources, double *values){
 	printf("*** testInitAProblem ***\n");
 	int res=-1;
 	res = initAProblem(pa, tasks, resources, numTasks, numResources,values);
@@ -35,7 +35,7 @@ void testInit5(){
 	init_task(&t2,"T2");
 	Task t3;
 	init_task(&t3,"T3");
-	ArrayTasks tasks;
+	Task tasks[numTasks];
 	tasks[0]=t1;
 	tasks[1]=t2;
 	tasks[2]=t3;
@@ -91,7 +91,7 @@ void testInit6b(){
 	}
 
 	Task t;
-	ArrayTasks tasks;
+	Task tasks[numTasks];
 	for(int i=0;i<numTasks;i++){
 		init_task(&t,tasksNames[i]);
 		tasks[i]=t;

@@ -33,7 +33,7 @@ Type get_type(PAproblemPD appd){
 	  return res;
   }
   //return num alternatives and modified array of alternatives with index resources
-  int get_alternatives(PAproblemPD papd, ArrayAlternatives as){
+  int get_alternatives(PAproblemPD papd, PAlternative as){
 	  int res=0;
 	  int numResources=papd->aproblem.numResources;
 	  printf("\n Inside get alternative. In: ");
@@ -42,7 +42,8 @@ Type get_type(PAproblemPD appd){
 	  }
 	  printf("\n");
 
-	  ArrayAlternatives aux;
+	 Alternative aux[50];//TODO
+	  //init_alternative_array(aux,50);//TODO
 	  for(int i=0;i<numResources;i++){//for every resource
 		  if(is_alternative(papd,i)){//filter
 			  Alternative a;
@@ -74,7 +75,7 @@ Type get_type(PAproblemPD appd){
 	 }
 	 return res;
  }
- int select_alternative(PAproblemPD papd,ArrayAlternatives as,int numAlternatives, double* selectedValue ){
+ int select_alternative(PAproblemPD papd,PAlternative as,int numAlternatives, double* selectedValue ){
 	 int selected=-1;
 	 double bestValue;
 	 double actualValue;
@@ -108,7 +109,8 @@ Type get_type(PAproblemPD appd){
 	  int numAlternatives=0;
 	  double selectedValue;
 	  //get array alternatives (a=estruct with int)
-	  ArrayAlternatives alternatives;
+	  PAlternative alternatives;
+	  init_alternative_array(&alternatives,50);//TODO MAX
 	  numAlternatives=get_alternatives(papd, alternatives);
 	  //select resource max or min value, return resource index and its value
 	  int alternative=select_alternative(papd, alternatives, numAlternatives, &selectedValue);
@@ -126,6 +128,7 @@ Type get_type(PAproblemPD appd){
 
 
 	  //**************
+//	  delete_alternatives(&alternatives);
 	  return res;
   }
 

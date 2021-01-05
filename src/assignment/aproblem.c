@@ -7,7 +7,7 @@
 
 
 
- int initAProblem(PAproblem pa,ArrayTasks tasks,ArrayResources resources,int numTasks, int numResources, double *values){
+ int initAProblem(PAproblem pa,PTask tasks,ArrayResources resources,int numTasks, int numResources, double *values){
 	 if(!checkTasks(tasks)){
 		 printf("Tasks error\n");
 		 return -1;
@@ -103,7 +103,7 @@
 	 Cadena c;
 	 Resource resource;
 	 Task task;
-	 ArrayTasks arrayT;
+	 Task arrayT[numTasks];
 	 ArrayResources arrayR;
 	 int numValues=numResources*numTasks;
 	 double values[numValues];
@@ -165,7 +165,7 @@
 	 return numTasks;
  }
  ////////////////////////////CHECKERS////////////////////////////////////////
- Logico checkTasks(ArrayTasks tasks){
+ Logico checkTasks(PTask tasks){
 	  Logico res=FALSE;
 	  if(tasks!=NULL){
 		  res=TRUE;

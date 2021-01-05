@@ -29,10 +29,10 @@ void testInit10();
 
 void testInit9(){
 	printf("\n 9 **********************\n");
-	Cadena url="/home/practica/eclipse-workspace/c/files/data3.txt";
+	Cadena url="/home/practica/eclipse-workspace/c/files/data5.txt";
 	Aproblem ap;
-	int numTasks=4;
-	int numResources=4;
+	int numTasks=5;
+	int numResources=5;
 	printf("%d , %d\n ",numTasks,numResources);
 	readAproblemFile(&ap, numTasks, numResources, url);
 	AproblemPD appd;

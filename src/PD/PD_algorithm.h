@@ -26,17 +26,18 @@ typedef struct
 //***************************************************
 	AproblemPD ppd;
 	AproblemPD *problems;
-	int num_problems;
-	AproblemPD *solvedProblems;//TODO
-	int num_solved;
+	AproblemPD *solvedProblems;
 //***************************************************
+	int num_problems;
+	int num_solved;
+
   } AlgorithmPD;
   typedef AlgorithmPD* PalgorithmPD;
 
   Logico is_min(PalgorithmPD);
   Logico is_max(PalgorithmPD);
   int init_algorithmPD(PalgorithmPD, AproblemPD);
-  int randomize(PalgorithmPD,ArrayAlternatives);
+  int randomize(PalgorithmPD,PAlternative);
   int exec_algorithm(PalgorithmPD);
   int update_best(PalgorithmPD);
   int get_PDsolution(PalgorithmPD, PSolution);

@@ -25,7 +25,7 @@ typedef struct
   } Solution;
 
   typedef Solution* PSolution;
-  typedef PSolution ArrayPSolutions[TAM_ARRAY_SOLUTION];
+
 
   int init_solution(PSolution, int);
   int delete_solution(PSolution);//free memory
