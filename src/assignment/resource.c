@@ -21,11 +21,11 @@
 	  printf("Resource: %s", r->name);
 
   }
-  void showResources(ArrayPResources res, int numr){
+  void showResources(PResource res, int numr){
 	  	int i;
 	  	for(i=0;i<numr;i++){
 	  		printf("Resource %d:",i+1);
-	  		showResource(res[i]);
+	  		showResource(&res[i]);
 	  	}
 	  }
 

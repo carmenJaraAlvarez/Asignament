@@ -42,7 +42,7 @@ typedef struct
   int update_best(PalgorithmPD);
   int get_PDsolution(PalgorithmPD, PSolution);
   int pD(PalgorithmPD);
-  int getPreviousProblems(PalgorithmPD,ArrayAproblemPD);
+  int getPreviousProblems(PalgorithmPD,PAproblemPD);
   int delete_algorithmPD(PalgorithmPD);
 
 #endif /* PD_PD_ALGORITHM_H_ */

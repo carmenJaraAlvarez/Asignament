@@ -15,14 +15,14 @@ int initAProblemPD(PAproblemPD papd,PAproblem pa){
 	  papd->solution=sol;
 	  return res;
 }
-int size(AproblemPD appd){
+int size(PAproblemPD papd){
 	int res;
-	res=appd.aproblem.numTask;
+	res=papd->aproblem.numTask;
 	return res;
 }
 Type get_type(PAproblemPD appd){
 	  Type res;
-	  res=getAproblemType(appd->aproblem);
+	  res=getAproblemType(&(appd->aproblem));
 	  return res;
 }
   Logico is_base_case(PAproblemPD papd){

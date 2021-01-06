@@ -29,21 +29,20 @@ void testInit10();
 
 void testInit9(){
 	printf("\n 9 **********************\n");
-	Cadena url="/home/practica/eclipse-workspace/c/files/data5.txt";
+	Cadena url="/home/practica/eclipse-workspace/c/files/data3.txt";
 	Aproblem ap;
-	int numTasks=5;
-	int numResources=5;
+	int numTasks=3;
+	int numResources=3;
 	printf("%d , %d\n ",numTasks,numResources);
 	readAproblemFile(&ap, numTasks, numResources, url);
 	AproblemPD appd;
 	testInitAProblemPD(&appd, ap);
 	AlgorithmPD alg;
 	printf("\n 9 \n");
-	ArrayAproblemPD problems={};
 	init_algorithmPD(&alg, appd);
 
 	printf("best post init: %f",alg.best);
-	showAproblem(alg.ppd.aproblem);
+	showAproblem(&(alg.ppd.aproblem));
 	exec_algorithm(&alg);
 	printf("\nAfter exec algoritm\n");
 	Solution sol;

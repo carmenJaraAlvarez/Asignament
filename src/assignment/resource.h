@@ -13,7 +13,7 @@
 #include "../common/cadena.h"
 #include "../common/logico.h"
 
-#define TAM_ARRAY_RESOURCES 100
+
 
 typedef struct
   {
@@ -23,8 +23,7 @@ typedef struct
   } Resource;
 
   typedef Resource* PResource;
-  typedef PResource ArrayPResources[TAM_ARRAY_RESOURCES];
-  typedef Resource ArrayResources[TAM_ARRAY_RESOURCES];
+
 
   int init_resource(PResource,const Cadena);
   void showResource(PResource);

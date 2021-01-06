@@ -7,7 +7,7 @@
 
 
 
- int initAProblem(PAproblem pa,PTask tasks,ArrayResources resources,int numTasks, int numResources, double *values){
+ int initAProblem(PAproblem pa,PTask tasks,PResource resources,int numTasks, int numResources, double *values){
 	 if(!checkTasks(tasks)){
 		 printf("Tasks error\n");
 		 return -1;
@@ -58,37 +58,37 @@
 	 free(pa->resources);
 	 return res;
  }
- void showAproblem(Aproblem ap){
+ void showAproblem(PAproblem pap){
 	 printf("inside showAproblem\n");
-	 int m=ap.numTask;
+	 int m=pap->numTask;
 	 int j=0;
 	 for(int i=0;i<m;i++){
-		 printf("%s ",ap.tasks[i].name);
+		 printf("%s ",pap->tasks[i].name);
 	 }
-	 int n=ap.numResources;
+	 int n=pap->numResources;
 
-	 printf("\n%s ",ap.resources[j].name);
+	 printf("\n%s ",pap->resources[j].name);
 	 for(int i=0;i<m*n;i++){
 		 double r=(i+1)%m;
 		 if(r!=0.){
 			 if(i>0 &&  i%m==0){
-				printf("%s ",ap.resources[j+1].name);
-				printf("%f ",ap.values[i]);
+				printf("%s ",pap->resources[j+1].name);
+				printf("%f ",pap->values[i]);
 				j++;
 
 			 }else{
 
-				printf("%f ",ap.values[i]);
+				printf("%f ",pap->values[i]);
 			 }
 		 }
 		 else{
-				 printf("%f \n",ap.values[i]);
+				 printf("%f \n",pap->values[i]);
 		 }
 
 	 }
 
  }
- void showAProblems(const ArrayPAproblems res, int nGP){
+ void showAProblems(const PAproblem pap, int nGP){
  	int i;
  	for(i=0;i<nGP;i++){
  		printf("Problem %d:",i+1);
@@ -104,7 +104,7 @@
 	 Resource resource;
 	 Task task;
 	 Task arrayT[numTasks];
-	 ArrayResources arrayR;
+	 Resource arrayR[numResources];
 	 int numValues=numResources*numTasks;
 	 double values[numValues];
 	 Aproblem ap;
@@ -150,9 +150,9 @@
 	 fclose(f);
 	 return res;
  }
- Type getAproblemType(Aproblem ap){
+ Type getAproblemType(PAproblem pap){
 	 Type res;
-	 res=ap.type;
+	 res=pap->type;
 	 return res;
  }
 
@@ -164,6 +164,12 @@
 	 }
 	 return numTasks;
  }
+
+ int get_max_num_alternatives(PAproblem pap){
+	 int res=0;
+	 res=pap->numResources;
+	 return res;
+ }
  ////////////////////////////CHECKERS////////////////////////////////////////
  Logico checkTasks(PTask tasks){
 	  Logico res=FALSE;
@@ -172,7 +178,7 @@
 	  }
 	  return res;
  }
- Logico checkResources(ArrayResources resources){
+ Logico checkResources(PResource resources){
 	  Logico res=FALSE;
 	  if(resources!=NULL){
 		  res=TRUE;

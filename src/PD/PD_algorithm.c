@@ -59,7 +59,7 @@
   }
   int randomize(PalgorithmPD palg,PAlternative as){
 	  int res=0;
-	  if(palg->isRandomize && size(palg->ppd)>palg->sizeRef){
+	  if(palg->isRandomize && size(&(palg->ppd))>palg->sizeRef){
 		  //TODO change as to new smaller random array of alternatives
 	  }
 	  return res;
@@ -104,10 +104,10 @@
 
 	  int lengthNewArrayAppd=0;
 	  for(int i=0;i<size;i++){
-		  ArrayAproblemPD newArrayAppd;
+		  AproblemPD newArrayAppd[get_max_num_problems(&appd)];
 		  lengthNewArrayAppd=0;
 		  //get previous problems
-		  ArrayAproblemPD problems;
+		  AproblemPD problems[get_max_num_problems(&appd)];
 		  int numPreviousProblems=getPreviousProblems(palg, problems);
 		  //if problems
 		  if(numPreviousProblems>0){//TODO delete?
@@ -115,7 +115,7 @@
 			  for(int m=0;m<numPreviousProblems;m++){
 
 				  Alternative * as;
-				  init_alternative_array(&as,50);
+				  init_alternative_array(&as,get_max_num_alternatives(&appd));
 				  //as=(Alternative*)malloc(sizeof(Alternative)*50);//TODO
 				  int numAlternatives=get_alternatives(&(problems[m]), as);
 				  //delete_alternatives(&as);
@@ -191,7 +191,7 @@
 
 
 
-  int getPreviousProblems(PalgorithmPD palg,ArrayAproblemPD problems){
+  int getPreviousProblems(PalgorithmPD palg,PAproblemPD problems){
 
 	  for(int i=0;i<palg->num_problems;i++){
 		  problems[i]=palg->problems[i];

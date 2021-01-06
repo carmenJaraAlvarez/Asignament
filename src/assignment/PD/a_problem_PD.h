@@ -24,10 +24,10 @@ typedef struct
   } AproblemPD;
 
 typedef AproblemPD* PAproblemPD;
-typedef AproblemPD ArrayAproblemPD[TAM_ARRAY_PROBLEM];
+
 
   int initAProblemPD(PAproblemPD,PAproblem);
-  int size(AproblemPD);
+  int size(PAproblemPD);
   Type get_type(PAproblemPD);
   Logico is_base_case(PAproblemPD);
   int get_alternatives(PAproblemPD, PAlternative);//PAlternative is a pointer to a dinamic array

@@ -13,8 +13,8 @@
 
 
 
-#define TAM_ARRAY_PROBLEM 120
-#define TAM_MAX_READ 100
+
+#define TAM_MAX_READ 100//length names
 
 
 typedef struct
@@ -34,15 +34,16 @@ typedef struct
   } Aproblem;
 
   typedef Aproblem* PAproblem;
-  typedef PAproblem ArrayPAproblems[TAM_ARRAY_PROBLEM];
 
-  int initAProblem(PAproblem,PTask,ArrayResources,int, int, double values[]);
+
+  int initAProblem(PAproblem,PTask,PResource,int, int, double values[]);
   int deleteAProblem(PAproblem);//free memory init
-  void showAproblem(Aproblem);
+  void showAproblem(PAproblem);
   void showAproblems();
   int readAproblemFile(PAproblem pap, const int numTasks, const int numResources,const Cadena url);
-  Type getAproblemType(Aproblem);
-  int get_max_num_sol(PAproblem);
+  Type getAproblemType(PAproblem);
+  int get_max_num_problems(PAproblem);
+  int get_max_num_alternatives(PAproblem);
 
 
   Logico checkTasks(ArrayTasks);
