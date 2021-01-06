@@ -6,7 +6,7 @@
  */
 #include "alternative.h"
 
-int initAlternative(PAlternative a,int i){
+int initAlternative(PAlternative a,const int i){
 	int res=0;
 	a->indexResource=i;
 	return res;
