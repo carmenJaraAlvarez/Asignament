@@ -19,7 +19,7 @@ typedef struct
   typedef Alternative* PAlternative;
 
 
-  int initAlternative(PAlternative,int);
+  int init_alternative(PAlternative,int);
   int init_alternative_array(Alternative**,int);//int parameter is the max number of alternatives
   int delete_alternatives(PAlternative*);//free memory
 

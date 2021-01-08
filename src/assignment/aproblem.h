@@ -36,20 +36,15 @@ typedef struct
   typedef Aproblem* PAproblem;
 
 
-  int initAProblem(PAproblem,PTask,PResource,int, int, double values[]);
-  int deleteAProblem(PAproblem);//free memory init
-  void showAproblem(PAproblem);
-  void showAproblems();
-  int readAproblemFile(PAproblem pap, const int numTasks, const int numResources,const Cadena url);
-  Type getAproblemType(PAproblem);
-  int get_max_num_problems(PAproblem);
-  int get_max_num_alternatives(PAproblem);
+  int init_aproblem(PAproblem,const PTask,const PResource,const int, const int, const double values[]);
+  int delete_aproblem(PAproblem);//free memory init
+  void show_aproblem(const PAproblem);
+  int read_aproblem_file(PAproblem pap, const int numTasks, const int numResources,const Cadena url);
+  Type get_aproblem_type(const PAproblem);
+  int get_max_num_problems(const PAproblem);
+  int get_max_num_alternatives(const PAproblem);
 
 
-  Logico checkTasks(ArrayTasks);
-  Logico checkResources(ArrayResources);
-  Logico checkMatrix(double values[]);
-  Logico checkInt(int);
 
 
   

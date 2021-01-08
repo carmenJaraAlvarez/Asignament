@@ -25,11 +25,11 @@ typedef struct
 
 
   int init_task(PTask,const Cadena);
-  void showTask(PTask);
-  void showTasks();
+  void show_task(const PTask);
+  void show_tasks(const PTask, const int);
 
 
-  Logico check_task_name(Cadena);
+
 
 
 

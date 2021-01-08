@@ -4,10 +4,14 @@
 
 #include "aproblem.h"
 
+static Logico checkTasks(const PTask);
+static Logico checkResources(const PResource);
+static Logico checkMatrix(const double values[]);
+static Logico checkInt(const int);
 
 
 
- int initAProblem(PAproblem pa,PTask tasks,PResource resources,int numTasks, int numResources, double *values){
+ int init_aproblem(PAproblem pa,const PTask tasks,const PResource resources,const int numTasks, const int numResources, const double *values){
 	 if(!checkTasks(tasks)){
 		 printf("Tasks error\n");
 		 return -1;
@@ -51,14 +55,16 @@
 	 pa->type=MAX;//default//TODO
 	 return 0;
  }
- int deleteAProblem(PAproblem pa){//free memory
+ int delete_aproblem(PAproblem pa)//let memory free
+ {
 	 int res=0;
 	 free(pa->values);
 	 free(pa->tasks);
 	 free(pa->resources);
 	 return res;
  }
- void showAproblem(PAproblem pap){
+ void show_aproblem(const PAproblem pap)
+ {
 	 printf("inside showAproblem\n");
 	 int m=pap->numTask;
 	 int j=0;
@@ -88,14 +94,8 @@
 	 }
 
  }
- void showAProblems(const PAproblem pap, int nGP){
- 	int i;
- 	for(i=0;i<nGP;i++){
- 		printf("Problem %d:",i+1);
- 	}
- }
 
- int readAproblemFile(PAproblem pap, const int numTasks, const int numResources,const Cadena url){
+ int read_aproblem_file(PAproblem pap, const int numTasks, const int numResources,const Cadena url){
 	 int res=-1;
 	 int i;
 	 int j;
@@ -108,11 +108,11 @@
 	 int numValues=numResources*numTasks;
 	 double values[numValues];
 	 Aproblem ap;
+	 FILE* f;
+
 	 ap.numResources=numResources;
 	 ap.numTask=numTasks;
-	 FILE* f;
 	 f=fopen(url, "r");
-
 
 	  if (f == NULL) {
 	    perror("fopen");
@@ -121,42 +121,47 @@
 	  }
 
 
-	 while(!feof(f)){
+	 while(!feof(f))
+	 {
 		 //first rows: tasks
-		 for(j=0;j<numTasks;j++){
+		 for(j=0;j<numTasks;j++)
+		 {
 			 fgets(c,TAM_MAX_READ,f);
 			 quitaSaltoDeLinea(c);
 			 init_task(&task,c);
 			 arrayT[j]=task;
 		 }
 		 //resources
-		 for(j=0;j<numResources;j++){
+		 for(j=0;j<numResources;j++)
+		 {
 			 fgets(c,TAM_MAX_READ,f);
 			 quitaSaltoDeLinea(c);
 			 init_resource(&resource,c);
 			 arrayR[j]=resource;
 		 }
 		 //values
-
-		 for(i=0;i<numValues;i++){
+		 for(i=0;i<numValues;i++)
+		 {
 			 fgets(c,TAM_MAX_READ,f);
 			 quitaSaltoDeLinea(c);
 			 aux=atof(c);
 			 values[i]=aux;
 		 }
-		 res=initAProblem(pap,arrayT,arrayR,numTasks,numResources, values);
+		 res=init_aproblem(pap,arrayT,arrayR,numTasks,numResources, values);
 
-	 }
+	 }//close->while(!feof(f))
 	 fclose(f);
 	 return res;
  }
- Type getAproblemType(PAproblem pap){
+
+ Type get_aproblem_type(const PAproblem pap)
+ {
 	 Type res;
 	 res=pap->type;
 	 return res;
  }
 
- int get_max_num_problems(PAproblem pa){
+ int get_max_num_problems(const PAproblem pa){
 
 	 int numTasks=pa->numTask;
 	 for(int i=0;i<pa->numTask-1;i++){
@@ -165,36 +170,42 @@
 	 return numTasks;
  }
 
- int get_max_num_alternatives(PAproblem pap){
+ int get_max_num_alternatives(const PAproblem pap){
 	 int res=0;
 	 res=pap->numResources;
 	 return res;
  }
  ////////////////////////////CHECKERS////////////////////////////////////////
- Logico checkTasks(PTask tasks){
+ static Logico checkTasks(const PTask tasks)
+ {
 	  Logico res=FALSE;
 	  if(tasks!=NULL){
 		  res=TRUE;
 	  }
 	  return res;
  }
- Logico checkResources(PResource resources){
+
+ static Logico checkResources(const PResource resources)
+ {
 	  Logico res=FALSE;
 	  if(resources!=NULL){
 		  res=TRUE;
 	  }
 	  return res;
  }
- Logico checkMatrix(double values[]){
+ static Logico checkMatrix(const double values[])
+ {
 	  Logico res=FALSE;
 	  if(values!=NULL){
 		  res=TRUE;
 	  }
 	  return res;
  }
- Logico checkInt(numTasks){
+
+ static Logico checkInt(const int numTasks)
+ {
 	  Logico res=FALSE;
-	  if(numTasks!=NULL && numTasks>0){
+	  if(numTasks>0){
 		  res=TRUE;
 	  }
 	  return res;

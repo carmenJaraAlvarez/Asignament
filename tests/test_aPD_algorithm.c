@@ -34,7 +34,7 @@ void testInit9(){
 	int numTasks=3;
 	int numResources=3;
 	printf("%d , %d\n ",numTasks,numResources);
-	readAproblemFile(&ap, numTasks, numResources, url);
+	read_aproblem_file(&ap, numTasks, numResources, url);
 	AproblemPD appd;
 	testInitAProblemPD(&appd, ap);
 	AlgorithmPD alg;
@@ -42,7 +42,7 @@ void testInit9(){
 	init_algorithmPD(&alg, appd);
 
 	printf("best post init: %f",alg.best);
-	showAproblem(&(alg.ppd.aproblem));
+	show_aproblem(&(alg.ppd.aproblem));
 	exec_algorithm(&alg);
 	printf("\nAfter exec algoritm\n");
 	Solution sol;

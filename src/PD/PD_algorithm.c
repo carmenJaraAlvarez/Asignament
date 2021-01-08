@@ -6,25 +6,31 @@
  */
 #include "PD_algorithm.h"
 
-  Logico is_min(PalgorithmPD palg){
+  Logico is_min(const PalgorithmPD palg)
+  {
 	  Logico res=FALSE;
-	  if(palg->ppd.aproblem.type==MIN){
+	  if(palg->ppd.aproblem.type==MIN)
+	  {
 		  res=TRUE;
 	  }
 	  return res;
   }
-  Logico is_max(PalgorithmPD palg){
+  Logico is_max(const PalgorithmPD palg)
+  {
 	  Logico res=FALSE;
-	  if(palg->ppd.aproblem.type==MAX){
+	  if(palg->ppd.aproblem.type==MAX)
+	  {
 		  res=TRUE;
 	  }
 	  return res;
   }
-  int init_algorithmPD(PalgorithmPD palg,AproblemPD ap){
+  int init_algorithmPD(PalgorithmPD palg,AproblemPD ap)
+  {
 	  int res=0;
 	  palg->isRandomize=FALSE;//we are not using
 	  palg->sizeRef=100;//we are not using
-	  if(is_min(palg)){
+	  if(is_min(palg))
+	  {
 		  palg->best=999999.;//TODO
 	  }
 	  else{
@@ -34,11 +40,8 @@
 	  palg->problems=(AproblemPD*)malloc(sizeof(AproblemPD)*num);
 
 	  palg->ppd=ap;
-	  //palg->problems=problems;
-//	  for(int i=0;i<palg->num_problems;i++){
-		  copy_AproblemPD(&(palg->problems[0]),ap);
-//		//palg->problems[i]=problems[i];
-//	  }
+	  copy_aproblem_PD(&(palg->problems[0]),ap);
+
 	  palg->num_problems=1;//TODO anothers alternatives
 
 	  //palg->problems[0]=palg->ppd;
@@ -47,35 +50,48 @@
 	  palg->solvedProblems=(AproblemPD*)malloc(sizeof(AproblemPD)*num);
 	  return res;
   }
-  int exec_algorithm(PalgorithmPD palg){
+
+  int exec_algorithm(PalgorithmPD palg)
+  {
 	  int res=0;
 	  Solution sol;
-	  do{
-		  for(int i=0;i<get_num_subproblems();i++){
+	  do
+	  {
+		  for(int i=0;i<get_num_subproblems();i++)
+		  {
 			  pD(palg);
 		  }
 	  }while(palg->isRandomize && get_PDsolution(palg,&sol)!=0);
 	  return res;
   }
-  int randomize(PalgorithmPD palg,PAlternative as){
+
+  int randomize(PalgorithmPD palg,PAlternative as)
+  {
 	  int res=0;
-	  if(palg->isRandomize && size(&(palg->ppd))>palg->sizeRef){
+	  if(palg->isRandomize && get_size(&(palg->ppd))>palg->sizeRef)
+	  {
 		  //TODO change as to new smaller random array of alternatives
 	  }
 	  return res;
   }
-  int update_best(PalgorithmPD palg){
+
+  int update_best(PalgorithmPD palg)
+  {
 	  int res=0;
-	  double target=get_target(palg->ppd);
-	  if(is_min(palg) && target<palg->best){
-		  palg->best=get_target(palg->ppd);
+	  double target=get_target(&(palg->ppd));
+	  if(is_min(palg) && target<palg->best)
+	  {
+		  palg->best=get_target(&(palg->ppd));
 	  }
-	  else if(is_max(palg) && target>palg->best){
-		  palg->best=get_target(palg->ppd);
+	  else if(is_max(palg) && target>palg->best)
+	  {
+		  palg->best=get_target(&(palg->ppd));
 	  }
 	  return res;
   }
-  int get_PDsolution(PalgorithmPD palg, PSolution psol){
+
+  int get_PDsolution(PalgorithmPD palg, PSolution psol)
+  {
 	  int res=0;
 
 	  if(palg->num_solved==0){
@@ -97,8 +113,9 @@
 	  return res;;
   }
 
-  int pD(PalgorithmPD palg){
-	  int res;
+  int pD(PalgorithmPD palg)
+  {
+	  int res=0;
 	  AproblemPD appd=palg->ppd;
 	  int size=get_size(&(palg->ppd));
 
@@ -110,54 +127,64 @@
 		  AproblemPD problems[get_max_num_problems(&appd)];
 		  int numPreviousProblems=getPreviousProblems(palg, problems);
 		  //if problems
-		  if(numPreviousProblems>0){//TODO delete?
+		  if(numPreviousProblems>0)
+		  {//TODO delete?
 			  //for every previous problem
-			  for(int m=0;m<numPreviousProblems;m++){
+			  for(int m=0;m<numPreviousProblems;m++)
+			  {
 
 				  Alternative * as;
 				  init_alternative_array(&as,get_max_num_alternatives(&appd));
 				  //as=(Alternative*)malloc(sizeof(Alternative)*50);//TODO
 				  int numAlternatives=get_alternatives(&(problems[m]), as);
 				  //delete_alternatives(&as);
-				  if(numAlternatives==0){//TODO
+				  if(numAlternatives==0)
+				  {
 						  //TODO
 						  printf("\n no alternatives\n");
-					  }
-				  else{
-					  //if base
-					  if(is_base_case(&problems[m])){
+				  }
+				  else
+				  {
+
+					  if(is_base_case(&problems[m]))
+					  {
 							  SpPD sp;
 							  get_solution_base_case(&(palg->problems[m]),&sp);
 							  //TODO is better solution
-							  if(problems[m].solution.acum>=palg->best){
-								  copy_AproblemPD( &(palg->solvedProblems[palg->num_solved]),palg->problems[m]);
+							  if(problems[m].solution.acum>=palg->best)
+							  {
+								  copy_aproblem_PD( &(palg->solvedProblems[palg->num_solved]),palg->problems[m]);
 								  palg->num_solved++;
 								  update_best(palg);
 							  }
 							  printf("     is base case and takes alternative: %d\n", sp.alternative.indexResource);
-						  }
+					  }
 
-					  //else
-					  else{
+					  else
+					  {
 						  //get new problems
 						  printf("        Alternatives: ");
-						  for(int k=0;k<numAlternatives;k++){
+						  for(int k=0;k<numAlternatives;k++)
+						  {
 							  printf("%d ", as[k].indexResource);
 						  }
 						  printf("\n");
 						  randomize(palg,as);//not using
 						  Logico ismin;
 						  Logico ismax;
-						  for(int u=0;u<numAlternatives;u++){
+						  for(int u=0;u<numAlternatives;u++)
+						  {
 							  //prune
 							  ismin=is_min(palg);
 							  ismax=is_max(palg);
-							  double estimated=get_estimate(problems[m]);
+							  double estimated=get_estimate(&problems[m]);
 							  if((ismin && estimated<=palg->best)
-							  					  || (ismax && estimated>=palg->best)){
+							  					  || (ismax && estimated>=palg->best))
+							  {
 							  	  int numSubproblems=get_num_subproblems();
-							  	AproblemPD appdNew;
-								  for(int j=0;j<numSubproblems;j++){
+							  	  AproblemPD appdNew;
+								  for(int j=0;j<numSubproblems;j++)
+								  {
 									  initAProblemPD(&appdNew,&(palg->ppd.aproblem));
 
 									  get_subproblem(&problems[m], &appdNew, as[u],numSubproblems);
@@ -165,7 +192,7 @@
 									  printf("     i=%d of %d alternatives\n",u, numAlternatives);
 									  //if problem//TODO
 											  //add problem to new array
-									  copy_AproblemPD( &(newArrayAppd[lengthNewArrayAppd]),appdNew);
+									  copy_aproblem_PD( &(newArrayAppd[lengthNewArrayAppd]),appdNew);
 									 lengthNewArrayAppd++;
 
 								  }//end for num subproblem=1
@@ -174,9 +201,11 @@
 					  }//end else (not base case)
 					}//end else (exits alternative)
 			  }//end for every previous problem
+
 			  //change problems array and add num problems to array
 			  palg->num_problems=lengthNewArrayAppd;
-			  for(int w=0; w<lengthNewArrayAppd;w++){
+			  for(int w=0; w<lengthNewArrayAppd;w++)
+			  {
 				  palg->problems[w]=newArrayAppd[w];
 			  }
 		  }//end if num previous>0
@@ -185,28 +214,22 @@
   }
 
 
-
-
-
-
-
-
   int getPreviousProblems(PalgorithmPD palg,PAproblemPD problems){
 
-	  for(int i=0;i<palg->num_problems;i++){
+	  for(int i=0;i<palg->num_problems;i++)
+	  {
 		  problems[i]=palg->problems[i];
-
 	  }
 	  return palg->num_problems;
 
   }
-  int delete_algorithmPD(PalgorithmPD palg){
+
+  int delete_algorithmPD(PalgorithmPD palg)
+  {
 	  free(palg->solvedProblems);
 	  free(palg->problems);
 	  delete_problem_PD(&(palg->ppd));
 	  return 0;
-
-
   }
 
 

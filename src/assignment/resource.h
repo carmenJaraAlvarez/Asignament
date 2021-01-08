@@ -26,11 +26,9 @@ typedef struct
 
 
   int init_resource(PResource,const Cadena);
-  void showResource(PResource);
-  void showResources();
+  void show_resource(PResource);
 
 
-  Logico check_name(Cadena);
 
 
 #endif /* ASSIGNMENT_RESOURCE_H_ */

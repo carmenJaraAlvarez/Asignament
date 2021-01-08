@@ -34,8 +34,8 @@ typedef struct
   } AlgorithmPD;
   typedef AlgorithmPD* PalgorithmPD;
 
-  Logico is_min(PalgorithmPD);
-  Logico is_max(PalgorithmPD);
+  Logico is_min(const PalgorithmPD);
+  Logico is_max(const PalgorithmPD);
   int init_algorithmPD(PalgorithmPD, AproblemPD);
   int randomize(PalgorithmPD,PAlternative);
   int exec_algorithm(PalgorithmPD);

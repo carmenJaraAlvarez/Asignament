@@ -14,9 +14,8 @@
 
 typedef struct
   {
-	//same position in both arrays is an assigned pair
-	//ArrayPTasks tasks;//is not necessary if we take initial task enum
-	Resource *resources;
+
+	Resource *resources;//assigned to initial tasks in same order
 
 	int lengthArrays;
 
@@ -28,8 +27,8 @@ typedef struct
 
 
   int init_solution(PSolution, int);
-  int delete_solution(PSolution);//free memory
-  int solutionToString(Solution);
+  int delete_solution(PSolution);//let memory free
+  int show_solution(const Solution);
 
 
 #endif /* ASSIGNMENT_SOLUTION_H_ */

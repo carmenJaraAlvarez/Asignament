@@ -17,7 +17,7 @@ void testInitTask(PTask pt,const Cadena name){
 			perror("error initTask.\n");
 		} else {
 			printf("ok initTask\n");
-			showTask(pt);
+			show_task(pt);
 			printf("\n");
 		}
 

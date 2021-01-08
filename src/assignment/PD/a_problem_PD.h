@@ -27,24 +27,22 @@ typedef AproblemPD* PAproblemPD;
 
 
   int initAProblemPD(PAproblemPD,PAproblem);
-  int size(PAproblemPD);
-  Type get_type(PAproblemPD);
-  Logico is_base_case(PAproblemPD);
-  int get_alternatives(PAproblemPD, PAlternative);//PAlternative is a pointer to a dinamic array
-  Logico is_alternative(PAproblemPD, int);
+  Type get_type(const PAproblemPD);
+  Logico is_base_case(const PAproblemPD);
+  int get_alternatives(const PAproblemPD, PAlternative);//PAlternative is a pointer to a dinamic array
+  Logico is_alternative(const PAproblemPD, int);
   int select_alternative(PAproblemPD,PAlternative, int,double*);//PAlternative is a pointer to a dinamic array
   int get_solution_base_case(PAproblemPD,PSpPD);
   int combine_solutions(AproblemPD, PSolution,PSpPD);
   int get_num_subproblems();//here is 1
   int get_subproblem(const PAproblemPD, PAproblemPD,Alternative, int);
-  double get_estimate(AproblemPD);
+  double get_estimate(PAproblemPD);
   int get_solution(AproblemPD);
-  int get_target(AproblemPD);
+  int get_target(PAproblemPD);
   int get_size(const PAproblemPD);
-//*************************************AUX
-  int updateSolution(PSolution, PAlternative, double ,Aproblem);
+  int update_solution(PSolution, PAlternative, double ,Aproblem);
   int delete_problem_PD(PAproblemPD);//free memory
-  int copy_AproblemPD(PAproblemPD,AproblemPD);
+  int copy_aproblem_PD(PAproblemPD,AproblemPD);
 
 
 

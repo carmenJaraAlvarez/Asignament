@@ -31,10 +31,10 @@ void testInit7(){
 	Aproblem ap;
 	int numTasks=3;
 	int numResources=3;
-	readAproblemFile(&ap, numTasks, numResources, url);
+	read_aproblem_file(&ap, numTasks, numResources, url);
 	AproblemPD appd;
 	testInitAProblemPD(&appd, ap);
-	showAproblem(&(appd.aproblem));
+	show_aproblem(&(appd.aproblem));
 //	deleteAProblem(&ap);
 	delete_problem_PD(&appd);
 }
@@ -44,13 +44,13 @@ void testInit8(){
 	Aproblem ap;
 	int numTasks=3;
 	int numResources=3;
-	readAproblemFile(&ap, numTasks, numResources, url);
+	read_aproblem_file(&ap, numTasks, numResources, url);
 
 	//double vector[9]={1.,20000.,3.,0.,0.,1.,9.,8.,700.};
 	//testInitAProblem(&ap,tasks,resources, numTasks,numResources,vector);
 	AproblemPD appd;
 	testInitAProblemPD(&appd, ap);
-	showAproblem(&(appd.aproblem));
+	show_aproblem(&(appd.aproblem));
 	Logico b=is_base_case(&appd);
 	printf("is base case...%d\n", b);
 	//change to base case
@@ -59,7 +59,7 @@ void testInit8(){
 	Alternative a;
 	for(int i=0;i<2;i++){
 		a.indexResource=i;
-		updateSolution(&sol, &a, i,appd.aproblem);
+		update_solution(&sol, &a, i,appd.aproblem);
 	}
 	appd.solution=sol;
 	appd.index=2;
@@ -77,7 +77,7 @@ void testInit8(){
 		AproblemPD new;
 		int i=get_num_subproblems();
 		get_subproblem(&appd, &new,a, i);
-		showAproblem(&(new.aproblem));
+		show_aproblem(&(new.aproblem));
 //		deleteAProblem(&ap);
 		delete_problem_PD(&appd);
 

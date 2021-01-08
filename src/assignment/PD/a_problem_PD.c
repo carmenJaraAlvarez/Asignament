@@ -6,7 +6,8 @@
  */
 #include "a_problem_PD.h"
 
-int initAProblemPD(PAproblemPD papd,PAproblem pa){
+int initAProblemPD(PAproblemPD papd,PAproblem pa)
+{
 	  int res=0;
 	  papd->index=0;
 	  papd->aproblem=*pa;
@@ -15,39 +16,43 @@ int initAProblemPD(PAproblemPD papd,PAproblem pa){
 	  papd->solution=sol;
 	  return res;
 }
-int size(PAproblemPD papd){
-	int res;
-	res=papd->aproblem.numTask;
-	return res;
-}
-Type get_type(PAproblemPD appd){
+
+Type get_type(PAproblemPD appd)
+{
 	  Type res;
-	  res=getAproblemType(&(appd->aproblem));
+	  res=get_aproblem_type(&(appd->aproblem));
 	  return res;
 }
-  Logico is_base_case(PAproblemPD papd){
+
+  Logico is_base_case(const PAproblemPD papd)
+  {
 	  Logico res=FALSE;
 	  if(papd->index==(papd->aproblem.numTask)-1){
 		  res=TRUE;
 	  }
 	  return res;
   }
+
   //return num alternatives and modified array of alternatives with index resources
-  int get_alternatives(PAproblemPD papd, PAlternative as){
+  int get_alternatives(const PAproblemPD papd, PAlternative as)
+  {
 	  int res=0;
 	  int numResources=papd->aproblem.numResources;
 	  printf("\n Inside get alternative. In: ");
-	  for(int j=0;j<papd->solution.lengthArrays;j++ ){
+	  for(int j=0;j<papd->solution.lengthArrays;j++ )
+	  {
 		  printf("%s ", papd->solution.resources[j].name);
 	  }
 	  printf("\n");
 
-	 Alternative aux[50];//TODO
-	  //init_alternative_array(aux,50);//TODO
-	  for(int i=0;i<numResources;i++){//for every resource
-		  if(is_alternative(papd,i)){//filter
+	 Alternative aux[get_max_num_alternatives(&(papd->aproblem))];
+
+	  for(int i=0;i<numResources;i++)//for every resource
+	  {
+		  if(is_alternative(papd,i))//filter
+		  {
 			  Alternative a;
-			  initAlternative(&a,i);
+			  init_alternative(&a,i);
 			  aux[res]=a;
 			  res++;
 		  }
@@ -59,15 +64,20 @@ Type get_type(PAproblemPD appd){
 
   }
  //check resource with index i, is an option
- Logico is_alternative(PAproblemPD papd, int i){
+ Logico is_alternative(const PAproblemPD papd, int i)
+ {
 	 Logico res=TRUE;
 	 //if it is the first assignment, every resource is free
-	 if(papd->index==0){
+	 if(papd->index==0)
+	 {
 		 return res;
 	 }
-	 else{//if it is not the first time>>if the resource is in previous solution, it is not valid.
-		 for(int j=0;j<papd->solution.lengthArrays;j++){
-			 if(strcmp(papd->solution.resources[j].name,papd->aproblem.resources[i].name)==0){
+	 else//if it is not the first time>>if the resource is in previous solution, it is not valid.
+	 {
+		 for(int j=0;j<papd->solution.lengthArrays;j++)
+		 {
+			 if(strcmp(papd->solution.resources[j].name,papd->aproblem.resources[i].name)==0)
+			 {
 			 res=FALSE;
 			 break;
 			 }
@@ -91,7 +101,8 @@ Type get_type(PAproblemPD appd){
 
 		  actualValue=papd->aproblem.values[indexValue+as[i].indexResource];
 		  int t=get_type(papd);
-		  if(get_type(papd)==0 && actualValue>bestValue){//MAX
+		  if(get_type(papd)==0 && actualValue>bestValue)//MAX
+		  {
 			  bestValue=actualValue;
 			  selected=as[i].indexResource;
 		  }
@@ -104,7 +115,8 @@ Type get_type(PAproblemPD appd){
 	  *selectedValue=bestValue;
 	  return selected;
   }
-  int get_solution_base_case(PAproblemPD papd, PSpPD psp){
+  int get_solution_base_case(PAproblemPD papd, PSpPD psp)
+  {
 	  int res=0;
 	  int numAlternatives=0;
 	  double selectedValue;
@@ -132,7 +144,8 @@ Type get_type(PAproblemPD appd){
 	  return res;
   }
 
-  int combine_solutions(AproblemPD appd, PSolution ps, PSpPD sp ){
+  int combine_solutions(AproblemPD appd, PSolution ps, PSpPD sp )
+  {
 	  int res=0;
 	  ps->acum+=sp->value;
 	  ps->lengthArrays+=1;
@@ -140,10 +153,12 @@ Type get_type(PAproblemPD appd){
 	  return res;
 
   }
-  int get_num_subproblems(){
+  int get_num_subproblems()
+  {
 	  return 1;
   }
-  int get_subproblem(const PAproblemPD  father, PAproblemPD new,Alternative a, int numSubproblems){
+  int get_subproblem(const PAproblemPD  father, PAproblemPD new,Alternative a, int numSubproblems)
+  {
 	  int res=0;
 	  double value;
 	  printf("inside get_subproblem");
@@ -153,33 +168,38 @@ Type get_type(PAproblemPD appd){
 	  value=father->aproblem.values[(father->index)*(father->aproblem.numResources)+a.indexResource];
 	  new->index=father->index+1;
 	  new->solution=father->solution;
-	  updateSolution(&(new->solution), &a, value,father->aproblem);
+	  update_solution(&(new->solution), &a, value,father->aproblem);
 	  return res;
   }
-  double get_estimate(AproblemPD appd){//the minimum value my problem will get
+
+  double get_estimate(PAproblemPD appd)//the minimum value my problem will get
+  {
 	  double res;
 	  //if not pruning and in this problem
 	  res=GREAT;
 	  //if not//TODO
 	  return res;
   }
-  int get_best(AproblemPD appd){
+
+  int get_best(PAproblemPD appd)
+  {
 	  int res;
 	  //if not pruning and in this problem
 	  res=SMALL;
 	  //if not//TODO
 	  return res;
   }
-  int get_target(AproblemPD appd){
+  int get_target(PAproblemPD appd)
+  {
 	  int res=0;
 	  //TODO
 	  return res;
   }
-  int get_size(PAproblemPD papd){
+  int get_size(const PAproblemPD papd){
 	  return papd->aproblem.numTask;
   }
 ///////////////AUX
-  int updateSolution(PSolution ps, PAlternative pa, double value, Aproblem ap){
+  int update_solution(PSolution ps, PAlternative pa, double value, Aproblem ap){
   	int res=0;
   	ps->lengthArrays=ps->lengthArrays+1;
   	ps->acum=(ps->acum)+value;
@@ -189,14 +209,17 @@ Type get_type(PAproblemPD appd){
   	ps->resources[i]=resource;
   	return res;
   }
-  int delete_problem_PD(PAproblemPD papd){//free memory
+
+  int delete_problem_PD(PAproblemPD papd)//let memory free
+  {
 	  int res=-1;
-	  int res1=deleteAProblem(&(papd->aproblem));
+	  int res1=delete_aproblem(&(papd->aproblem));
 	  int res2=delete_solution(&(papd->solution));
 	  res= res1+res2;
 	  return res;
   }
-  int copy_AproblemPD( PAproblemPD rcv,AproblemPD origin){
+  int copy_aproblem_PD( PAproblemPD rcv,AproblemPD origin)
+  {
 	  rcv->aproblem=origin.aproblem;
 	  rcv->index=origin.index;
 	  Solution sol;

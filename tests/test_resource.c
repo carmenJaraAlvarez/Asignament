@@ -17,7 +17,7 @@ void testInitResource(PResource pr,const Cadena name){
 			perror("error initResource.\n");
 		} else {
 			printf("ok initResource.\n");
-			showResource(pr);
+			show_resource(pr);
 			printf("\n");
 		}
 

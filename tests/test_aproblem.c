@@ -14,7 +14,7 @@ void testInit6();
 void testInitAProblem(PAproblem pa,PTask tasks,PResource resources,int numTasks, int numResources, double *values){
 	printf("*** testInitAProblem ***\n");
 	int res=-1;
-	res = initAProblem(pa, tasks, resources, numTasks, numResources,values);
+	res = init_aproblem(pa, tasks, resources, numTasks, numResources,values);
 	if(res == -1) {
 			printf("error initAProblem.\n");
 		} else {
@@ -52,8 +52,8 @@ void testInit5(){
 	resources[2]=r3;
 	double vector[9]={1.,200.,3.,0.,0.,1.,9.,8.,7.};
 	testInitAProblem(&ap,tasks,resources, numTasks,numResources,vector);
-	showAproblem(&ap);
-	deleteAProblem(&ap);
+	show_aproblem(&ap);
+	delete_aproblem(&ap);
 }
 void testInit6(){
 	printf("\n6***********************\n");
@@ -61,10 +61,10 @@ void testInit6(){
 	int numTasks=3;
 	int numResources=3;
 	Cadena url="/home/practica/eclipse-workspace/c/files/data3.txt";
-	readAproblemFile(&ap, numTasks, numResources, url);
+	read_aproblem_file(&ap, numTasks, numResources, url);
 	printf("Reading problem...");
-	showAproblem(&ap);
-	deleteAProblem(&ap);
+	show_aproblem(&ap);
+	delete_aproblem(&ap);
 }
 void testInit6b(){
 	Aproblem ap;
@@ -77,36 +77,41 @@ void testInit6b(){
 	scanf("%d",&numResources);
 	Cadena tasksNames[numTasks];
 	printf("\nName task \n");
-	for(int i=0;i<numTasks;i++){
+	for(int i=0;i<numTasks;i++)
+	{
 		scanf("%s",tasksNames[i]);
 	}
 	Cadena resourcesNames[numResources];
 	printf("\nName resource \n");
-	for(int i=0;i<numTasks;i++){
+	for(int i=0;i<numTasks;i++)
+	{
 		scanf("%s",resourcesNames[i]);
 	}
 	double values[numTasks*numResources];
 	printf("\nValues \n");
-	for(int i=0;i<numTasks*numResources;i++){
+	for(int i=0;i<numTasks*numResources;i++)
+	{
 		scanf("%lf",&values[i]);
 	}
 
 	Task t;
 	Task tasks[numTasks];
-	for(int i=0;i<numTasks;i++){
+	for(int i=0;i<numTasks;i++)
+	{
 		init_task(&t,tasksNames[i]);
 		tasks[i]=t;
 	}
 
 	Resource r;
 	PResource resources;
-	for(int i=0;i<numResources;i++){
+	for(int i=0;i<numResources;i++)
+	{
 		init_resource(&r,resourcesNames[i]);
 		resources[i]=r;
 	}
 	testInitAProblem(&ap,tasks,resources, numTasks,numResources,values);
-	showAproblem(&ap);
-	deleteAProblem(&ap);
+	show_aproblem(&ap);
+	delete_aproblem(&ap);
 }
 
 
