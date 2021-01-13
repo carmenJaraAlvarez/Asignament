@@ -21,20 +21,125 @@
 
 
 int main(int argc, char **argv) {
+	 int dest;
+	  int i;
+	  int id;
+	  int ierr;
+	  int p;
+	  struct
+	  {
+	    int x;
+	    int y;
+	    int z;
+	  } point;
+	  MPI_Datatype point_type;
+	  int source;
+	  MPI_Status status;
+	  int tag;
+	//
+	//  Initialize MPI.
+	//
+	  ierr = MPI_Init ( &argc, &argv );
+	//
+	//  Get the number of processes.
+	//
+	  ierr = MPI_Comm_size ( MPI_COMM_WORLD, &p );
+	//
+	//  Get the individual process ID.
+	//
+	  ierr = MPI_Comm_rank ( MPI_COMM_WORLD, &id );
+	//
+	//  Master
+	//
+	  if ( id == 0 )
+	  {
 
-    GtkWidget *window;
-    gtk_init(&argc, &argv);
+	    printf("An MPI example program that uses an MPI datatype.\n The number of processes is %d \n This is %d\n",p,id);
 
-    //the particular problem/////////////
-    PAproblem pap;
-    create_aproblem_window(&window);
-    /////////////////////////////////////
+	    GtkWidget *window;
+	    gtk_init(&argc, &argv);
 
-    gtk_main();
+	    //the particular problem/////////////
+	    PAproblem pap;
+	    create_aproblem_window(&window);
+	    /////////////////////////////////////
+
+	    gtk_main();
+
+	  }
+	//
+	//  Define and commit the new datatype.
+	//
+	  ierr = MPI_Type_contiguous ( 3, MPI_INT, &point_type );
+	  ierr = MPI_Type_commit ( &point_type );
+
+	  if ( id == 0 )
+	  {
+	    point.x = 1;
+	    point.y = 2;
+	    point.z = 4;
+	    dest = 1;
+	    tag = 1;
+
+	    ierr = MPI_Send ( &point, 1, point_type, dest, tag, MPI_COMM_WORLD );
+
+	    printf("Process %d sent a POINT_TYPE: %d, %d, %d\n",id,point.x,point.y,point.z);
+
+	    source = 1;
+	    tag = 2;
+	    ierr = MPI_Recv ( &point, 1, point_type, source, tag, MPI_COMM_WORLD,
+	      &status );
+
+	    printf("Process %d received a modified POINT_TYPE: %d, %d, %d\n",id,point.x,point.y,point.z);
+
+	  }
+	  else if ( id == 1 )
+	  {
+	    source = 0;
+	    tag = 1;
+
+	    ierr = MPI_Recv ( &point, 1, point_type, source, tag, MPI_COMM_WORLD,
+	      &status );
+
+	    i = point.x;
+	    point.x = point.z * 100;
+	    point.y = point.y * 10;
+	    point.z = i;
+	    dest = 0;
+	    tag = 2;
+
+	    ierr = MPI_Send ( &point, 1, point_type, dest, tag, MPI_COMM_WORLD );
+
+	    if ( ierr != 0 )
+	    {
+	    	printf("\n MPI_Send returns error %d",ierr);
+
+	      return 1;
+	    }
+
+	  }
+	  else
+	  {
+	    printf("I am %d and MPI has nothing for me to do!\n",id);
+	  }
+	//
+	//  Terminate MPI.
+	//
+	  MPI_Finalize ( );
+	//
+	//  Terminate.
+	//
+	  if ( id == 0 )
+	  {
+
+	    printf("  Normal end of execution.\n");
+
+
+	  }
 
     return 0;
 }
-//int main(int argc, char* argv[]){
+
 //	/*tests*//////////////
 ////	testInit1();
 ////	testInit2();
@@ -48,39 +153,4 @@ int main(int argc, char **argv) {
 ////	testInit7();
 ////	testInit8();
 //	testInit9();
-//
-//	//num nodes
-///*	int totalProcess=2;
-//	//gui
-//	//get data
-//	int N=3;
-//	int M=3;
-//	double vector[]={1.,2.,3.,0.,0.,1.,9.,8.,7.};
-//	//dinamic size
-//	//vector de vectores. Cada fila se gestiona con puntero y le matriz es un array de esos punteros
-//	//dinamic_matrix[0]=puntero al vector de enteros de la primera fila
-//
-//	double **dinamic_matrix;
-//	dinamic_matrix=malloc(M*sizeof(double *));
-//	for (int i=0; i<M;i++){
-//		dinamic_matrix[i]=malloc(N*sizeof(double *));
-//	}
-//	/////
-//	int k=0;
-//	for (int i=0;i<M;i++){
-//		for(int j=0;j<N;j++){
-//			double aux=vector[k];
-//			dinamic_matrix[i][j]=aux;
-//			k++;
-//		}
-//
-//	}
-//
-//	//crea problema inicio
-//
-//	Gproblem gp;
-//	initGProblem(&gp, M, N, dinamic_matrix);
-//	showGproblem(gp);*/
-//
-//	return 0;
-//}
+
