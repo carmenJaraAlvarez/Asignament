@@ -12,73 +12,24 @@
 
 #include "common/logico.h"
 #include "assignment/aproblem.h"
+#include "assignment/aproblem_gui.h"
 #include "../tests/test_resource.c"
 #include "../tests/test_task.c"
 #include "../tests/test_aproblem.c"
 #include "../tests/test_aproblemPD.c"
 #include "../tests/test_aPD_algorithm.c"
-#include <gtk/gtk.h>
-#include <glib.h>
-
-//values
-static GtkWidget *tasks_number;
-static GtkWidget *resources_number;
-static GtkWidget *url;
-//tags
-static GtkWidget *resources;
-static GtkWidget *tasks;
-static GtkWidget *values;
-static GtkWidget *url_file;
-
-void get_data(GtkWidget *calculate, gpointer data) {
-    int numt = atoi((char *)gtk_entry_get_text(GTK_ENTRY(tasks_number)));
-    int numr = atoi((char *)gtk_entry_get_text(GTK_ENTRY(resources_number)));
-    const gchar *text;
-    text=gtk_entry_get_text(GTK_ENTRY(url));
-
-
-    char buffer[20];
-    printf("Num values: %d", numt * numr);
-
-    //gtk_label_set_text(GTK_LABEL(values), buffer);
-    printf("\n %s", text);
-}
 
 
 int main(int argc, char **argv) {
-    GtkWidget *window, *grid, *done;
+
+    GtkWidget *window;
     gtk_init(&argc, &argv);
 
-    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
+    //the particular problem/////////////
+    PAproblem pap;
+    create_aproblem_window(&window);
+    /////////////////////////////////////
 
-    grid = gtk_grid_new();
-    gtk_container_add(GTK_CONTAINER(window), grid);
-
-    resources = gtk_label_new("Num Resources");
-    gtk_grid_attach(GTK_GRID(grid), resources, 1, 0, 1, 1);
-    tasks = gtk_label_new("Num Tasks");
-    gtk_grid_attach(GTK_GRID(grid), tasks, 0, 0, 1, 1);
-
-    tasks_number = gtk_entry_new();
-    gtk_grid_attach(GTK_GRID(grid), tasks_number, 0, 1, 1, 1);
-
-    resources_number = gtk_entry_new();
-    gtk_grid_attach(GTK_GRID(grid), resources_number, 1, 1, 1, 1);
-
-    url_file = gtk_label_new("URL");
-    gtk_grid_attach(GTK_GRID(grid), url_file, 0, 2, 1, 1);
-
-    url = gtk_entry_new();
-    gtk_grid_attach(GTK_GRID(grid), url, 0, 3, 2, 1);
-
-    done = gtk_button_new_with_label("Done");
-    g_signal_connect(done, "clicked", G_CALLBACK(get_data), NULL);
-    gtk_grid_attach(GTK_GRID(grid), done, 0, 4, 1, 1);
-
-
-
-    gtk_widget_show_all(window);
     gtk_main();
 
     return 0;
