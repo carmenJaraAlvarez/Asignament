@@ -6,6 +6,7 @@
 #include "aproblem.h"
 #include "PD/a_problem_PD.h"
 #include "../PD/PD_algorithm.h"
+#include "../MPI/problem_MPI.h"
 
 static void resolve_aPD(PAproblem);
 
@@ -26,6 +27,7 @@ void get_data(GtkWidget *calculate, gpointer data) {
     //printf("\n %s", text);
     resolve_aPD(&ap);
 
+
 }
 
 void resolve_aPD(PAproblem pap)
@@ -35,14 +37,15 @@ void resolve_aPD(PAproblem pap)
 	testInitAProblemPD(&appd, *pap);
 	AlgorithmPD alg;
 	init_algorithmPD(&alg, appd);
-	exec_algorithm(&alg);
-	Solution sol;
-	get_PDsolution(&alg, &sol);
-	for(int i=0;i<alg.ppd.solution.lengthArrays;i++){
-		printf("\nResources: \n*%s\n",alg.ppd.solution.resources[i].name);
-	}
-	printf("Solution value: ");
-	printf("%f", alg.ppd.solution.acum);
+	distribution(&alg,3);//TODO
+//	exec_algorithm(&alg);
+//	Solution sol;
+//	get_PDsolution(&alg, &sol);
+//	for(int i=0;i<alg.ppd.solution.lengthArrays;i++){
+//		printf("\nResources: \n*%s\n",alg.ppd.solution.resources[i].name);
+//	}
+//	printf("Solution value: ");
+//	printf("%f", alg.ppd.solution.acum);
 	delete_algorithmPD(&alg);
 }
 
