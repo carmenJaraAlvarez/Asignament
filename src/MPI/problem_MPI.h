@@ -13,12 +13,13 @@
 
  struct  Work
 	  {
-//	 	Cadena url;
+
 		int num_tasks;
 		int num_resources;
 		int alternative;
+		double values[50];//TODO
 
-	  };
+	  }w_mpi;
 
 
 int distribution(PalgorithmPD, int);
