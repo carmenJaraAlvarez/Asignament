@@ -50,90 +50,150 @@ int distribution(PalgorithmPD palg, int num_processes)
 int rcv_work()
 {
 	int res=0;
-	int tag_problem=1;
-	int ierr;
+	int tag_work=0;
+	int tag_values=1;
+	int ierr=0;
 
 	printf("rcv...\n");
 	struct Work work;
+
+
+
+	//getting work
+
 	MPI_Datatype work_mpi_datatype;
-	//MPI_Type_contiguous ( 3, MPI_INT, &work_mpi_datatype );
-	const int nitems=4;
-	int          blocklengths[4] = {1,1,1,50};
-	MPI_Datatype types[4] = {MPI_INT, MPI_INT, MPI_INT, MPI_DOUBLE};
-
-	//MPI_Aint     offsets[nitems];
-	const MPI_Aint offsets[4]= { 0, sizeof(int), sizeof(int)*2,sizeof(int)*3};
-
-//	offsets[0] = offsetof(struct Work, num_tasks);
-//	offsets[1] = offsetof(struct Work, num_resources);
-//	offsets[2] = offsetof(struct Work, alternative);
-//	offsets[3] = offsetof(struct Work, url);
-//	printf("offsets of work.url %d", offsets[3]);
-//	offsets[3] = offsetof(Cadena, url);
-//	printf("offsets of cadena %d", offsets[3]);
-
-	MPI_Type_create_struct(nitems, blocklengths, offsets, types,  &work_mpi_datatype);
-
+	int blocklengths[4] = {1,1,1,1};
+	MPI_Datatype types[4] = {MPI_INT, MPI_INT,MPI_INT, MPI_INT};
+	const MPI_Aint offsets[4]= { 0, sizeof(int),sizeof(int)*2,sizeof(int)*3};
+	MPI_Type_create_struct(4, blocklengths, offsets, types,  &work_mpi_datatype);
 	MPI_Type_commit ( &work_mpi_datatype );
-	// ierr = MPI_Send ( &work, 1, work_mpi_datatype, num_process, tag, MPI_COMM_WORLD );
-	MPI_Recv ( &work, 1, work_mpi_datatype, MPI_ANY_SOURCE, tag_problem, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
 
+    MPI_Recv(&work, 1, work_mpi_datatype , 0, tag_work, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+	printf("\n received num task: %d",work.num_tasks);
+	printf("\n received num resources: %d\n",work.num_resources);
+	int size_values=work.num_tasks*work.num_resources;
+	MPI_Type_free ( &work_mpi_datatype);
+
+	//gettingvalues
+	double values[size_values];
+
+	MPI_Recv ( &values, size_values, MPI_DOUBLE, MPI_ANY_SOURCE, tag_values, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
 	printf("%d resources\n",work.num_resources);
-	printf("%f send first\n",work.values[0]);
-	printf("%f send 8\n",work.values[8]);
-	printf("%f send last\n",work.values[50]);
-	//ierr = MPI_TYPE_FREE(&work_mpi_datatype);
+	printf("%d received size values\n",size_values);
+	printf("%d received type\n",work.type);
+	printf("%f received first\n",values[0]);
+	printf("%f received second\n",values[1]);
+
 	return res;
 }
 
 int send_work(PalgorithmPD palg,int num_problem, int num_process)
 {
 	int res=0;
-	int tag=1;
-	int ierr;
-	//char ch="h";
-	Cadena c="/home/practica/eclipse-workspace/c/files/data3.txt";
+
+	int tag_work=0;
+	int tag_values=1;
+	int tag_tasks=2;
+	int tag_resources=3;
+
 	printf("send work to %d\n",num_process);
 	show_aproblem(&(palg->ppd.aproblem));
 	//TODO include num_problem
 	struct Work work;
+
 	work.num_resources=palg->ppd.aproblem.numResources;
 	work.num_tasks=palg->ppd.aproblem.numTask;
-	work.alternative=1;//todo
-	int num_values=palg->ppd.aproblem.numResources*palg->ppd.aproblem.numTask;
+	work.alternative=1;//TODO
+	work.type=palg->ppd.aproblem.type;
+	int num_values=work.num_resources*work.num_tasks;
+	printf("\n In work task: %d",work.num_tasks);
+	printf("\n In work resources: %d",work.num_resources);
+
+	double values[num_values];
+	Cadena tasks[num_values];
+	Cadena resources[num_values];
+
 	for(int i=0;i<num_values;i++)
 	{
-		work.values[i]=palg->ppd.aproblem.values[i];
+		values[i]=palg->ppd.aproblem.values[i];
+		printf("inside send. value[%d]=%f\n",i,values[i]);
 	}
-//    strncpy(work.url, "/home/practica/eclipse-workspace/c/files/data3.txt", 255);
-//    work.url[255] = '\0';
-	//strcpy(work.url,c);
-	//work.url=ch;
-	//create_datatype_work_MPI
+	for(int i=0;i<work.num_resources;i++)
+	{
+		strcpy(resources[i],palg->ppd.aproblem.resources->name);
+		printf("inside send. resources[%d]=%s\n",i,resources[i]);
+	}
+	for(int i=0;i<work.num_tasks;i++)
+	{
+		strcpy(tasks[i],palg->ppd.aproblem.tasks->name);
+		printf("inside send. resources[%d]=%s\n",i,tasks[i]);
+	}
+
+	//sending
 	MPI_Datatype work_mpi_datatype;
-	//	MPI_Type_contiguous ( 3, MPI_INT, &work_mpi_datatype );
-	//	MPI_Type_commit ( &work_mpi_datatype );
+	int blocklengths[4] = {1,1,1,1};
+	MPI_Datatype types[4] = {MPI_INT, MPI_INT,MPI_INT, MPI_INT};
+    const MPI_Aint offsets[4]= { 0, sizeof(int),sizeof(int)*2, sizeof(int)*3};
+	MPI_Type_create_struct(4, blocklengths, offsets, types,  &work_mpi_datatype);
+	MPI_Type_commit ( &work_mpi_datatype);
 
-	//another way for more complex structs
-	    const int nitems=4;
-	    int          blocklengths[4] = {1,1,1,50};
-	    MPI_Datatype types[4] = {MPI_INT, MPI_INT, MPI_INT, MPI_DOUBLE};
+	printf("\n sending num task: %d",work.num_tasks);
+	printf("\n sending num resources: %d\n",work.num_resources);
 
-//	    MPI_Aint     offsets[nitems];
-//
-//	    offsets[0] = offsetof(struct Work, num_tasks);
-//	    offsets[1] = offsetof(struct Work, num_resources);
-//	    offsets[2] = offsetof(struct Work, alternative);
-//	    offsets[3] = offsetof(struct Work, url);
-	    const MPI_Aint offsets[4]= { 0, sizeof(int), sizeof(int)*2,sizeof(int)*3};
-	    MPI_Type_create_struct(4, blocklengths, offsets, types,  &work_mpi_datatype);
-	    MPI_Type_commit( &work_mpi_datatype);
+    MPI_Send(&work, 1, work_mpi_datatype, num_process, tag_work, MPI_COMM_WORLD);
+    MPI_Type_free( &work_mpi_datatype);
 
-    ierr = MPI_Send ( &work, 1, work_mpi_datatype, num_process, tag, MPI_COMM_WORLD );
-    //ierr = MPI_TYPE_FREE( &work_mpi_datatype);
+	//sending dinamic arrays
+
+	MPI_Send( &values, num_values, MPI_DOUBLE, num_process, tag_values, MPI_COMM_WORLD );
+	char serialized[1000];//TODO
+	serializer_tasks(palg, &serialized);
+	deserializer_tasks(palg, &serialized);
+	//printf("\npost serializer ******%s\n",serialized);
+	//MPI_Send( &tasks, palg->ppd.aproblem.numTask, MPI_CHAR, num_process, tag_values, MPI_COMM_WORLD );
 	return res;
 }
+int serializer_tasks(PalgorithmPD palg, char* all)
+{
+	Cadena temp="";
+	Cadena divisor=";";
+	int res=0;
+	for(int i=0;i<palg->ppd.aproblem.numTask;i++)
+	{
+		strcat(temp,palg->ppd.aproblem.tasks[i].name);
+		strcat(temp,divisor);
+		printf("\n----%s\n",temp);
+	}
+	strcpy(all,temp);
+	printf("\n---->>>>%s\n",all);
+	return res;
+}
+int deserializer_tasks(PalgorithmPD palg, char* all)
+{
+	char divisor=';';
+	printf("\nINSIDE DESERIALIZED---->>>>%s\n",all);
+	int res=0;
+	int count=0;
+	for(int i=0;i<1000;i++)//TODO
+	{
+		printf("\nINSIDE DESERIALIZED***>>>%c\n",all[i]);
+		printf("\nINSIDE DESERIALIZED***>>>>%c\n",divisor);
+		if(all[i]==divisor)
+		{
+			count++;
+			if(count==palg->ppd.aproblem.numTask)
+			{
+				printf("\nfound %d *\n",count);
+				break;
+			}
+		}
 
+
+	}
+
+	return res;
+}
 void waitting_answer()
 {
 
