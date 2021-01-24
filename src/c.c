@@ -69,7 +69,9 @@ int main(int argc, char **argv) {
 	  }
 	  else
 	  {
+
 		  rcv_work();
+
 	  }
 	//
 	//  Define and commit the new datatype.

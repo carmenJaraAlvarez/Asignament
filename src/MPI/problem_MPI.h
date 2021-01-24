@@ -14,7 +14,6 @@
 
   struct  Work
 	  {
-
 		int num_tasks;
 		int num_resources;
 		//problem type: min, max, other
@@ -23,13 +22,15 @@
 		int alternative;
 
 
+
 	  }w_mpi;
 
 
 
 int distribution(PalgorithmPD, int);
 int rcv_work();
-int send_work(PalgorithmPD,int, int);
+int init_work(PAproblem, int);
+int send_work(PalgorithmPD,int, int, int);
 void waitting_answer();
 int serializer_tasks(PalgorithmPD, char*);
 int deserializer_tasks(char*, int, PTask );

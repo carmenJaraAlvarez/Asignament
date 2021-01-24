@@ -120,7 +120,9 @@
 	  int size=get_size(&(palg->ppd));
 
 	  int lengthNewArrayAppd=0;
-	  for(int i=0;i<size;i++){
+	  int index;
+	  index=palg->problems->index;
+	  for(int i=index;i<size;i++){
 		  AproblemPD newArrayAppd[get_max_num_problems(&appd)];
 		  lengthNewArrayAppd=0;
 		  //get previous problems
