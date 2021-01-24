@@ -29,7 +29,9 @@ int distribution(PalgorithmPD palg, int num_processes)
 	{
 		for(int i=1; i<palg->num_problems+1;i++)
 		{
-			send_work(palg,i,1,i);//first i is alternative, second one is process target
+			int alternatives[1];
+			alternatives[0]=i;
+			send_work(palg,&alternatives,1,i);//sending 1 alternative to process i
 			//TODO process 0 resolves 0. look for not blocking solution
 		}
 	}
@@ -38,19 +40,23 @@ int distribution(PalgorithmPD palg, int num_processes)
 		int i;
 		for(i=1; i==palg->num_problems;i++)
 		{
-			send_work(palg,i,1,i);
+			int alternatives[1];
+			alternatives[0]=i;
+			send_work(palg,&alternatives,1,i);
 
 		}
 		for(int j=i;j<num_processes;j++)
 		{
-			send_work(palg,i,0,j);
+			int alternatives[0];
+			send_work(palg,&alternatives,0,j);
 		}
 	}
 	else//num problems >num processes
 	{
 		for(int i=1; i==num_processes;i++)
 		{
-			send_work(palg,i,1,i);//TODO num works
+			int alternatives[0];//TODO num works
+			send_work(palg,alternatives,0,i);
 		}
 
 	}
@@ -68,6 +74,7 @@ int rcv_work()
 	int tag_values=1;
 	int tag_tasks=2;
 	int tag_resources=3;
+	int tag_alternatives=4;
 	int ierr=0;
 
 	printf("rcv...\n");
@@ -85,56 +92,57 @@ int rcv_work()
 	MPI_Status status;
     MPI_Recv(&work, 1, work_mpi_datatype , 0, tag_work, MPI_COMM_WORLD, &status);
 
+    printf("\n received num task: %d",work.num_tasks);
+	printf("\n received num resources: %d\n",work.num_resources);
+	int size_values=work.num_tasks*work.num_resources;
+
+
+	//getting values
+
+	double values[size_values];
+
+	MPI_Recv ( &values, size_values, MPI_DOUBLE, MPI_ANY_SOURCE, tag_values, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
+	printf("%d resources\n",work.num_resources);
+	printf("%d received size values\n",size_values);
+	printf("%d received type\n",work.type);
+	printf("%f received first\n",values[0]);
+	printf("%f received second\n",values[1]);
+
+	//getting tasks and resources names
+
+	char serialized[1000];//TODO
+	Task tasks[work.num_tasks];
+
+	char serialized_resources[1000];//TODO
+	Resource resources[work.num_resources];
+
+	MPI_Recv( &serialized, 1000, MPI_CHAR, MPI_ANY_SOURCE, tag_tasks, MPI_COMM_WORLD,MPI_STATUS_IGNORE );
+	deserializer_tasks(&serialized,work.num_tasks,tasks);
+	printf("*************************POST RCVE TASKS name 3º task\n%s\n",tasks[2].name);
+	MPI_Recv( &serialized_resources, 1000, MPI_CHAR, MPI_ANY_SOURCE, tag_resources, MPI_COMM_WORLD,MPI_STATUS_IGNORE );
+	deserializer_resources(&serialized_resources,work.num_resources,resources);
+	printf("*************************POST RCVE RESOURCES name 3º resource\n%s\n",resources[2].name);
+
+	//create problem
+	PAproblem pa;
+	init_aproblem(pa,tasks,resources,work.num_tasks, work.num_resources, values);
+	printf("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+	show_aproblem(pa);
+	printf("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+
     int count;
     MPI_Get_count(&status, work_mpi_datatype, &count);
+    int alternatives[work.num_alternatives];
     if(count>0)
     {
-
-		printf("\n received num task: %d",work.num_tasks);
-		printf("\n received num resources: %d\n",work.num_resources);
-		int size_values=work.num_tasks*work.num_resources;
-
-
-		//getting values
-
-		double values[size_values];
-
-		MPI_Recv ( &values, size_values, MPI_DOUBLE, MPI_ANY_SOURCE, tag_values, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
-		printf("%d resources\n",work.num_resources);
-		printf("%d received size values\n",size_values);
-		printf("%d received type\n",work.type);
-		printf("%f received first\n",values[0]);
-		printf("%f received second\n",values[1]);
-
-		//getting tasks and resources names
-
-		char serialized[1000];//TODO
-		Task tasks[work.num_tasks];
-
-		char serialized_resources[1000];//TODO
-		Resource resources[work.num_resources];
-
-		MPI_Recv( &serialized, 1000, MPI_CHAR, MPI_ANY_SOURCE, tag_tasks, MPI_COMM_WORLD,MPI_STATUS_IGNORE );
-		deserializer_tasks(&serialized,work.num_tasks,tasks);
-		printf("*************************POST RCVE TASKS name 3º task\n%s\n",tasks[2].name);
-		MPI_Recv( &serialized_resources, 1000, MPI_CHAR, MPI_ANY_SOURCE, tag_resources, MPI_COMM_WORLD,MPI_STATUS_IGNORE );
-		deserializer_resources(&serialized_resources,work.num_resources,resources);
-		printf("*************************POST RCVE RESOURCES name 3º resource\n%s\n",resources[2].name);
-
-		//create problem
-		PAproblem pa;
-		init_aproblem(pa,tasks,resources,work.num_tasks, work.num_resources, values);
-		printf("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-		show_aproblem(pa);
-		printf("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-		init_work(pa, work.alternative);
-
-    }//end if load!=FALSE
+    	MPI_Recv ( &alternatives, work.num_alternatives, MPI_INT, MPI_ANY_SOURCE, tag_alternatives, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
+    }
     MPI_Type_free ( &work_mpi_datatype);
+    init_work(pa, work.num_alternatives, &alternatives);
 	return res;
 }
 
-int init_work(PAproblem pa, int alternative)
+int init_work(PAproblem pa, int num_alternatives, int * alternatives)
 {
 	int res=0;
 	AproblemPD appd;
@@ -145,12 +153,15 @@ int init_work(PAproblem pa, int alternative)
 	show_aproblem(&(alg.ppd.aproblem));
 	//update problem with alternative
 	alg.ppd.index=1;
-	strcpy(alg.ppd.solution.resources[alg.ppd.solution.lengthArrays].name, pa->resources[alternative].name);
-	alg.ppd.solution.lengthArrays=alg.ppd.solution.lengthArrays+1;
-	alg.ppd.solution.acum=pa->values[alternative];
-	alg.problems[0]=alg.ppd;
-	printf("Assert index =1 in problems post work:%d ",alg.problems[0].index);
-
+	for(int i=0;i<num_alternatives;i++)//TODO
+	{
+		strcpy(alg.ppd.solution.resources[alg.ppd.solution.lengthArrays].name, pa->resources[alternatives[i]].name);
+		alg.ppd.solution.lengthArrays=alg.ppd.solution.lengthArrays+1;
+		alg.ppd.solution.acum=pa->values[alternatives[i]];
+		alg.problems[0]=alg.ppd;
+		printf("Assert index =1 in problems post work:%d ",alg.problems[0].index);
+	}
+	//TODO if num alt >1 then, we need to add subproblems
 	exec_algorithm(&alg);
 	printf("\nAfter exec algoritm\n");
 	Solution sol;
@@ -163,18 +174,19 @@ int init_work(PAproblem pa, int alternative)
 
 	return res;
 }
-int send_work(PalgorithmPD palg,int alternative, int num_alternatives, int num_process)
+int send_work(PalgorithmPD palg,int *alternatives, int num_alternatives, int num_process)
 {
-	printf("\n...................sending alternative %d to process %d\n",alternative,num_process);
+	printf("\n...................sending  %d  alternatives to process %d\n",num_alternatives,num_process);
+	show_aproblem(&(palg->ppd.aproblem));
+
 	int res=0;
 
 	int tag_work=0;
 	int tag_values=1;
 	int tag_tasks=2;
 	int tag_resources=3;
+	int tag_alternatives=4;
 
-	printf("send work to %d\n",num_process);
-	show_aproblem(&(palg->ppd.aproblem));
 
 	struct Work work;
 	char serialized_tasks[1000];//TODO
@@ -184,13 +196,14 @@ int send_work(PalgorithmPD palg,int alternative, int num_alternatives, int num_p
 
 	work.num_resources=palg->ppd.aproblem.numResources;
 	work.num_tasks=palg->ppd.aproblem.numTask;
-	work.alternative=alternative;//TODO
+	work.num_alternatives=num_alternatives;//TODO
 	work.type=palg->ppd.aproblem.type;
 	int num_values=work.num_resources*work.num_tasks;
 	printf("\n In work task: %d",work.num_tasks);
 	printf("\n In work resources: %d",work.num_resources);
 
 	double values[num_values];
+	int alternatives_to_work[num_alternatives];
 	Cadena tasks[num_values];
 	Cadena resources[num_values];
 
@@ -198,6 +211,11 @@ int send_work(PalgorithmPD palg,int alternative, int num_alternatives, int num_p
 	{
 		values[i]=palg->ppd.aproblem.values[i];
 		printf("inside send. value[%d]=%f\n",i,values[i]);
+	}
+	for(int i=0;i<num_alternatives;i++)
+	{
+		alternatives_to_work[i]=alternatives[i];//TODO
+		printf("inside send. alternative[%d]",i);
 	}
 	for(int i=0;i<work.num_resources;i++)
 	{
@@ -225,10 +243,13 @@ int send_work(PalgorithmPD palg,int alternative, int num_alternatives, int num_p
     MPI_Type_free( &work_mpi_datatype);
 
 	//sending dinamic arrays
-
 	MPI_Send( &values, num_values, MPI_DOUBLE, num_process, tag_values, MPI_COMM_WORLD );
 	MPI_Send( &serialized_tasks, len, MPI_CHAR, num_process, tag_tasks, MPI_COMM_WORLD );
 	MPI_Send( &serialized_resources, len_resources, MPI_CHAR, num_process, tag_resources, MPI_COMM_WORLD );
+    if(num_alternatives>0)
+    {
+    	MPI_Send( &alternatives_to_work, num_alternatives, MPI_INT, num_process, tag_alternatives, MPI_COMM_WORLD );
+    }
 
 	return res;
 }

@@ -19,7 +19,7 @@
 		//problem type: min, max, other
 		Type type;
 		//alternative the process will select
-		int alternative;
+		int num_alternatives;
 
 
 
@@ -29,8 +29,8 @@
 
 int distribution(PalgorithmPD, int);
 int rcv_work();
-int init_work(PAproblem, int);
-int send_work(PalgorithmPD,int, int, int);
+int init_work(PAproblem, int, int*);
+int send_work(PalgorithmPD,int *, int, int);
 void waitting_answer();
 int serializer_tasks(PalgorithmPD, char*);
 int deserializer_tasks(char*, int, PTask );
