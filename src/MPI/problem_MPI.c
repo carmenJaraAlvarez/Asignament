@@ -52,6 +52,8 @@ int rcv_work()
 	int res=0;
 	int tag_work=0;
 	int tag_values=1;
+	int tag_tasks=2;
+	int tag_resources=3;
 	int ierr=0;
 
 	printf("rcv...\n");
@@ -85,6 +87,18 @@ int rcv_work()
 	printf("%f received first\n",values[0]);
 	printf("%f received second\n",values[1]);
 
+	char serialized[1000];//TODO
+	Task tasks[work.num_tasks];
+
+	char serialized_resources[1000];//TODO
+	Resource resources[work.num_resources];
+
+	MPI_Recv( &serialized, 1000, MPI_CHAR, MPI_ANY_SOURCE, tag_tasks, MPI_COMM_WORLD,MPI_STATUS_IGNORE );
+	deserializer_tasks(&serialized,work.num_tasks,tasks);
+	printf("*************************POST RCVE TASKS name 3º task\n%s\n",tasks[2].name);
+	MPI_Recv( &serialized_resources, 1000, MPI_CHAR, MPI_ANY_SOURCE, tag_resources, MPI_COMM_WORLD,MPI_STATUS_IGNORE );
+	deserializer_resources(&serialized_resources,work.num_resources,resources);
+	printf("*************************POST RCVE RESOURCES name 3º resource\n%s\n",resources[2].name);
 	return res;
 }
 
@@ -101,6 +115,10 @@ int send_work(PalgorithmPD palg,int num_problem, int num_process)
 	show_aproblem(&(palg->ppd.aproblem));
 	//TODO include num_problem
 	struct Work work;
+	char serialized_tasks[1000];//TODO
+	int len=serializer_tasks(palg, &serialized_tasks);
+	char serialized_resources[1000];//TODO
+	int len_resources=serializer_resources(palg, &serialized_resources);
 
 	work.num_resources=palg->ppd.aproblem.numResources;
 	work.num_tasks=palg->ppd.aproblem.numTask;
@@ -147,18 +165,16 @@ int send_work(PalgorithmPD palg,int num_problem, int num_process)
 	//sending dinamic arrays
 
 	MPI_Send( &values, num_values, MPI_DOUBLE, num_process, tag_values, MPI_COMM_WORLD );
-	char serialized[1000];//TODO
-	serializer_tasks(palg, &serialized);
-	deserializer_tasks(palg, &serialized);
-	//printf("\npost serializer ******%s\n",serialized);
-	//MPI_Send( &tasks, palg->ppd.aproblem.numTask, MPI_CHAR, num_process, tag_values, MPI_COMM_WORLD );
+	MPI_Send( &serialized_tasks, len, MPI_CHAR, num_process, tag_tasks, MPI_COMM_WORLD );
+	MPI_Send( &serialized_resources, len_resources, MPI_CHAR, num_process, tag_resources, MPI_COMM_WORLD );
+
 	return res;
 }
 int serializer_tasks(PalgorithmPD palg, char* all)
 {
 	Cadena temp="";
 	Cadena divisor=";";
-	int res=0;
+
 	for(int i=0;i<palg->ppd.aproblem.numTask;i++)
 	{
 		strcat(temp,palg->ppd.aproblem.tasks[i].name);
@@ -167,31 +183,86 @@ int serializer_tasks(PalgorithmPD palg, char* all)
 	}
 	strcpy(all,temp);
 	printf("\n---->>>>%s\n",all);
-	return res;
+	int len;
+	for (len = 0; all[len] != '\0'; ++len);
+	printf("Length of Str tasks is %d", len);
+	return len;
 }
-int deserializer_tasks(PalgorithmPD palg, char* all)
+int deserializer_tasks(char* all, int len, PTask tasks)
 {
+
+	Cadena aux="";
 	char divisor=';';
 	printf("\nINSIDE DESERIALIZED---->>>>%s\n",all);
 	int res=0;
 	int count=0;
 	for(int i=0;i<1000;i++)//TODO
 	{
-		printf("\nINSIDE DESERIALIZED***>>>%c\n",all[i]);
-		printf("\nINSIDE DESERIALIZED***>>>>%c\n",divisor);
 		if(all[i]==divisor)
 		{
+			strcpy(tasks[count].name,aux);
 			count++;
-			if(count==palg->ppd.aproblem.numTask)
+			strcpy(aux,"");
+			if(count==len)
 			{
 				printf("\nfound %d *\n",count);
 				break;
 			}
+
+		}
+		else{
+			strncat(aux, &all[i], 1);
+
 		}
 
+	}
+	return res;
+}
+int serializer_resources(PalgorithmPD palg, char* all)
+{
+	Cadena temp="";
+	Cadena divisor=";";
+
+	for(int i=0;i<palg->ppd.aproblem.numResources;i++)
+	{
+		strcat(temp,palg->ppd.aproblem.resources[i].name);
+		strcat(temp,divisor);
+	}
+	strcpy(all,temp);
+	printf("\nRESOURCES---->>>>%s\n",all);
+	int len;
+	for (len = 0; all[len] != '\0'; ++len);
+	printf("Length of Str resources is %d", len);
+	return len;
+}
+int deserializer_resources(char* all, int len, PResource resources)
+{
+
+	Cadena aux="";
+	char divisor=';';
+	printf("\nINSIDE DESERIALIZED  resources---->>>>%s\n",all);
+	int res=0;
+	int count=0;
+	for(int i=0;i<1000;i++)//TODO
+	{
+		if(all[i]==divisor)
+		{
+			strcpy(resources[count].name,aux);
+			count++;
+			strcpy(aux,"");
+			if(count==len)
+			{
+				printf("\nfound resources %d *\n",count);
+				break;
+			}
+
+		}
+		else{
+			strncat(aux, &all[i], 1);
+
+		}
 
 	}
-
 	return res;
 }
 void waitting_answer()

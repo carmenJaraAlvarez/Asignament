@@ -32,6 +32,8 @@ int rcv_work();
 int send_work(PalgorithmPD,int, int);
 void waitting_answer();
 int serializer_tasks(PalgorithmPD, char*);
-int deserializer_tasks(PalgorithmPD, char*);
+int deserializer_tasks(char*, int, PTask );
+int serializer_resources(PalgorithmPD palg, char* all);
+int deserializer_resources(char*, int, PResource);
 
 #endif /* MPI_PROBLEM_MPI_H_ */
