@@ -41,11 +41,11 @@ void testInit5(){
 	tasks[2]=t3;
 
 	Resource r1;
-	init_resource(&r1,"R1");
+	init_resource(&r1,"R1",0);
 	Resource r2;
-	init_resource(&r2,"R2");
+	init_resource(&r2,"R2",1);
 	Resource r3;
-	init_resource(&r3,"R3");
+	init_resource(&r3,"R3",2);
 	Resource resources[numResources];
 	resources[0]=r1;
 	resources[1]=r2;
@@ -106,7 +106,7 @@ void testInit6b(){
 	PResource resources;
 	for(int i=0;i<numResources;i++)
 	{
-		init_resource(&r,resourcesNames[i]);
+		init_resource(&r,resourcesNames[i],i);
 		resources[i]=r;
 	}
 	testInitAProblem(&ap,tasks,resources, numTasks,numResources,values);

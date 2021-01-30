@@ -11,41 +11,50 @@
 static int pD_distribution(PalgorithmPD palg);
 
 
-
+//we will free process 0 from problem resolution.Process 0 will show grafics
 int distribution(PalgorithmPD palg, int num_processes)
 {
 	int res=-1;
-
 	Solution sol;
+	int num_slaves=num_processes-1;
+	printf("\n num problems-num slaves: %d-%d",palg->num_problems,num_slaves);
 	do
 	{
+		printf("\n num subpr: %d",get_num_subproblems());
 		for(int i=0;i<get_num_subproblems();i++)
 		{
 			pD_distribution(palg);
 		}
 	}while(palg->isRandomize && get_PDsolution(palg,&sol)!=0);
+	printf("\n num problems-num slaves: %d-%d",palg->num_problems,num_slaves);
 
-	if(palg->num_problems==num_processes)
+	if(palg->num_problems==num_slaves)
 	{
-		for(int i=1; i<palg->num_problems+1;i++)
+		printf("\nif");
+
+		for(int i=1; i<(num_slaves+1);i++)
 		{
+			printf("inside for");
 			int alternatives[1];
-			alternatives[0]=i;
+			alternatives[0]=i-1;
+			printf("\n num problems==num slaves: alternative->%d",alternatives[0]);
 			send_work(palg,&alternatives,1,i);//sending 1 alternative to process i
-			//TODO process 0 resolves 0. look for not blocking solution
+
 		}
 	}
-	else if(palg->num_problems<num_processes)
+	else if(palg->num_problems<num_slaves)
 	{
+		printf("\n else if");
 		int i;
-		for(i=1; i==palg->num_problems;i++)
+		for(i=1; i<(palg->num_problems+1);i++)
 		{
 			int alternatives[1];
-			alternatives[0]=i;
+			alternatives[0]=i-1;
+			printf("\n num problems<num slaves: alternative->%d",alternatives[0]);
 			send_work(palg,&alternatives,1,i);
 
 		}
-		for(int j=i;j<num_processes;j++)
+		for(int j=palg->num_problems+1;j==num_slaves;j++)
 		{
 			int alternatives[0];
 			send_work(palg,&alternatives,0,j);
@@ -53,10 +62,31 @@ int distribution(PalgorithmPD palg, int num_processes)
 	}
 	else//num problems >num processes
 	{
-		for(int i=1; i==num_processes;i++)
+
+		int rounds=(palg->num_problems)/num_processes;
+		int more_round=(palg->num_problems)-num_slaves*rounds;
+
+		for(int i=1; i<(more_round+1);i++)
 		{
-			int alternatives[0];//TODO num works
-			send_work(palg,alternatives,0,i);
+			printf("\n0000000000000000000000000000000000000000000000000000sending case num problems >num processes. resource 0: %s",palg->ppd.aproblem.resources[0].name);
+			int alternatives[100];//TODO
+			for(int j=0;j<rounds+1;j++)
+			{
+				printf("\n1111111111111111111111111111111111111111111111111111sending case num problems >num processes. resource 0: %s",palg->ppd.aproblem.resources[0].name);
+				int a=(i-1)+(j*num_slaves);
+				printf("\nalternative %d=%d",j,a);
+				alternatives[j]=a;//process i, distribution round j
+			}
+			send_work(palg,&alternatives,rounds+1,i);
+		}
+		for(int i=more_round+1;i<num_processes;i++)
+		{
+			int alternatives[100];//TODO
+			for(int j=0;j<rounds;j++)
+			{
+				alternatives[j]=(i-1)+(j*num_slaves);//process i, distribution round j
+			}
+			send_work(palg,alternatives,rounds,i);
 		}
 
 	}
@@ -130,53 +160,108 @@ int rcv_work()
 	show_aproblem(pa);
 	printf("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
 
-    int count;
-    MPI_Get_count(&status, work_mpi_datatype, &count);
+//    int count;
+//    MPI_Get_count(&status, work_mpi_datatype, &count);
     int alternatives[work.num_alternatives];
-    if(count>0)
+    if(work.num_alternatives>0)
     {
     	MPI_Recv ( &alternatives, work.num_alternatives, MPI_INT, MPI_ANY_SOURCE, tag_alternatives, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
     }
     MPI_Type_free ( &work_mpi_datatype);
     init_work(pa, work.num_alternatives, &alternatives);
+    printf("\n Inside RCV. num alternatives: %d", work.num_alternatives);
+    for(int a=0;a<work.num_alternatives;a++)
+    {
+    	printf("\n alternative %d=%d", a,alternatives[a]);
+    }
+    printf("+\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
 	return res;
 }
 
 int init_work(PAproblem pa, int num_alternatives, int * alternatives)
 {
 	int res=0;
-	AproblemPD appd;
-	initAProblemPD(&appd, pa);
-	AlgorithmPD alg;
-	init_algorithmPD(&alg, appd);
-	printf("best post init: %f",alg.best);
-	show_aproblem(&(alg.ppd.aproblem));
-	//update problem with alternative
-	alg.ppd.index=1;
-	for(int i=0;i<num_alternatives;i++)//TODO
-	{
-		strcpy(alg.ppd.solution.resources[alg.ppd.solution.lengthArrays].name, pa->resources[alternatives[i]].name);
-		alg.ppd.solution.lengthArrays=alg.ppd.solution.lengthArrays+1;
-		alg.ppd.solution.acum=pa->values[alternatives[i]];
-		alg.problems[0]=alg.ppd;
-		printf("Assert index =1 in problems post work:%d ",alg.problems[0].index);
-	}
-	//TODO if num alt >1 then, we need to add subproblems
-	exec_algorithm(&alg);
-	printf("\nAfter exec algoritm\n");
-	Solution sol;
-	get_PDsolution(&alg, &sol);
-	for(int i=0;i<alg.ppd.solution.lengthArrays;i++){
-		printf("\nResources: \n*%s\n",alg.ppd.solution.resources[i].name);
-	}
-	printf("Solution value: %f", alg.ppd.solution.acum);
-	delete_algorithmPD(&alg);
 
+	if (num_alternatives==0){
+		//ask work
+	}
+	else
+	{
+		AproblemPD appd;
+		initAProblemPD(&appd, pa);
+		AlgorithmPD alg;
+		init_algorithmPD(&alg, appd);
+		printf("best post init: %f",alg.best);
+		show_aproblem(&(alg.ppd.aproblem));
+		//update problem with alternative
+
+
+		if(num_alternatives==1)
+		{
+			printf("\n	===========only 1 alternative");
+			alg.ppd.index=1;
+			strcpy(alg.ppd.solution.resources[alg.ppd.solution.lengthArrays].name, pa->resources[alternatives[0]].name);
+			alg.ppd.solution.lengthArrays=alg.ppd.solution.lengthArrays+1;
+			alg.ppd.solution.acum=pa->values[0+alternatives[0]*alg.ppd.aproblem.numTask];
+			alg.problems[0]=alg.ppd;
+			printf("Assert index =1 in problems post work:%d ",alg.problems[0].index);
+		}
+		else//num_alternatives>1
+		{
+			// we need to add subproblems
+			//int get_subproblem(const PAproblemPD, PAproblemPD,Alternative, int);
+			//int init_alternative(PAlternative a,const int i)
+			AproblemPD subproblems[num_alternatives];
+			Alternative alt[num_alternatives];
+
+			for(int i=0;i<num_alternatives;i++)
+			{
+				alg.ppd.index=0;
+				init_alternative(&alt[i],alternatives[i]);
+				printf("\n	=============== Alternative: %d\n",alt[i].indexResource);
+				printf("\n PPD index: %d\n",alg.ppd.index);
+				get_subproblem(&alg.ppd, &subproblems[i],alt[i], get_num_subproblems());
+
+				printf("\n "
+						"========================Inside init work more than 1 alternative");
+				show_aproblem_PD(&subproblems[i]);
+				printf("\n post get subproblems index: %d",subproblems[i].index);
+				printf("\n post get subproblems solution.len: %d",subproblems[i].solution.lengthArrays);
+				printf("\n post get subproblems solution.acum: %f",subproblems[i].solution.acum);
+				printf("\n post get subproblems first resource: %s",subproblems[i].solution.resources[0].name);
+				alg.problems[i]=subproblems[i];
+				printf("\n post get subproblems index: %d",subproblems[i].index);
+				printf("\n post get subproblems solution.len: %d",alg.problems[i].solution.lengthArrays);
+				printf("\n post get subproblems solution.acum: %f",alg.problems[i].solution.acum);
+				printf("\n post get subproblems first resource: %s",alg.problems[i].solution.resources[0].name);
+
+				strcpy(alg.problems[i].solution.resources[alg.problems[i].solution.lengthArrays].name, pa->resources[alternatives[i]].name);
+				printf("\nlen solution %dccccccccccccccccccccccccccccc",alg.problems[i].solution.lengthArrays);
+				printf("\nacum solution %dccccccccccccccccccccccccccccc",alg.problems[i].solution.acum);
+				printf("Assert index =1 in problems post work:%d \n",alg.problems[i].index);
+
+			}
+			alg.ppd.index=1;
+			alg.num_problems=num_alternatives;//TODO
+		}
+
+		printf("\nBefore exec algoritm\n");
+		exec_algorithm(&alg);
+		printf("\nAfter exec algoritm\n");
+		Solution sol;
+		get_PDsolution(&alg, &sol);
+		for(int i=0;i<alg.ppd.solution.lengthArrays;i++){
+			printf("\nResources: \n*%s\n",alg.ppd.solution.resources[i].name);
+		}
+		printf("Solution value: %f", alg.ppd.solution.acum);
+		delete_algorithmPD(&alg);
+	}
 	return res;
 }
-int send_work(PalgorithmPD palg,int *alternatives, int num_alternatives, int num_process)
+int send_work(const PalgorithmPD palg,int *alternatives, int num_alternatives, int num_process)
 {
 	printf("\n...................sending  %d  alternatives to process %d\n",num_alternatives,num_process);
+
 	show_aproblem(&(palg->ppd.aproblem));
 
 	int res=0;
@@ -187,11 +272,34 @@ int send_work(PalgorithmPD palg,int *alternatives, int num_alternatives, int num
 	int tag_resources=3;
 	int tag_alternatives=4;
 
+	//process 0 resolves 0. Var for Not blocking solution
+	MPI_Request request;
+	MPI_Status  status;
+	int request_complete = 0;
+
+	if(num_process==0){
+		return 0;
+//		MPI_Isend(palg, 1, MPI_INT, target, tag, MPI_COMM_WORLD, &request);
+//					  // Here we do some work while waiting for process 1 to be ready
+//					  while (has_work)
+//					  {
+//						do_work();
+//						// We only test if the request is not already fulfilled
+//						if (!request_complete)
+//						{
+//							MPI_Test(&request, &request_complete, &status);
+//						}
+//					  }
+//
+	}
+
+
 
 	struct Work work;
 	char serialized_tasks[1000];//TODO
 	int len=serializer_tasks(palg, &serialized_tasks);
 	char serialized_resources[1000];//TODO
+
 	int len_resources=serializer_resources(palg, &serialized_resources);
 
 	work.num_resources=palg->ppd.aproblem.numResources;
@@ -215,7 +323,7 @@ int send_work(PalgorithmPD palg,int *alternatives, int num_alternatives, int num
 	for(int i=0;i<num_alternatives;i++)
 	{
 		alternatives_to_work[i]=alternatives[i];//TODO
-		printf("inside send. alternative[%d]",i);
+		printf("inside send. alternative[%d]=%d\n",i,alternatives[i]);
 	}
 	for(int i=0;i<work.num_resources;i++)
 	{
@@ -238,8 +346,10 @@ int send_work(PalgorithmPD palg,int *alternatives, int num_alternatives, int num
 
 	printf("\n sending num task: %d",work.num_tasks);
 	printf("\n sending num resources: %d\n",work.num_resources);
+	printf("\n sending type: %d\n",work.type);
+	printf("\n sending alternatives: %d\n",work.num_alternatives);
 
-    MPI_Send(&work, num_alternatives, work_mpi_datatype, num_process, tag_work, MPI_COMM_WORLD);
+    MPI_Send(&work, 1, work_mpi_datatype, num_process, tag_work, MPI_COMM_WORLD);
     MPI_Type_free( &work_mpi_datatype);
 
 	//sending dinamic arrays
@@ -310,11 +420,13 @@ int serializer_resources(PalgorithmPD palg, char* all)
 
 	for(int i=0;i<palg->ppd.aproblem.numResources;i++)
 	{
+		printf("\n*************************************************************************"
+				"name resource %d in serializer: %s",i,palg->ppd.aproblem.resources[i].name);
 		strcat(temp,palg->ppd.aproblem.resources[i].name);
 		strcat(temp,divisor);
 	}
 	strcpy(all,temp);
-	printf("\nRESOURCES---->>>>%s\n",all);
+	printf("\ncopied RESOURCES---->>>>%s\n",all);
 	int len;
 	for (len = 0; all[len] != '\0'; ++len);
 	printf("Length of Str resources is %d", len);
@@ -429,6 +541,6 @@ int pD_distribution(PalgorithmPD palg)
 			  palg->problems[w]=newArrayAppd[w];
 		  }
 		  palg->num_problems=lengthNewArrayAppd;
-
+		  printf("\n::finish pd distribution");
   return res;
 }

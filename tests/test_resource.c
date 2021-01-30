@@ -11,7 +11,7 @@ void testInit2();
 
 void testInitResource(PResource pr,const Cadena name){
 
-	int res = init_resource(pr, name);
+	int res = init_resource(pr, name,0);
 
 		if (res == -1) {
 			perror("error initResource.\n");

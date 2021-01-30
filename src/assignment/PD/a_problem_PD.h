@@ -43,6 +43,9 @@ typedef AproblemPD* PAproblemPD;
   int update_solution(PSolution, PAlternative, double ,Aproblem);
   int delete_problem_PD(PAproblemPD);//free memory
   int copy_aproblem_PD(PAproblemPD,AproblemPD);
+  //public aux
+  int show_aproblem_PD(PAproblemPD);
+
 
 
 

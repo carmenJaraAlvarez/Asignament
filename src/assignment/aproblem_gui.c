@@ -32,20 +32,12 @@ void get_data(GtkWidget *calculate, gpointer data) {
 
 void resolve_aPD(PAproblem pap)
 {
-    show_aproblem(pap);
-	AproblemPD appd;
-	testInitAProblemPD(&appd, *pap);
+    AproblemPD appd;
+	testInitAProblemPD(&appd, *pap);//TODO
 	AlgorithmPD alg;
 	init_algorithmPD(&alg, appd);
-	distribution(&alg,3);//TODO
-//	exec_algorithm(&alg);
-//	Solution sol;
-//	get_PDsolution(&alg, &sol);
-//	for(int i=0;i<alg.ppd.solution.lengthArrays;i++){
-//		printf("\nResources: \n*%s\n",alg.ppd.solution.resources[i].name);
-//	}
-//	printf("Solution value: ");
-//	printf("%f", alg.ppd.solution.acum);
+	distribution(&alg,4);//TODO
+
 	delete_algorithmPD(&alg);
 }
 

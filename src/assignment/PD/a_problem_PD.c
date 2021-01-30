@@ -38,7 +38,7 @@ Type get_type(PAproblemPD appd)
   {
 	  int res=0;
 	  int numResources=papd->aproblem.numResources;
-	  printf("\n Inside get alternative. In: ");
+	  printf("\n Inside get alternative solution len=%d. In: ",papd->solution.lengthArrays);
 	  for(int j=0;j<papd->solution.lengthArrays;j++ )
 	  {
 		  printf("%s ", papd->solution.resources[j].name);
@@ -96,10 +96,13 @@ Type get_type(PAproblemPD appd)
 		 bestValue=999999.;
 	 }
 	 //get values array
-	  int indexValue=papd->index*papd->aproblem.numResources;//where we begin
+	  int index=papd->index;//where we begin
+	  printf("\n inside select_alternative>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<");
+	  printf("\nindex %d",index);
+	  int num_resources=papd->aproblem.numResources;
 	  for(int i=0;i<numAlternatives;i++){
 
-		  actualValue=papd->aproblem.values[indexValue+as[i].indexResource];
+		  actualValue=papd->aproblem.values[index+as[i].indexResource*num_resources];
 		  int t=get_type(papd);
 		  if(get_type(papd)==0 && actualValue>bestValue)//MAX
 		  {
@@ -110,9 +113,11 @@ Type get_type(PAproblemPD appd)
 			  bestValue=actualValue;
 			  selected=as[i].indexResource;
 		  }
+
 	  }
 
 	  *selectedValue=bestValue;
+	  printf("\nvalue and select: %f, %d",selectedValue, selected);
 	  return selected;
   }
   int get_solution_base_case(PAproblemPD papd, PSpPD psp)
@@ -126,6 +131,8 @@ Type get_type(PAproblemPD appd)
 	  numAlternatives=get_alternatives(papd, alternatives);
 	  //select resource max or min value, return resource index and its value
 	  int alternative=select_alternative(papd, alternatives, numAlternatives, &selectedValue);
+	  printf("\n$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
+	  printf("\n inside get sol case base. selected value: %f", selectedValue);
 	  psp->alternative.indexResource=alternative;
 	  psp->value=selectedValue;
 	  //**************
@@ -133,7 +140,7 @@ Type get_type(PAproblemPD appd)
 	  papd->solution.acum+=psp->value;
 	  papd->solution.lengthArrays++;
 	  Resource resource;
-	  init_resource(&resource,papd->aproblem.resources[psp->alternative.indexResource].name);
+	  init_resource(&resource,papd->aproblem.resources[psp->alternative.indexResource].name,psp->alternative.indexResource);
 	  papd->solution.resources[papd->index]=resource;
 //	  strcpy(papd->solution.resources[papd->solution.lengthArrays-1].name,
 //			  papd->.aproblem.resources[sp.alternative.indexResource].name);
@@ -141,6 +148,8 @@ Type get_type(PAproblemPD appd)
 
 	  //**************
 //	  delete_alternatives(&alternatives);
+	  printf("\n inside get sol case base. in psolution: %f", psp->value);
+	  printf("\n inside get sol case base. in papd: %f", papd->solution.acum);
 	  return res;
   }
 
@@ -159,16 +168,23 @@ Type get_type(PAproblemPD appd)
   }
   int get_subproblem(const PAproblemPD  father, PAproblemPD new,Alternative a, int numSubproblems)
   {
+
 	  int res=0;
 	  double value;
 	  printf("inside get_subproblem");
 	  new->aproblem=father->aproblem;
 
 	  //update
-	  value=father->aproblem.values[(father->index)*(father->aproblem.numResources)+a.indexResource];
+	  printf("\n father index inside get sub: %d", father->index);
+	  printf("\n * num problems= %d", father->aproblem.numResources);
+	  printf("\n + index resource of alt= %d", a.indexResource);
+	  value=father->aproblem.values[(father->index)+(father->aproblem.numResources)*a.indexResource];
+	  printf("\n VALUE of ^: %f", value);
+
 	  new->index=father->index+1;
 	  new->solution=father->solution;
 	  update_solution(&(new->solution), &a, value,father->aproblem);
+	  printf("\n At the end of getsupproblem, new solution acum=%f",new->solution.acum);
 	  return res;
   }
 
@@ -202,9 +218,12 @@ Type get_type(PAproblemPD appd)
   int update_solution(PSolution ps, PAlternative pa, double value, Aproblem ap){
   	int res=0;
   	ps->lengthArrays=ps->lengthArrays+1;
+  	printf("\n           0000000000000 int value update solution; %f",value);
+  	printf("\n           0000000000000 Inside update sol acum old; %f",ps->acum);
   	ps->acum=(ps->acum)+value;
+  	printf("\n           0000000000000 Inside update sol acum new; %f",ps->acum);
   	Resource resource;
-  	init_resource(&resource,ap.resources[pa->indexResource].name);
+  	init_resource(&resource,ap.resources[pa->indexResource].name,pa->indexResource);
   	int i=(ps->lengthArrays)-1;
   	ps->resources[i]=resource;
   	return res;
@@ -230,6 +249,18 @@ Type get_type(PAproblemPD appd)
 	  for(int i=0;i<rcv->solution.lengthArrays;i++){
 		  rcv->solution.resources[i]=origin.solution.resources[i];
 
+	  }
+	  return 0;
+  }
+  int show_aproblem_PD(PAproblemPD papd)
+  {
+	  show_aproblem(&(papd->aproblem));
+	  printf("\nSolution:");
+	  printf("\n Len: %d",papd->solution.lengthArrays);
+	  printf("\n Acum: %f",papd->solution.acum);
+	  for(int i=0;i<papd->solution.lengthArrays;i++)
+	  {
+		  printf("\n Resource %d: %s",i,papd->solution.resources[i].name);
 	  }
 	  return 0;
   }

@@ -136,7 +136,7 @@ static Logico checkInt(const int);
 		 {
 			 fgets(c,TAM_MAX_READ,f);
 			 quitaSaltoDeLinea(c);
-			 init_resource(&resource,c);
+			 init_resource(&resource,c,j);
 			 arrayR[j]=resource;
 		 }
 		 //values

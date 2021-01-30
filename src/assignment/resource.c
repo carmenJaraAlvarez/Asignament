@@ -8,7 +8,7 @@
 
 static Logico check_name(const Cadena);
 
-  int init_resource(PResource pr,const Cadena name)
+  int init_resource(PResource pr,const Cadena name,int position)
   {
 	  int res=-1;
 	  if(!check_name(name))
@@ -19,13 +19,14 @@ static Logico check_name(const Cadena);
 	  {
 		  res=0;
 		  strcpy (pr->name, name);
+		  pr->position=position;
 	  }
 	  return res;
   }
 
   void show_resource(PResource r)
   {
-	  printf("Resource: %s", r->name);
+	  printf("Resource %d: %s",r->position, r->name);
 
   }
 /****************************************/

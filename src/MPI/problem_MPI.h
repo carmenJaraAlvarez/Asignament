@@ -30,7 +30,7 @@
 int distribution(PalgorithmPD, int);
 int rcv_work();
 int init_work(PAproblem, int, int*);
-int send_work(PalgorithmPD,int *, int, int);
+int send_work(const PalgorithmPD,int *, int, int);
 void waitting_answer();
 int serializer_tasks(PalgorithmPD, char*);
 int deserializer_tasks(char*, int, PTask );

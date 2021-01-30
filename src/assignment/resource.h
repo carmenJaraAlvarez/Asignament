@@ -17,7 +17,7 @@
 
 typedef struct
   {
-
+	int position;//in initial problem resources
    	Cadena name;
 
   } Resource;
@@ -25,7 +25,7 @@ typedef struct
   typedef Resource* PResource;
 
 
-  int init_resource(PResource,const Cadena);
+  int init_resource(PResource,const Cadena, int position);
   void show_resource(PResource);
 
 

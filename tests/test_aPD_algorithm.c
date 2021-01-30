@@ -27,6 +27,7 @@ void testInit10();
 //}
 
 
+
 void testInit9(){
 	printf("\n 9 **********************\n");
 	Cadena url="/home/practica/eclipse-workspace/c/files/data3.txt";
