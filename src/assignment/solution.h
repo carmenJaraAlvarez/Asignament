@@ -28,7 +28,7 @@ typedef struct
 
   int init_solution(PSolution, int);
   int delete_solution(PSolution);//let memory free
-  int show_solution(const Solution);
+  int show_solution(const PSolution);
 
 
 #endif /* ASSIGNMENT_SOLUTION_H_ */

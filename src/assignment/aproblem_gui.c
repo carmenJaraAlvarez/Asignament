@@ -36,7 +36,7 @@ void resolve_aPD(PAproblem pap)
 	testInitAProblemPD(&appd, *pap);//TODO
 	AlgorithmPD alg;
 	init_algorithmPD(&alg, appd);
-	distribution(&alg,4);//TODO
+	distribution(&alg,2);//TODO
 
 	delete_algorithmPD(&alg);
 }

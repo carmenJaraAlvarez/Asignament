@@ -150,6 +150,10 @@ Type get_type(PAproblemPD appd)
 //	  delete_alternatives(&alternatives);
 	  printf("\n inside get sol case base. in psolution: %f", psp->value);
 	  printf("\n inside get sol case base. in papd: %f", papd->solution.acum);
+	  Alternative a=psp->alternative;
+	  //update_solution(papd, &a, selectedValue, papd->aproblem);
+	  printf("\n Inside get solution case base without update solution");
+	  show_aproblem_PD(papd);
 	  return res;
   }
 
@@ -182,9 +186,12 @@ Type get_type(PAproblemPD appd)
 	  printf("\n VALUE of ^: %f", value);
 
 	  new->index=father->index+1;
+	  //copy solution
 	  new->solution=father->solution;
-	  update_solution(&(new->solution), &a, value,father->aproblem);
-	  printf("\n At the end of getsupproblem, new solution acum=%f",new->solution.acum);
+	  update_solution(new, &a, value,father->aproblem);
+
+	  printf("\n GETSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS At the end of getsupproblem, new solution acum=%f",new->solution.acum);
+	  show_solution(&(new->solution));
 	  return res;
   }
 
@@ -197,7 +204,7 @@ Type get_type(PAproblemPD appd)
 	  return res;
   }
 
-  int get_best(PAproblemPD appd)
+  double get_best(PAproblemPD appd)
   {
 	  int res;
 	  //if not pruning and in this problem
@@ -205,27 +212,51 @@ Type get_type(PAproblemPD appd)
 	  //if not//TODO
 	  return res;
   }
-  int get_target(PAproblemPD appd)
+  double get_target(PAproblemPD appd)
   {
-	  int res=0;
-	  //TODO
+	  double res;
+	  res=appd->solution.acum;
 	  return res;
   }
   int get_size(const PAproblemPD papd){
 	  return papd->aproblem.numTask;
   }
 ///////////////AUX
-  int update_solution(PSolution ps, PAlternative pa, double value, Aproblem ap){
+  int update_solution(PAproblemPD new, const PAlternative pa, double value, Aproblem ap){
   	int res=0;
-  	ps->lengthArrays=ps->lengthArrays+1;
-  	printf("\n           0000000000000 int value update solution; %f",value);
-  	printf("\n           0000000000000 Inside update sol acum old; %f",ps->acum);
-  	ps->acum=(ps->acum)+value;
-  	printf("\n           0000000000000 Inside update sol acum new; %f",ps->acum);
-  	Resource resource;
-  	init_resource(&resource,ap.resources[pa->indexResource].name,pa->indexResource);
-  	int i=(ps->lengthArrays)-1;
-  	ps->resources[i]=resource;
+//  	ps->lengthArrays=ps->lengthArrays+1;
+//  	printf("\n           0000000000000 int value update solution; %f",value);
+//  	printf("\n           0000000000000 Inside update sol acum old; %f",ps->acum);
+//  	ps->acum=(ps->acum)+value;
+//  	printf("\n           0000000000000 Inside update sol acum new; %f",ps->acum);
+
+	  Solution sol;
+	  Resource resource;
+	  int index_resource=pa->indexResource;
+
+	  init_solution(&sol,ap.numTask);
+	  sol.acum=new->solution.acum+value;
+	  sol.lengthArrays=(new->solution.lengthArrays)+1;
+	  for(int i=0;i<sol.lengthArrays-1;i++)
+	  {
+		  sol.resources[i]=new->solution.resources[i];
+	  }
+
+	  Cadena s;
+	  strcpy(s,ap.resources[index_resource].name);
+	  init_resource(&resource,s,index_resource);
+
+	  sol.resources[sol.lengthArrays-1]=resource;
+	  new->solution=sol;
+	 // ps*=sol;
+	  //delete_solution(&sol);
+
+//  	init_resource(&resource,ap.resources[index_resource].name,index_resource);
+//  	int i=(ps->lengthArrays)-1;
+//  	//copy resource
+//  	//ps->resources[i]=resource;
+//  	ps->resources[i].position=resource.position;
+//  	strcpy(ps->resources[i].name, resource.name);
   	return res;
   }
 

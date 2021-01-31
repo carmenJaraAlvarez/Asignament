@@ -39,7 +39,7 @@ typedef struct
   int init_algorithmPD(PalgorithmPD, AproblemPD);
   int randomize(PalgorithmPD,PAlternative);
   int exec_algorithm(PalgorithmPD);
-  int update_best(PalgorithmPD);
+  int update_best(PalgorithmPD,const PAproblemPD);
   int get_PDsolution(PalgorithmPD, PSolution);
   int pD(PalgorithmPD);
   int getPreviousProblems(PalgorithmPD,PAproblemPD);

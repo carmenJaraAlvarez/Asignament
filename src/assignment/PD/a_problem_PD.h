@@ -38,9 +38,9 @@ typedef AproblemPD* PAproblemPD;
   int get_subproblem(const PAproblemPD, PAproblemPD,Alternative, int);
   double get_estimate(PAproblemPD);
   int get_solution(AproblemPD);
-  int get_target(PAproblemPD);
+  double get_target(PAproblemPD);
   int get_size(const PAproblemPD);
-  int update_solution(PSolution, PAlternative, double ,Aproblem);
+  int update_solution(PAproblemPD, PAlternative, double ,Aproblem);
   int delete_problem_PD(PAproblemPD);//free memory
   int copy_aproblem_PD(PAproblemPD,AproblemPD);
   //public aux

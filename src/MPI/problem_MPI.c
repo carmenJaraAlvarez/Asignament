@@ -63,7 +63,7 @@ int distribution(PalgorithmPD palg, int num_processes)
 	else//num problems >num processes
 	{
 
-		int rounds=(palg->num_problems)/num_processes;
+		int rounds=(palg->num_problems)/num_slaves;
 		int more_round=(palg->num_problems)-num_slaves*rounds;
 
 		for(int i=1; i<(more_round+1);i++)
@@ -79,7 +79,7 @@ int distribution(PalgorithmPD palg, int num_processes)
 			}
 			send_work(palg,&alternatives,rounds+1,i);
 		}
-		for(int i=more_round+1;i<num_processes;i++)
+		for(int i=more_round+1;i<num_slaves+1;i++)
 		{
 			int alternatives[100];//TODO
 			for(int j=0;j<rounds;j++)
@@ -235,6 +235,12 @@ int init_work(PAproblem pa, int num_alternatives, int * alternatives)
 				printf("\n post get subproblems solution.acum: %f",alg.problems[i].solution.acum);
 				printf("\n post get subproblems first resource: %s",alg.problems[i].solution.resources[0].name);
 
+				if(i>0)
+				{
+					printf("\nProblem i-1:\n");
+					show_aproblem_PD(&(alg.problems[i-1]));
+				}
+
 				strcpy(alg.problems[i].solution.resources[alg.problems[i].solution.lengthArrays].name, pa->resources[alternatives[i]].name);
 				printf("\nlen solution %dccccccccccccccccccccccccccccc",alg.problems[i].solution.lengthArrays);
 				printf("\nacum solution %dccccccccccccccccccccccccccccc",alg.problems[i].solution.acum);
@@ -243,6 +249,9 @@ int init_work(PAproblem pa, int num_alternatives, int * alternatives)
 			}
 			alg.ppd.index=1;
 			alg.num_problems=num_alternatives;//TODO
+		}
+		for(int i=0;i<alg.num_problems;i++){
+			show_aproblem_PD(&(alg.problems[i]));
 		}
 
 		printf("\nBefore exec algoritm\n");
@@ -539,6 +548,9 @@ int pD_distribution(PalgorithmPD palg)
 		  for(int w=0; w<lengthNewArrayAppd;w++)
 		  {
 			  palg->problems[w]=newArrayAppd[w];
+			  printf("\nDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD_Distribition_PD");
+			  printf("\nproblem %d of %d problems in alg",w,lengthNewArrayAppd);
+			  show_aproblem_PD(&(palg->problems[w]));
 		  }
 		  palg->num_problems=lengthNewArrayAppd;
 		  printf("\n::finish pd distribution");

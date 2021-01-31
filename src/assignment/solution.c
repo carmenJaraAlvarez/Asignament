@@ -22,14 +22,14 @@ int delete_solution(PSolution ps)
 	return res;
 }
 
-int show_solution(const Solution s)
+int show_solution(const PSolution ps)
 {
 	int res=0;
-	printf("Solution: %lf\n",s.acum);
-	int l=s.lengthArrays;
+	printf("Solution: %lf\n",ps->acum);
+	int l=ps->lengthArrays;
 	for(int i=0;i<l; i++)
 	{
-		printf("task %d - resource %s\n", i, s.resources[i].name);
+		printf("task %d - resource %s\n", i, ps->resources[i].name);
 	}
 	return res;
 }

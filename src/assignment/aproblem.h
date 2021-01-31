@@ -28,7 +28,7 @@ typedef struct
 //values matrix task*resources
 	double *values;
 //problem type: min, max, other
-	Type type;
+	Type type;//type=MAX;//default
 
 
   } Aproblem;
