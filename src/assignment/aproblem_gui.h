@@ -28,7 +28,7 @@ PAproblem pap_from_gui;
 
 
   void get_data(GtkWidget *, gpointer);
-  void create_aproblem_window(GtkWidget *);
+  void create_aproblem_window(GtkWidget *,int );
 
   
   #endif /* INCLUDES_APROBLEM_GUI_H_ */

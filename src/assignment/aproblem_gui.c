@@ -41,10 +41,10 @@ void resolve_aPD(PAproblem pap)
 	delete_algorithmPD(&alg);
 }
 
-void create_aproblem_window(GtkWidget *window)
+void create_aproblem_window(GtkWidget *window,int num_processes)
 {
 	GtkWidget *grid, *done;
-
+		printf("\n Num process: %d", num_processes);
 
 	    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	    g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
@@ -72,7 +72,15 @@ void create_aproblem_window(GtkWidget *window)
 	    done = gtk_button_new_with_label("Done");
 
 	    Aproblem ap;
-	    g_signal_connect(done, "clicked", G_CALLBACK(get_data), &ap);
+
+	    Problem_MPI pmpi;
+	   	pmpi.ap=ap;
+	   	pmpi.num_processes=num_processes;
+
+	   	printf("\n In problemDataRun num process: %d",pmpi.num_processes);
+
+	   // g_signal_connect(done, "clicked", G_CALLBACK(get_data), &ap);
+	    g_signal_connect(done, "clicked", G_CALLBACK(get_data), &pmpi);
 	    gtk_grid_attach(GTK_GRID(grid), done, 0, 4, 1, 1);
 
 	    gtk_widget_show_all(window);

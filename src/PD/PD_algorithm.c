@@ -147,6 +147,9 @@
 //			  for(int m=0;m<numPreviousProblems;m++)
 //			  {
 				  printf("\n PREVIOUS PROBLEM_________________________%d",m);
+				  if(m>=16){
+					  show_aproblem_PD(&(palg->problems[39]));//TODO check test 4
+				  }
 				  show_aproblem_PD(&(palg->problems[m]));
 				  printf("\n COPY PROBLEM_________________________%d",m);
 				  show_aproblem_PD(&(newArrayAppd[m]));
@@ -167,18 +170,22 @@
 
 					  if(is_base_case(&newArrayAppd[m]))
 					  {
-						  	  printf("\nbefore get solution case base");
+						  	  printf("\nfirst get solution case base");
 						  	  show_aproblem_PD(&newArrayAppd[m]);
+						  	  printf("\n````````````````````````````\n");
+						  	  //show_aproblem_PD(&(palg->problems[39]));//TODO check
 							  SpPD sp;
 							  get_solution_base_case((&newArrayAppd[m]),&sp);
 							  printf("\nPPPPPPPPPPPPPPPPPPPPPPPP case base");
 							  printf("\n in base case. best: %f",palg->best);
 							  printf("\n in base case. acum: %f",newArrayAppd[m].solution.acum);
+							  AproblemPD solved[100];//TODO
+							  palg->solvedProblems=&solved;
 							  if(newArrayAppd[m].solution.acum==palg->best)//more than one solution
 							  {
-								  copy_aproblem_PD( &(palg->solvedProblems[palg->num_solved]),newArrayAppd[m]);
+								  copy_aproblem_PD( &(solved[palg->num_solved]),newArrayAppd[m]);
 								  palg->num_solved++;
-								  update_best(palg,&(palg->solvedProblems[0]));
+								  update_best(palg,&(newArrayAppd[m]));
 							  }
 							  else if(newArrayAppd[m].solution.acum>palg->best)//now this is the only one best solution
 							  {
@@ -186,14 +193,24 @@
 								  palg->num_solved=1;
 								  show_aproblem_PD(&(newArrayAppd[m]));
 								  update_best(palg,&(newArrayAppd[m]) );
+								  printf("\npost update best======================\n");
+								  //show_aproblem_PD(&(palg->problems[39]));//TODO check
 								  printf("\n NUM SOLVED: %d",palg->num_solved);
 								  printf("\n UPDATED BEST TO %f",palg->best);
 								  printf("\n we are going to copy the problem in solved");
-								  copy_aproblem_PD( &(palg->solvedProblems[0]),newArrayAppd[m]);
+								  //AproblemPD solved;
+								  copy_aproblem_PD( &solved,newArrayAppd[m]);
+								  printf("\npd problem aux======================\n");
+								  show_aproblem_PD(&solved);
+
+								  //printf("\npost copy solved 39======================\n");
+								 // show_aproblem_PD(&(palg->problems[39]));//TODO check
+								  printf("\npost copy solved 0======================\n");
 								  show_aproblem_PD(&(palg->solvedProblems[0]));
 
 							  }
 							  printf("     is base case and takes alternative: %d\n", sp.alternative.indexResource);
+
 					  }
 
 					  else
@@ -247,9 +264,9 @@
 
 							  //copy_aproblem_PD( &(palg->problems[0]),newArrayAppd[problems_index]);
 							  palg->problems[w]=newArrayAppd[w];
-							  printf("\n PPPPPPPPPPPPPPPPPPPP inside PD, new problem %d copied", w);
-							  show_aproblem_PD(&(newArrayAppd[w]));
-
+							  printf("\n PPPPPPPPPPPPPPPPPPPP inside PD, new problem %d copied in alg", w);
+							  show_aproblem_PD(&(palg->problems[w]));
+							  //copy_aproblem_PD( &(newArrayAppd[lengthNewArrayAppd]),appdNew);
 						  }
 						  palg->num_problems=lengthNewArrayAppd;
 					  }//end else (not base case)

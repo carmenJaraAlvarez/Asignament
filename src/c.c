@@ -21,6 +21,8 @@
 
 
 int main(int argc, char **argv) {
+
+	printf("\nIn main num process: %d",argc);
 	 int dest;
 	  int i;
 	  int id;
@@ -60,8 +62,8 @@ int main(int argc, char **argv) {
 	    gtk_init(&argc, &argv);
 
 	    //the particular problem/////////////
-	    PAproblem pap;
-	    create_aproblem_window(&window);
+	   // PAproblem pap;
+	    create_aproblem_window(&window,p);
 	    /////////////////////////////////////
 
 	    gtk_main();

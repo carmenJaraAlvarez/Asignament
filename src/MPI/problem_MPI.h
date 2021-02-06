@@ -25,7 +25,13 @@
 
 	  }w_mpi;
 
+	  typedef struct
+	  {
+		Aproblem ap;
+		int num_processes;
 
+	  }Problem_MPI;
+	  typedef Problem_MPI* Pproblem_MPI;
 
 int distribution(PalgorithmPD, int);
 int rcv_work();
