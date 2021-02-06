@@ -8,16 +8,17 @@
 #include "../PD/PD_algorithm.h"
 #include "../MPI/problem_MPI.h"
 
-static void resolve_aPD(PAproblem);
+static void resolve_aPD(PAproblem, int);
 
 void get_data(GtkWidget *calculate, gpointer data) {
     int numt = atoi((char *)gtk_entry_get_text(GTK_ENTRY(tasks_number)));
     int numr = atoi((char *)gtk_entry_get_text(GTK_ENTRY(resources_number)));
     const gchar *text;
     text=gtk_entry_get_text(GTK_ENTRY(url));
+    int num_processes=(int)data;
 
-    Aproblem *ap=data;
-    char buffer[20];
+    printf("\n++++++++++++++++NUM PROCESSES,%d",num_processes);
+    Aproblem *ap;
 
 	Cadena cadena_url;
 	strcpy(cadena_url,text);
@@ -25,18 +26,19 @@ void get_data(GtkWidget *calculate, gpointer data) {
     read_aproblem_file(&ap, numt, numr, cadena_url);
     //gtk_label_set_text(GTK_LABEL(values), buffer);
     //printf("\n %s", text);
-    resolve_aPD(&ap);
+
+    resolve_aPD(&ap,num_processes);
 
 
 }
 
-void resolve_aPD(PAproblem pap)
+void resolve_aPD(PAproblem pap, int num_processes)
 {
     AproblemPD appd;
 	testInitAProblemPD(&appd, *pap);//TODO
 	AlgorithmPD alg;
 	init_algorithmPD(&alg, appd);
-	distribution(&alg,2);//TODO
+	distribution(&alg,num_processes);
 
 	delete_algorithmPD(&alg);
 }
@@ -71,21 +73,24 @@ void create_aproblem_window(GtkWidget *window,int num_processes)
 
 	    done = gtk_button_new_with_label("Done");
 
-	    Aproblem ap;
-
-	    Problem_MPI pmpi;
-	   	pmpi.ap=ap;
-	   	pmpi.num_processes=num_processes;
-
-	   	printf("\n In problemDataRun num process: %d",pmpi.num_processes);
+//	    Aproblem ap;
+//
+//	    Problem_MPI pmpi;
+//	   	pmpi.ap=ap;
+//	   	pmpi.num_processes=num_processes;
+	    int n=num_processes;
+	   	printf("\n In problemDataRun num process: %d",n);
 
 	   // g_signal_connect(done, "clicked", G_CALLBACK(get_data), &ap);
-	    g_signal_connect(done, "clicked", G_CALLBACK(get_data), &pmpi);
+	    g_signal_connect(done, "clicked", G_CALLBACK(get_data), n);
 	    gtk_grid_attach(GTK_GRID(grid), done, 0, 4, 1, 1);
 
 	    gtk_widget_show_all(window);
 
 }
+
+
+
 
 
 
