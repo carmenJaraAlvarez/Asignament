@@ -446,6 +446,45 @@ int send_resolved(const PalgorithmPD palg)
 	MPI_Type_free( &resolved_mpi_datatype);
 	return res;
 }
+
+int send_best(PalgorithmPD palg)
+{
+	int res=0;
+	double best=palg->best;
+	int count = 1;
+	int tag_best=5;
+	int master=0;
+
+	MPI_Request request = MPI_REQUEST_NULL;
+	MPI_Isend(&best, count, MPI_INT, master, tag_best, MPI_COMM_WORLD, &request);
+
+	return res;
+}
+int broadcast_best(PalgorithmPD palg){
+	int res=0;
+	double best;
+	int count = 1;
+	int master=0;
+	int rank;
+
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	if(rank==master){
+		best=palg->best;
+	}
+	MPI_Bcast(&best, count, MPI_DOUBLE, master, MPI_COMM_WORLD);
+	return res;
+}
+
+void waitting_best(PalgorithmPD palg)
+{
+	double best;
+	MPI_Request found_request;
+	MPI_Test(&found_request, &best, MPI_STATUS_IGNORE);
+	if(best>palg->best)
+	{
+		printf("\nSomeone has found a better result");
+	}
+}
 int serializer_tasks(PalgorithmPD palg, char* all)
 {
 	Cadena temp="";

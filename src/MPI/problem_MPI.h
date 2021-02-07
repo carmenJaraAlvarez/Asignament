@@ -46,7 +46,10 @@ int init_work(PAproblem, int, int*);
 int send_work(const PalgorithmPD,int *, int, int);
 int send_resolved(const PalgorithmPD);
 int rcv_resolved();
-void waitting_answer();
+int send_best(const PalgorithmPD);
+int broadcast_best(const PalgorithmPD);
+void waitting_best(const PalgorithmPD);
+//aux
 int serializer_tasks(PalgorithmPD, char*);
 int deserializer_tasks(char*, int, PTask );
 int serializer_resources(PalgorithmPD palg, char* all);
