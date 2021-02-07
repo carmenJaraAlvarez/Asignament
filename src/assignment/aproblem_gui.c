@@ -40,7 +40,7 @@ void resolve_aPD(PAproblem pap, int num_processes)
 	init_algorithmPD(&alg, appd);
 	distribution(&alg,num_processes);
 
-	delete_algorithmPD(&alg);
+	//delete_algorithmPD(&alg);
 }
 
 void create_aproblem_window(GtkWidget *window,int num_processes)

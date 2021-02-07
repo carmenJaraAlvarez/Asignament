@@ -263,10 +263,10 @@ Type get_type(PAproblemPD appd)
   int delete_problem_PD(PAproblemPD papd)//let memory free
   {
 	  int res=-1;
-	  int res1=delete_aproblem(&(papd->aproblem));
-	  int res2=delete_solution(&(papd->solution));
-	  res= res1+res2;
-	  return res;
+//	  int res1=delete_aproblem(&(papd->aproblem));
+//	  int res2=delete_solution(&(papd->solution));
+//	  res= res1+res2;
+	  return 0;
   }
   int copy_aproblem_PD( PAproblemPD rcv,AproblemPD origin)
   {

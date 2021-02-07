@@ -25,18 +25,27 @@
 
 	  }w_mpi;
 
-	  typedef struct
+  struct  Resolved
+	  {
+		double value;
+		//TODO
+
+	  }r_mpi;
+
+  typedef struct
 	  {
 		Aproblem ap;
 		int num_processes;
 
 	  }Problem_MPI;
-	  typedef Problem_MPI* Pproblem_MPI;
+  typedef Problem_MPI* Pproblem_MPI;
 
 int distribution(PalgorithmPD, int);
 int rcv_work();
 int init_work(PAproblem, int, int*);
 int send_work(const PalgorithmPD,int *, int, int);
+int send_resolved(const PalgorithmPD);
+int rcv_resolved();
 void waitting_answer();
 int serializer_tasks(PalgorithmPD, char*);
 int deserializer_tasks(char*, int, PTask );

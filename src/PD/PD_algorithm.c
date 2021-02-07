@@ -294,9 +294,9 @@
 
   int delete_algorithmPD(PalgorithmPD palg)
   {
-	  free(palg->solvedProblems);
-	  free(palg->problems);
-	  delete_problem_PD(&(palg->ppd));
+//	  free(palg->solvedProblems);
+//	  free(palg->problems);
+//	  delete_problem_PD(&(palg->ppd));
 	  return 0;
   }
 

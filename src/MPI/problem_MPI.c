@@ -91,7 +91,7 @@ int distribution(PalgorithmPD palg, int num_processes)
 
 	}
 
-
+	rcv_resolved();
 	return res;
 
 
@@ -107,7 +107,7 @@ int rcv_work()
 	int tag_alternatives=4;
 	int ierr=0;
 
-	printf("rcv...\n");
+	//printf("rcv...\n");
 	struct Work work;
 
 
@@ -122,8 +122,8 @@ int rcv_work()
 	MPI_Status status;
     MPI_Recv(&work, 1, work_mpi_datatype , 0, tag_work, MPI_COMM_WORLD, &status);
 
-    printf("\n received num task: %d",work.num_tasks);
-	printf("\n received num resources: %d\n",work.num_resources);
+//    printf("\n received num task: %d",work.num_tasks);
+//	printf("\n received num resources: %d\n",work.num_resources);
 	int size_values=work.num_tasks*work.num_resources;
 
 
@@ -132,11 +132,11 @@ int rcv_work()
 	double values[size_values];
 
 	MPI_Recv ( &values, size_values, MPI_DOUBLE, MPI_ANY_SOURCE, tag_values, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
-	printf("%d resources\n",work.num_resources);
-	printf("%d received size values\n",size_values);
-	printf("%d received type\n",work.type);
-	printf("%f received first\n",values[0]);
-	printf("%f received second\n",values[1]);
+//	printf("%d resources\n",work.num_resources);
+//	printf("%d received size values\n",size_values);
+//	printf("%d received type\n",work.type);
+//	printf("%f received first\n",values[0]);
+//	printf("%f received second\n",values[1]);
 
 	//getting tasks and resources names
 
@@ -148,17 +148,17 @@ int rcv_work()
 
 	MPI_Recv( &serialized, 1000, MPI_CHAR, MPI_ANY_SOURCE, tag_tasks, MPI_COMM_WORLD,MPI_STATUS_IGNORE );
 	deserializer_tasks(&serialized,work.num_tasks,tasks);
-	printf("*************************POST RCVE TASKS name 3º task\n%s\n",tasks[2].name);
+//	printf("*************************POST RCVE TASKS name 3º task\n%s\n",tasks[2].name);
 	MPI_Recv( &serialized_resources, 1000, MPI_CHAR, MPI_ANY_SOURCE, tag_resources, MPI_COMM_WORLD,MPI_STATUS_IGNORE );
 	deserializer_resources(&serialized_resources,work.num_resources,resources);
-	printf("*************************POST RCVE RESOURCES name 3º resource\n%s\n",resources[2].name);
+	//printf("*************************POST RCVE RESOURCES name 3º resource\n%s\n",resources[2].name);
 
 	//create problem
 	PAproblem pa;
 	init_aproblem(pa,tasks,resources,work.num_tasks, work.num_resources, values);
-	printf("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-	show_aproblem(pa);
-	printf("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+//	printf("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+//	show_aproblem(pa);
+//	printf("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
 
 //    int count;
 //    MPI_Get_count(&status, work_mpi_datatype, &count);
@@ -169,13 +169,55 @@ int rcv_work()
     }
     MPI_Type_free ( &work_mpi_datatype);
     init_work(pa, work.num_alternatives, &alternatives);
-    printf("\n Inside RCV. num alternatives: %d", work.num_alternatives);
-    for(int a=0;a<work.num_alternatives;a++)
-    {
-    	printf("\n alternative %d=%d", a,alternatives[a]);
-    }
-    printf("+\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++END RCV");
+
+
+
+//    printf("\n Inside RCV. num alternatives: %d", work.num_alternatives);
+//    for(int a=0;a<work.num_alternatives;a++)
+//    {
+//    	printf("\n alternative %d=%d", a,alternatives[a]);
+//    }
+//    printf("+\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++END RCV");
 	return res;
+}
+
+int rcv_resolved()
+{
+	printf("+\n+++++++++++++++++++++++++++++++++++++++++++++++++++\nINSIDE RCV_REVOLVED\n");
+	int res=0;
+	int tag_resolved=100;
+	int ierr=0;
+
+	struct Resolved resolved;
+
+
+	//getting
+
+	MPI_Datatype resolved_mpi_datatype;
+	int blocklengths[1] = {1};
+	MPI_Datatype types[1] = {MPI_DOUBLE};
+	const MPI_Aint offsets[1]= {0};
+	MPI_Type_create_struct(1, blocklengths, offsets, types,  &resolved_mpi_datatype);
+	MPI_Type_commit ( &resolved_mpi_datatype );
+	MPI_Status status;
+	int num_slaves=0;
+	while(num_slaves<2)//TODO
+	{
+		printf("+\n+++++++++++++++++++++++++++++++++++++++++++++++++++\npre mpi_rcev\n");
+
+		MPI_Recv(&resolved, 1, resolved_mpi_datatype , MPI_ANY_SOURCE, tag_resolved, MPI_COMM_WORLD, &status);
+
+		num_slaves++;
+		printf("+\n+++++++++++++++++++++++++++++++++++++++++++++++++++\npost mpi_rcev\n"
+				"num_recv %d\ndata %f",num_slaves,resolved.value);
+	}
+
+
+    MPI_Type_free ( &resolved_mpi_datatype);
+
+    printf("+\n+++++++++++++++++++++++++++++++++++++++++++++++++++\nEND RCV RESOLVED\n");
+	return res;
+
 }
 
 int init_work(PAproblem pa, int num_alternatives, int * alternatives)
@@ -263,8 +305,11 @@ int init_work(PAproblem pa, int num_alternatives, int * alternatives)
 			printf("\nResources: \n*%s\n",alg.ppd.solution.resources[i].name);
 		}
 		printf("Solution value: %f", alg.ppd.solution.acum);
+		send_resolved(&alg);
+		printf("\nSEND RESOLVED TO MASTER");
 		delete_algorithmPD(&alg);
-	}
+	}//end else (alternative>0)
+
 	return res;
 }
 int send_work(const PalgorithmPD palg,int *alternatives, int num_alternatives, int num_process)
@@ -373,7 +418,34 @@ int send_work(const PalgorithmPD palg,int *alternatives, int num_alternatives, i
 	return res;
 }
 
+int send_resolved(const PalgorithmPD palg)
+{
+	int res;
+	int tag_finished=100;
+	int num_process=0;//to master
+	MPI_Request request;
+	MPI_Status  status;
+	int request_complete = 0;
 
+	printf("\nSENDING RESOLVED TO MASTER");
+	struct Resolved resolved;
+	int num_resolved=palg->num_solved;
+
+	resolved.value=palg->solvedProblems[0].solution.acum;//TODO
+	num_resolved=1;//TODO test
+	printf("\nSENDING RESOLVED TO MASTER2");
+	MPI_Datatype resolved_mpi_datatype;
+	int blocklengths[1] = {1};
+	MPI_Datatype types[1] = {MPI_DOUBLE};
+    const MPI_Aint offsets[1]= { 0};
+	MPI_Type_create_struct(1, blocklengths, offsets, types,  &resolved_mpi_datatype);
+	MPI_Type_commit ( &resolved_mpi_datatype);-
+	printf("\n+++++++++++++++++++++++++++++++++++++++++++\npre send mpi");
+	MPI_Send( &resolved, num_resolved, resolved_mpi_datatype, num_process, tag_finished, MPI_COMM_WORLD );
+	printf("\n+++++++++++++++++++++++++++++++++++++++++++\npost send mpi %f",resolved.value);
+	MPI_Type_free( &resolved_mpi_datatype);
+	return res;
+}
 int serializer_tasks(PalgorithmPD palg, char* all)
 {
 	Cadena temp="";

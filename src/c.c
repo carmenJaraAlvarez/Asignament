@@ -83,18 +83,19 @@ int main(int argc, char **argv) {
 
 	  if ( id == 0 )
 	  {
+		printf("\nMAIN POST¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨");
 	    point.x = 1;
 	    point.y = 2;
 	    point.z = 4;
 	    dest = 1;
-	    tag = 1;
+	    tag = 10;
 
 	    ierr = MPI_Send ( &point, 1, point_type, dest, tag, MPI_COMM_WORLD );
 
 	    printf("Process %d sent a POINT_TYPE: %d, %d, %d\n",id,point.x,point.y,point.z);
 
 	    source = 1;
-	    tag = 2;
+	    tag = 20;
 	    ierr = MPI_Recv ( &point, 1, point_type, source, tag, MPI_COMM_WORLD,
 	      &status );
 
@@ -104,7 +105,7 @@ int main(int argc, char **argv) {
 	  else if ( id == 1 )
 	  {
 	    source = 0;
-	    tag = 1;
+	    tag = 10;
 
 	    ierr = MPI_Recv ( &point, 1, point_type, source, tag, MPI_COMM_WORLD,
 	      &status );
@@ -114,7 +115,7 @@ int main(int argc, char **argv) {
 	    point.y = point.y * 10;
 	    point.z = i;
 	    dest = 0;
-	    tag = 2;
+	    tag = 20;
 
 	    ierr = MPI_Send ( &point, 1, point_type, dest, tag, MPI_COMM_WORLD );
 

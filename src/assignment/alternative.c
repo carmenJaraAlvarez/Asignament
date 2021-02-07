@@ -21,6 +21,6 @@ int init_alternative_array(Alternative ** a,int max)
 int delete_alternatives(PAlternative* pa)
 {
 	int res=0;
-	free(pa);
+//	free(pa);
 	return res;
 }

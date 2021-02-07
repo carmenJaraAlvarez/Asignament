@@ -18,7 +18,7 @@ int init_solution(PSolution ps,int maxLength)
 int delete_solution(PSolution ps)
 {
 	int res=0;
-	free(ps->resources);
+//	free(ps->resources);
 	return res;
 }
 
