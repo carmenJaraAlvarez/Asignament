@@ -55,6 +55,7 @@ static Logico checkInt(const int);
 	 pa->type=MAX;//default//TODO
 	 return 0;
  }
+
  int delete_aproblem(PAproblem pa)//let memory free
  {
 	 int res=0;

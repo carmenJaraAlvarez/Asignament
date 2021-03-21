@@ -17,6 +17,14 @@ int distribution(PalgorithmPD palg, int num_processes)
 	int res=-1;
 	Solution sol;
 	int num_slaves=num_processes-1;
+    MPI_Request request;
+
+    MPI_Status status;
+    int flag;
+
+	rcv_best();
+
+
 	printf("\n num problems-num slaves: %d-%d",palg->num_problems,num_slaves);
 	do
 	{
@@ -27,6 +35,7 @@ int distribution(PalgorithmPD palg, int num_processes)
 		}
 	}while(palg->isRandomize && get_PDsolution(palg,&sol)!=0);
 	printf("\n num problems-num slaves: %d-%d",palg->num_problems,num_slaves);
+
 
 	if(palg->num_problems==num_slaves)
 	{
@@ -90,8 +99,14 @@ int distribution(PalgorithmPD palg, int num_processes)
 		}
 
 	}
+//    MPI_Test(&request, &flag, &status);
+//    if (flag != 0) {
+//        printf("recv in test , slave : %d\n",status.MPI_SOURCE);
+//    }
 
-	rcv_resolved();
+		//rcv_resolved();
+
+	printf("00000000000000000000000000 outgoing distribution");
 	return res;
 
 
@@ -107,7 +122,7 @@ int rcv_work()
 	int tag_alternatives=4;
 	int ierr=0;
 
-	//printf("rcv...\n");
+	printf("rcv...\n");
 	struct Work work;
 
 
@@ -120,10 +135,12 @@ int rcv_work()
 	MPI_Type_create_struct(4, blocklengths, offsets, types,  &work_mpi_datatype);
 	MPI_Type_commit ( &work_mpi_datatype );
 	MPI_Status status;
+	MPE_Log_event(event2a, 0, "start receive");
     MPI_Recv(&work, 1, work_mpi_datatype , 0, tag_work, MPI_COMM_WORLD, &status);
 
-//    printf("\n received num task: %d",work.num_tasks);
-//	printf("\n received num resources: %d\n",work.num_resources);
+
+    printf("\n received num task: %d",work.num_tasks);
+	printf("\n received num resources: %d\n",work.num_resources);
 	int size_values=work.num_tasks*work.num_resources;
 
 
@@ -132,11 +149,12 @@ int rcv_work()
 	double values[size_values];
 
 	MPI_Recv ( &values, size_values, MPI_DOUBLE, MPI_ANY_SOURCE, tag_values, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
-//	printf("%d resources\n",work.num_resources);
-//	printf("%d received size values\n",size_values);
-//	printf("%d received type\n",work.type);
-//	printf("%f received first\n",values[0]);
-//	printf("%f received second\n",values[1]);
+
+	printf("%d resources\n",work.num_resources);
+	printf("%d received size values\n",size_values);
+	printf("%d received type\n",work.type);
+	printf("%f received first\n",values[0]);
+	printf("%f received second\n",values[1]);
 
 	//getting tasks and resources names
 
@@ -147,37 +165,43 @@ int rcv_work()
 	Resource resources[work.num_resources];
 
 	MPI_Recv( &serialized, 1000, MPI_CHAR, MPI_ANY_SOURCE, tag_tasks, MPI_COMM_WORLD,MPI_STATUS_IGNORE );
+
 	deserializer_tasks(&serialized,work.num_tasks,tasks);
-//	printf("*************************POST RCVE TASKS name 3º task\n%s\n",tasks[2].name);
+	printf("*************************POST RCVE TASKS name 3º task\n%s\n",tasks[2].name);
 	MPI_Recv( &serialized_resources, 1000, MPI_CHAR, MPI_ANY_SOURCE, tag_resources, MPI_COMM_WORLD,MPI_STATUS_IGNORE );
 	deserializer_resources(&serialized_resources,work.num_resources,resources);
-	//printf("*************************POST RCVE RESOURCES name 3º resource\n%s\n",resources[2].name);
+	printf("*************************POST RCVE RESOURCES name 3º resource\n%s\n",resources[2].name);
 
-	//create problem
-	PAproblem pa;
-	init_aproblem(pa,tasks,resources,work.num_tasks, work.num_resources, values);
-//	printf("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-//	show_aproblem(pa);
-//	printf("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-
-//    int count;
-//    MPI_Get_count(&status, work_mpi_datatype, &count);
+////    int count;
+////    MPI_Get_count(&status, work_mpi_datatype, &count);
     int alternatives[work.num_alternatives];
     if(work.num_alternatives>0)
     {
     	MPI_Recv ( &alternatives, work.num_alternatives, MPI_INT, MPI_ANY_SOURCE, tag_alternatives, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
     }
+    MPE_Log_event(event2b, 0, "end receive");
     MPI_Type_free ( &work_mpi_datatype);
-    init_work(pa, work.num_alternatives, &alternatives);
+	//create problem
+
+	Aproblem a;
+	init_aproblem(&a,tasks,resources,work.num_tasks, work.num_resources, values);//TODO
 
 
+	printf("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+	show_aproblem(&a);
+	printf("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
 
-//    printf("\n Inside RCV. num alternatives: %d", work.num_alternatives);
-//    for(int a=0;a<work.num_alternatives;a++)
-//    {
-//    	printf("\n alternative %d=%d", a,alternatives[a]);
-//    }
-//    printf("+\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++END RCV");
+
+    init_work(&a, work.num_alternatives, &alternatives);//TODO testing mpe
+    printf("\n outgoing rcv_work");
+
+
+////    printf("\n Inside RCV. num alternatives: %d", work.num_alternatives);
+////    for(int a=0;a<work.num_alternatives;a++)
+////    {
+////    	printf("\n alternative %d=%d", a,alternatives[a]);
+////    }
+   printf("+\n++++++++++++++++++++++++++++END RCV_work");
 	return res;
 }
 
@@ -205,7 +229,7 @@ int rcv_resolved()
 	{
 		printf("+\n+++++++++++++++++++++++++++++++++++++++++++++++++++\npre mpi_rcev\n");
 
-		MPI_Recv(&resolved, 1, resolved_mpi_datatype , MPI_ANY_SOURCE, tag_resolved, MPI_COMM_WORLD, &status);
+		MPI_Recv(&resolved, 1, resolved_mpi_datatype , num_slaves+1, tag_resolved, MPI_COMM_WORLD, &status);
 
 		num_slaves++;
 		printf("+\n+++++++++++++++++++++++++++++++++++++++++++++++++++\npost mpi_rcev\n"
@@ -309,7 +333,7 @@ int init_work(PAproblem pa, int num_alternatives, int * alternatives)
 		printf("\nSEND RESOLVED TO MASTER");
 		delete_algorithmPD(&alg);
 	}//end else (alternative>0)
-
+	printf("\noutgoing initwork");
 	return res;
 }
 int send_work(const PalgorithmPD palg,int *alternatives, int num_alternatives, int num_process)
@@ -403,14 +427,17 @@ int send_work(const PalgorithmPD palg,int *alternatives, int num_alternatives, i
 	printf("\n sending type: %d\n",work.type);
 	printf("\n sending alternatives: %d\n",work.num_alternatives);
 
+	MPE_Log_event(event1a, 0, "start send");
     MPI_Send(&work, 1, work_mpi_datatype, num_process, tag_work, MPI_COMM_WORLD);
     MPI_Type_free( &work_mpi_datatype);
-
 	//sending dinamic arrays
 	MPI_Send( &values, num_values, MPI_DOUBLE, num_process, tag_values, MPI_COMM_WORLD );
 	MPI_Send( &serialized_tasks, len, MPI_CHAR, num_process, tag_tasks, MPI_COMM_WORLD );
 	MPI_Send( &serialized_resources, len_resources, MPI_CHAR, num_process, tag_resources, MPI_COMM_WORLD );
-    if(num_alternatives>0)
+	MPE_Log_event(event1b, 0, "end send");
+
+
+	if(num_alternatives>0)
     {
     	MPI_Send( &alternatives_to_work, num_alternatives, MPI_INT, num_process, tag_alternatives, MPI_COMM_WORLD );
     }
@@ -441,12 +468,25 @@ int send_resolved(const PalgorithmPD palg)
 	MPI_Type_create_struct(1, blocklengths, offsets, types,  &resolved_mpi_datatype);
 	MPI_Type_commit ( &resolved_mpi_datatype);-
 	printf("\n+++++++++++++++++++++++++++++++++++++++++++\npre send mpi");
+	MPE_Init_log();
+//	MPE_Log_event(1, 0, "start broadcast");
 	MPI_Send( &resolved, num_resolved, resolved_mpi_datatype, num_process, tag_finished, MPI_COMM_WORLD );
+//	MPE_Log_event(2, 0, "end broadcast");
 	printf("\n+++++++++++++++++++++++++++++++++++++++++++\npost send mpi %f",resolved.value);
 	MPI_Type_free( &resolved_mpi_datatype);
-	return res;
+	return 0;
 }
-
+int rcv_best()
+{
+	double new_best;
+	MPI_Request request;
+	int tag_best=5;
+	MPI_Irecv(&new_best,1,MPI_DOUBLE,MPI_ANY_SOURCE,tag_best,MPI_COMM_WORLD,&request);
+	printf("===========================\n"
+			"============================\n"
+			"RCV best: %f", new_best);
+	return 0;
+}
 int send_best(PalgorithmPD palg)
 {
 	int res=0;
@@ -456,8 +496,9 @@ int send_best(PalgorithmPD palg)
 	int master=0;
 
 	MPI_Request request = MPI_REQUEST_NULL;
+	printf("\n sending best: %f to %d",best,master);
 	MPI_Isend(&best, count, MPI_INT, master, tag_best, MPI_COMM_WORLD, &request);
-
+	printf("\n send best: %f to %d",best,master);
 	return res;
 }
 int broadcast_best(PalgorithmPD palg){
@@ -477,12 +518,19 @@ int broadcast_best(PalgorithmPD palg){
 
 void waitting_best(PalgorithmPD palg)
 {
-	double best;
+	double best=SMALL;//TODO for diferent max min
+	int ready;
+	int tag_best=5;
 	MPI_Request found_request;
-	MPI_Test(&found_request, &best, MPI_STATUS_IGNORE);
-	if(best>palg->best)
+	MPI_Irecv(&best, 1, MPI_DOUBLE, MPI_ANY_SOURCE, tag_best, MPI_COMM_WORLD, &found_request);//TODO provisional
+	MPI_Test(&found_request, &ready, MPI_STATUS_IGNORE);
+	if(ready)
 	{
 		printf("\nSomeone has found a better result");
+	}
+	else
+	{
+		printf("\nNOT found better result");
 	}
 }
 int serializer_tasks(PalgorithmPD palg, char* all)

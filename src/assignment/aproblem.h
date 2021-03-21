@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "mpi.h"
+#include "mpe.h"
+#include "mpe_log.h"
 #include "../common/logico.h"
 #include "../common/cadena.h"
 #include "../common/type.h"
@@ -34,6 +36,8 @@ typedef struct
   } Aproblem;
 
   typedef Aproblem* PAproblem;
+  //fake
+  int init_aproblem2(PAproblem,const PTask,const PResource,const int, const int, const double values[]);
 
 
   int init_aproblem(PAproblem,const PTask,const PResource,const int, const int, const double values[]);

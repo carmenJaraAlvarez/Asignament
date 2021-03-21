@@ -35,10 +35,12 @@ void get_data(GtkWidget *calculate, gpointer data) {
 void resolve_aPD(PAproblem pap, int num_processes)
 {
     AproblemPD appd;
-	testInitAProblemPD(&appd, *pap);//TODO
+    initAProblemPD(&appd, pap);
+//	testInitAProblemPD(&appd, *pap);//TODO
 	AlgorithmPD alg;
 	init_algorithmPD(&alg, appd);
 	distribution(&alg,num_processes);
+	gtk_main_quit();//TODO checking
 
 	//delete_algorithmPD(&alg);
 }

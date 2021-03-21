@@ -8,7 +8,7 @@
 #include "../src/assignment/PD/a_problem_PD.h"
 #include "../src/assignment/solution.h"
 
-//void testInitAProblemPD(PAproblemPD, Aproblem);
+void testInitAProblemPD(PAproblemPD, Aproblem);
 void testInit9();
 void testInit10();
 
@@ -16,7 +16,7 @@ void testInit10();
 //void testInitAProblemPD(PAproblemPD papd, Aproblem a){
 //	printf("\n*** testInitAProblemPD ***\n");
 //	int res=-1;
-//	res = initAProblemPD(papd, a);
+//	res = initAProblemPD(papd, &a);
 //
 //	if(res == -1) {
 //			perror("error initAProblemPD.\n");
@@ -26,10 +26,9 @@ void testInit10();
 //		}
 //}
 
-
-
 void testInit9(){
 	printf("\n 9 **********************\n");
+	//mpecc -mpilog -pthread
 	Cadena url="/home/practica/eclipse-workspace/c/files/data3.txt";
 	Aproblem ap;
 	int numTasks=3;

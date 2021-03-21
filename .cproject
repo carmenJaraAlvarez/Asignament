@@ -24,7 +24,7 @@
 								<option id="gnu.cpp.compiler.exe.debug.option.optimization.level.2146123175" name="Optimization Level" superClass="gnu.cpp.compiler.exe.debug.option.optimization.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.exe.debug.option.debugging.level.743184502" name="Debug Level" superClass="gnu.cpp.compiler.exe.debug.option.debugging.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
 							</tool>
-							<tool command="mpicc `pkg-config --cflags gtk+-3.0`" id="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.1694076912" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.debug">
+							<tool command="mpecc -mpilog -pthread `pkg-config --cflags gtk+-3.0`" id="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.1694076912" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.debug">
 								<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.exe.debug.option.optimization.level.1455828691" name="Optimization Level" superClass="gnu.c.compiler.exe.debug.option.optimization.level" useByScannerDiscovery="false" valueType="enumerated"/>
 								<option id="gnu.c.compiler.exe.debug.option.debugging.level.1815183509" name="Debug Level" superClass="gnu.c.compiler.exe.debug.option.debugging.level" useByScannerDiscovery="false" value="gnu.c.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.include.paths.1361663392" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
@@ -52,10 +52,11 @@
 									<listOptionValue builtIn="false" value="/usr/include/libpng16 "/>
 									<listOptionValue builtIn="false" value="/usr/include/glib-2.0 "/>
 									<listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/glib-2.0/include"/>
+									<listOptionValue builtIn="false" value="/usr/local/include/"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1286007192" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
-							<tool command="mpicc `pkg-config --libs gtk+-3.0`" id="cdt.managedbuild.tool.gnu.c.linker.exe.debug.1575073237" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.debug">
+							<tool command="mpecc -mpilog  -pthread `pkg-config --libs gtk+-3.0`" id="cdt.managedbuild.tool.gnu.c.linker.exe.debug.1575073237" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.debug">
 								<option id="gnu.c.link.option.libs.32897618" name="Libraries (-l)" superClass="gnu.c.link.option.libs" useByScannerDiscovery="false" valueType="libs">
 									<listOptionValue builtIn="false" value="gtk-3 "/>
 									<listOptionValue builtIn="false" value="gdk-3 "/>
@@ -68,6 +69,8 @@
 									<listOptionValue builtIn="false" value="gio-2.0 "/>
 									<listOptionValue builtIn="false" value="gobject-2.0 "/>
 									<listOptionValue builtIn="false" value="glib-2.0"/>
+									<listOptionValue builtIn="false" value="mpe"/>
+									<listOptionValue builtIn="false" value="mpi"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.1494894018" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>

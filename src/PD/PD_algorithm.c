@@ -84,10 +84,12 @@
 	  if(is_min(palg) && target<palg->best)
 	  {
 		  palg->best=target;
+		  send_best(palg);//TODO if severals
 	  }
 	  else if(is_max(palg) && target>palg->best)
 	  {
 		  palg->best=target;
+		  send_best(palg);
 	  }
 	  return res;
   }
@@ -147,9 +149,9 @@
 //			  for(int m=0;m<numPreviousProblems;m++)
 //			  {
 				  printf("\n PREVIOUS PROBLEM_________________________%d",m);
-				  if(m>=16){
-					  show_aproblem_PD(&(palg->problems[39]));//TODO check test 4
-				  }
+//				  if(m>=16){
+//					  show_aproblem_PD(&(palg->problems[39]));//TODO check test 4
+//				  }
 				  show_aproblem_PD(&(palg->problems[m]));
 				  printf("\n COPY PROBLEM_________________________%d",m);
 				  show_aproblem_PD(&(newArrayAppd[m]));
@@ -180,15 +182,16 @@
 							  printf("\n in base case. best: %f",palg->best);
 							  printf("\n in base case. acum: %f",newArrayAppd[m].solution.acum);
 							  AproblemPD solved[100];//TODO
-							  palg->solvedProblems=&solved;
+							  //palg->solvedProblems=&solved;
 							  if(newArrayAppd[m].solution.acum==palg->best)//more than one solution
 							  {
-								  copy_aproblem_PD( &(solved[palg->num_solved]),newArrayAppd[m]);
+								  copy_aproblem_PD( &(palg->solvedProblems[palg->num_solved]),newArrayAppd[m]);
 								  palg->num_solved++;
 								  update_best(palg,&(newArrayAppd[m]));
 							  }
 							  else if(newArrayAppd[m].solution.acum>palg->best)//now this is the only one best solution
 							  {
+								  palg->solvedProblems=&solved;
 								  printf("\nThis solution is the best now. acum: %f",newArrayAppd[m].solution.acum);
 								  palg->num_solved=1;
 								  show_aproblem_PD(&(newArrayAppd[m]));
@@ -213,7 +216,7 @@
 
 					  }
 
-					  else
+					  else//not case base
 					  {
 						  //get new problems
 						  printf("        Alternatives: ");

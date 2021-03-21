@@ -8,9 +8,19 @@
 #ifndef MPI_PROBLEM_MPI_H_
 #define MPI_PROBLEM_MPI_H_
 #include "mpi.h"
+#include "mpe.h"
+#include "mpe_log.h"
 #include "../PD/PD_algorithm.h"
 
 
+extern int event1a;
+extern int event1b;
+extern int event2a;
+extern int event2b;
+extern int event3a;
+extern int event3b;
+extern int event1, event2;
+extern int startEvent, endEvent;
 
   struct  Work
 	  {
@@ -46,6 +56,7 @@ int init_work(PAproblem, int, int*);
 int send_work(const PalgorithmPD,int *, int, int);
 int send_resolved(const PalgorithmPD);
 int rcv_resolved();
+int rcv_best();
 int send_best(const PalgorithmPD);
 int broadcast_best(const PalgorithmPD);
 void waitting_best(const PalgorithmPD);
