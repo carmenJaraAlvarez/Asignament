@@ -18,7 +18,6 @@ int distribution(PalgorithmPD palg, int num_processes)
 	Solution sol;
 	int num_slaves=num_processes-1;
     MPI_Request request;
-
     MPI_Status status;
     int flag;
 
@@ -115,16 +114,10 @@ int distribution(PalgorithmPD palg, int num_processes)
 int rcv_work()
 {
 	int res=0;
-	int tag_work=0;
-	int tag_values=1;
-	int tag_tasks=2;
-	int tag_resources=3;
-	int tag_alternatives=4;
 	int ierr=0;
 
 	printf("rcv...\n");
 	struct Work work;
-
 
 	//getting work
 
@@ -205,11 +198,20 @@ int rcv_work()
 	return res;
 }
 
+int ask_work()
+{
+	MPE_Log_event(event1, 0, "ask work");
+	int n=0;
+	int master=0;
+	MPI_Request request;
+	MPI_Isend(&n, 1, MPI_INT, master, tag_ask_work, MPI_COMM_WORLD,&request);
+	return 0;
+}
+
 int rcv_resolved()
 {
 	printf("+\n+++++++++++++++++++++++++++++++++++++++++++++++++++\nINSIDE RCV_REVOLVED\n");
 	int res=0;
-	int tag_resolved=100;
 	int ierr=0;
 
 	struct Resolved resolved;
@@ -247,21 +249,19 @@ int rcv_resolved()
 int init_work(PAproblem pa, int num_alternatives, int * alternatives)
 {
 	int res=0;
+	AproblemPD appd;
+	initAProblemPD(&appd, pa);
+	AlgorithmPD alg;
+
 
 	if (num_alternatives==0){
-		//ask work
+		ask_work();
 	}
 	else
 	{
-		AproblemPD appd;
-		initAProblemPD(&appd, pa);
-		AlgorithmPD alg;
 		init_algorithmPD(&alg, appd);
 		printf("best post init: %f",alg.best);
 		show_aproblem(&(alg.ppd.aproblem));
-		//update problem with alternative
-
-
 		if(num_alternatives==1)
 		{
 			printf("\n	===========only 1 alternative");
@@ -343,12 +343,6 @@ int send_work(const PalgorithmPD palg,int *alternatives, int num_alternatives, i
 	show_aproblem(&(palg->ppd.aproblem));
 
 	int res=0;
-
-	int tag_work=0;
-	int tag_values=1;
-	int tag_tasks=2;
-	int tag_resources=3;
-	int tag_alternatives=4;
 
 	//process 0 resolves 0. Var for Not blocking solution
 	MPI_Request request;
@@ -434,21 +428,18 @@ int send_work(const PalgorithmPD palg,int *alternatives, int num_alternatives, i
 	MPI_Send( &values, num_values, MPI_DOUBLE, num_process, tag_values, MPI_COMM_WORLD );
 	MPI_Send( &serialized_tasks, len, MPI_CHAR, num_process, tag_tasks, MPI_COMM_WORLD );
 	MPI_Send( &serialized_resources, len_resources, MPI_CHAR, num_process, tag_resources, MPI_COMM_WORLD );
-	MPE_Log_event(event1b, 0, "end send");
-
 
 	if(num_alternatives>0)
     {
     	MPI_Send( &alternatives_to_work, num_alternatives, MPI_INT, num_process, tag_alternatives, MPI_COMM_WORLD );
     }
-
+	MPE_Log_event(event1b, 0, "end send");
 	return res;
 }
 
 int send_resolved(const PalgorithmPD palg)
 {
 	int res;
-	int tag_finished=100;
 	int num_process=0;//to master
 	MPI_Request request;
 	MPI_Status  status;
@@ -470,7 +461,7 @@ int send_resolved(const PalgorithmPD palg)
 	printf("\n+++++++++++++++++++++++++++++++++++++++++++\npre send mpi");
 	MPE_Init_log();
 //	MPE_Log_event(1, 0, "start broadcast");
-	MPI_Send( &resolved, num_resolved, resolved_mpi_datatype, num_process, tag_finished, MPI_COMM_WORLD );
+	MPI_Send( &resolved, num_resolved, resolved_mpi_datatype, num_process, tag_resolved, MPI_COMM_WORLD );
 //	MPE_Log_event(2, 0, "end broadcast");
 	printf("\n+++++++++++++++++++++++++++++++++++++++++++\npost send mpi %f",resolved.value);
 	MPI_Type_free( &resolved_mpi_datatype);
@@ -480,7 +471,6 @@ int rcv_best()
 {
 	double new_best;
 	MPI_Request request;
-	int tag_best=5;
 	MPI_Irecv(&new_best,1,MPI_DOUBLE,MPI_ANY_SOURCE,tag_best,MPI_COMM_WORLD,&request);
 	printf("===========================\n"
 			"============================\n"
@@ -492,8 +482,6 @@ int send_best(PalgorithmPD palg)
 	int res=0;
 	double best=palg->best;
 	int count = 1;
-	int tag_best=5;
-	int master=0;
 
 	MPI_Request request = MPI_REQUEST_NULL;
 	printf("\n sending best: %f to %d",best,master);
@@ -505,7 +493,6 @@ int broadcast_best(PalgorithmPD palg){
 	int res=0;
 	double best;
 	int count = 1;
-	int master=0;
 	int rank;
 
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -520,7 +507,7 @@ void waitting_best(PalgorithmPD palg)
 {
 	double best=SMALL;//TODO for diferent max min
 	int ready;
-	int tag_best=5;
+
 	MPI_Request found_request;
 	MPI_Irecv(&best, 1, MPI_DOUBLE, MPI_ANY_SOURCE, tag_best, MPI_COMM_WORLD, &found_request);//TODO provisional
 	MPI_Test(&found_request, &ready, MPI_STATUS_IGNORE);
@@ -533,6 +520,19 @@ void waitting_best(PalgorithmPD palg)
 		printf("\nNOT found better result");
 	}
 }
+
+int scan_petition()
+{
+	int proccess;
+	MPE_Log_event(event1, 0, "ask work");
+	int n=0;
+	MPI_Request found_request;
+	MPI_Irecv(&n, 1, MPI_INT, MPI_ANY_SOURCE, tag_ask_work, MPI_COMM_WORLD, &found_request);
+	//TODO
+	return proccess;
+}
+
+
 int serializer_tasks(PalgorithmPD palg, char* all)
 {
 	Cadena temp="";

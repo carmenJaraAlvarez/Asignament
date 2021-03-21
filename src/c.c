@@ -24,6 +24,7 @@
 #include "algorithms/metrics.h"
 
 int ierr;
+int master=0;
 
 int event1a;
 int event1b;
@@ -42,7 +43,6 @@ double startwtime, endwtime;
 int main(int argc, char **argv)
 {
   int n, myid, numprocs,rc;
-
 
   MPI_Init(&argc,&argv);
   MPI_Comm_size(MPI_COMM_WORLD,&numprocs);
