@@ -35,6 +35,10 @@ int event3a;
 int event3b;
 int event4a;
 int event4b;
+int event5a;
+int event5b;
+int event6a;
+int event6b;
 
 int event1, event2;
 int startEvent, endEvent;
@@ -58,6 +62,8 @@ int main(int argc, char **argv)
   MPE_Log_get_state_eventIDs( &event2a, &event2b );
   MPE_Log_get_state_eventIDs( &event3a, &event3b );
   MPE_Log_get_state_eventIDs( &event4a, &event4b );
+  MPE_Log_get_state_eventIDs( &event5a, &event5b );
+  MPE_Log_get_state_eventIDs( &event6a, &event6b );
 
   MPE_Log_get_solo_eventID( &event1 );
   MPE_Log_get_solo_eventID( &event2 );

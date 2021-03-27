@@ -62,7 +62,7 @@ int distribution(PalgorithmPD palg)
 			send_work(palg,&alternatives,1,i);
 
 		}
-		for(int j=palg->num_problems+1;j==num_slaves;j++)
+		for(int j=palg->num_problems+1;j<num_slaves+1;j++)
 		{
 			int alternatives[0];
 			send_work(palg,&alternatives,0,j);
@@ -113,6 +113,7 @@ int distribution(PalgorithmPD palg)
 
 int rcv_work()
 {
+	MPE_Log_event(event2a, 0, "start receive work");
 	int res=0;
 	int ierr=0;
 
@@ -128,7 +129,7 @@ int rcv_work()
 	MPI_Type_create_struct(4, blocklengths, offsets, types,  &work_mpi_datatype);
 	MPI_Type_commit ( &work_mpi_datatype );
 	MPI_Status status;
-	MPE_Log_event(event2a, 0, "start receive work");
+
     MPI_Recv(&work, 1, work_mpi_datatype , 0, tag_work, MPI_COMM_WORLD, &status);
 
 
@@ -172,10 +173,10 @@ int rcv_work()
     {
     	MPI_Recv ( &alternatives, work.num_alternatives, MPI_INT, MPI_ANY_SOURCE, tag_alternatives, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
     }
-    MPE_Log_event(event2b, 0, "end receive work");
+
     MPI_Type_free ( &work_mpi_datatype);
 	//create problem
-
+    MPE_Log_event(event2b, 0, "end receive work");
 	Aproblem a;
 	init_aproblem(&a,tasks,resources,work.num_tasks, work.num_resources, values);//TODO
 
@@ -210,6 +211,7 @@ int ask_work()
 
 int rcv_resolved()
 {
+	MPE_Log_event(event6a, 0, "start receive resolved");
 	printf("+\n+++++++++++++++++++++++++++++++++++++++++++++++++++\nINSIDE RCV_REVOLVED\n");
 	int res=0;
 	int ierr=0;
@@ -247,7 +249,7 @@ int rcv_resolved()
 //			"END: num_recv %d\n data %f",numprocs-1,palg->best);
 
     MPI_Type_free ( &resolved_mpi_datatype);
-
+    MPE_Log_event(event6b, 0, "end receive resolved");
     printf("+\n+++++++++++++++++++++++++++++++++++++++++++++++++++\nEND RCV RESOLVED\n");
 	return res;
 
@@ -265,6 +267,7 @@ int init_work(PAproblem pa, int num_alternatives, int * alternatives)
 
 	if (num_alternatives==0){
 		ask_work();
+		printf("\n---------------------------------------------------------------------------------------------------------------------------------\n");
 		alg.num_solved=0;//TODO TEST
 		send_resolved(&alg);//TODO
 	}
@@ -346,6 +349,7 @@ int init_work(PAproblem pa, int num_alternatives, int * alternatives)
 }
 int send_work(const PalgorithmPD palg,int *alternatives, int num_alternatives, int num_process)
 {
+	MPE_Log_event(event1a, 0, "start send");
 	printf("\n...................sending  %d  alternatives to process %d\n",num_alternatives,num_process);
 
 	show_aproblem(&(palg->ppd.aproblem));
@@ -429,7 +433,7 @@ int send_work(const PalgorithmPD palg,int *alternatives, int num_alternatives, i
 	printf("\n sending type: %d\n",work.type);
 	printf("\n sending alternatives: %d\n",work.num_alternatives);
 
-	MPE_Log_event(event1a, 0, "start send");
+
     MPI_Send(&work, 1, work_mpi_datatype, num_process, tag_work, MPI_COMM_WORLD);
     MPI_Type_free( &work_mpi_datatype);
 	//sending dinamic arrays
@@ -447,9 +451,7 @@ int send_work(const PalgorithmPD palg,int *alternatives, int num_alternatives, i
 
 int send_resolved(const PalgorithmPD palg)
 {
-//	int num_resolved;
-//	int resources[100];//TODO
-//	double value[100];//TODO
+	MPE_Log_event(event5a, 0, "start send resolved");
 	int res;
 	int num_process=0;//to master
 	MPI_Request request;
@@ -474,7 +476,7 @@ int send_resolved(const PalgorithmPD palg)
 		}
 
 	}
-
+	resolved.num_resolved=num_resolved;
 	//num_resolved=1;//TODO test
 	printf("\nSENDING RESOLVED TO MASTER2");
 	MPI_Datatype resolved_mpi_datatype;
@@ -491,6 +493,7 @@ int send_resolved(const PalgorithmPD palg)
 //	MPE_Log_event(2, 0, "end broadcast");
 	printf("\n+++++++++++++++++++++++++++++++++++++++++++\npost send mpi %f",resolved.value);
 	MPI_Type_free( &resolved_mpi_datatype);
+	MPE_Log_event(event5b, 0, "end send resolved");
 	return 0;
 }
 int rcv_best()

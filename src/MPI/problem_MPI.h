@@ -31,6 +31,10 @@ extern int event3a;
 extern int event3b;
 extern int event4a;
 extern int event4b;
+extern int event5a;
+extern int event5b;
+extern int event6a;
+extern int event6b;
 
 extern int event1, event2;
 extern int startEvent, endEvent;
