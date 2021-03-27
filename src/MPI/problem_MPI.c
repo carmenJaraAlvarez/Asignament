@@ -12,11 +12,11 @@ static int pD_distribution(PalgorithmPD palg);
 
 
 //we will free process 0 from problem resolution.Process 0 will show grafics
-int distribution(PalgorithmPD palg, int num_processes)
+int distribution(PalgorithmPD palg)
 {
 	int res=-1;
 	Solution sol;
-	int num_slaves=num_processes-1;
+	int num_slaves=numprocs-1;
     MPI_Request request;
     MPI_Status status;
     int flag;
@@ -103,7 +103,7 @@ int distribution(PalgorithmPD palg, int num_processes)
 //        printf("recv in test , slave : %d\n",status.MPI_SOURCE);
 //    }
 
-		//rcv_resolved();
+//		rcv_resolved(palg);
 
 	printf("00000000000000000000000000 outgoing distribution");
 	return res;
@@ -128,7 +128,7 @@ int rcv_work()
 	MPI_Type_create_struct(4, blocklengths, offsets, types,  &work_mpi_datatype);
 	MPI_Type_commit ( &work_mpi_datatype );
 	MPI_Status status;
-	MPE_Log_event(event2a, 0, "start receive");
+	MPE_Log_event(event2a, 0, "start receive work");
     MPI_Recv(&work, 1, work_mpi_datatype , 0, tag_work, MPI_COMM_WORLD, &status);
 
 
@@ -172,7 +172,7 @@ int rcv_work()
     {
     	MPI_Recv ( &alternatives, work.num_alternatives, MPI_INT, MPI_ANY_SOURCE, tag_alternatives, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
     }
-    MPE_Log_event(event2b, 0, "end receive");
+    MPE_Log_event(event2b, 0, "end receive work");
     MPI_Type_free ( &work_mpi_datatype);
 	//create problem
 
@@ -220,24 +220,31 @@ int rcv_resolved()
 	//getting
 
 	MPI_Datatype resolved_mpi_datatype;
-	int blocklengths[1] = {1};
-	MPI_Datatype types[1] = {MPI_DOUBLE};
-	const MPI_Aint offsets[1]= {0};
-	MPI_Type_create_struct(1, blocklengths, offsets, types,  &resolved_mpi_datatype);
+	int blocklengths[3] = {1,1,1};
+	MPI_Datatype types[3] = {MPI_DOUBLE,MPI_INT,MPI_DOUBLE};
+	const MPI_Aint offsets[3]= { 0, sizeof(double),sizeof(int)*100+sizeof(double)};
+
+	MPI_Type_create_struct(3, blocklengths, offsets, types,  &resolved_mpi_datatype);
 	MPI_Type_commit ( &resolved_mpi_datatype );
 	MPI_Status status;
-	int num_slaves=0;
-	while(num_slaves<2)//TODO
+	//rcve every process
+	for(int i=1;i<numprocs;i++)
 	{
-		printf("+\n+++++++++++++++++++++++++++++++++++++++++++++++++++\npre mpi_rcev\n");
+		printf("+\n+++++++++++++++++++++++++++++++++++++++++++++++++++"
+				"\npre mpi_rcev\n");
 
-		MPI_Recv(&resolved, 1, resolved_mpi_datatype , num_slaves+1, tag_resolved, MPI_COMM_WORLD, &status);
+		MPI_Recv(&resolved, 1, resolved_mpi_datatype , i, tag_resolved, MPI_COMM_WORLD, &status);
+		if(resolved.num_resolved>0)//TODO
+		{
+			//palg->best=resolved.value;
+			printf("\n ONE BEST IN MASTER-> %f",resolved.value[0]);
+		}
 
-		num_slaves++;
 		printf("+\n+++++++++++++++++++++++++++++++++++++++++++++++++++\npost mpi_rcev\n"
-				"num_recv %d\ndata %f",num_slaves,resolved.value);
+				"******************received resolved from %d\n ",i);
 	}
-
+//	printf("+\n+++++++++++++++++++++++++++++++++++++++++++++++++++\npost mpi_rcev\n"
+//			"END: num_recv %d\n data %f",numprocs-1,palg->best);
 
     MPI_Type_free ( &resolved_mpi_datatype);
 
@@ -252,16 +259,17 @@ int init_work(PAproblem pa, int num_alternatives, int * alternatives)
 	AproblemPD appd;
 	initAProblemPD(&appd, pa);
 	AlgorithmPD alg;
-
+	init_algorithmPD(&alg, appd);
+	printf("best post init: %f",alg.best);
+	show_aproblem(&(alg.ppd.aproblem));
 
 	if (num_alternatives==0){
 		ask_work();
+		alg.num_solved=0;//TODO TEST
+		send_resolved(&alg);//TODO
 	}
 	else
 	{
-		init_algorithmPD(&alg, appd);
-		printf("best post init: %f",alg.best);
-		show_aproblem(&(alg.ppd.aproblem));
 		if(num_alternatives==1)
 		{
 			printf("\n	===========only 1 alternative");
@@ -439,29 +447,47 @@ int send_work(const PalgorithmPD palg,int *alternatives, int num_alternatives, i
 
 int send_resolved(const PalgorithmPD palg)
 {
+//	int num_resolved;
+//	int resources[100];//TODO
+//	double value[100];//TODO
 	int res;
 	int num_process=0;//to master
 	MPI_Request request;
 	MPI_Status  status;
-	int request_complete = 0;
 
 	printf("\nSENDING RESOLVED TO MASTER");
 	struct Resolved resolved;
 	int num_resolved=palg->num_solved;
+	if(num_resolved==0)
+	{
+		printf("\n SENDING NO SOLUTION");
 
-	resolved.value=palg->solvedProblems[0].solution.acum;//TODO
-	num_resolved=1;//TODO test
+	}
+	else
+	{
+		for(int i=0;i<num_resolved;i++){
+			resolved.value[i]=palg->solvedProblems[i].solution.acum;//TODO
+			for(int j=0;j<palg->problems->aproblem.numResources;j++){
+				resolved.resources[i+j]=palg->solvedProblems[i].solution.resources->position;
+			}
+
+		}
+
+	}
+
+	//num_resolved=1;//TODO test
 	printf("\nSENDING RESOLVED TO MASTER2");
 	MPI_Datatype resolved_mpi_datatype;
-	int blocklengths[1] = {1};
-	MPI_Datatype types[1] = {MPI_DOUBLE};
-    const MPI_Aint offsets[1]= { 0};
-	MPI_Type_create_struct(1, blocklengths, offsets, types,  &resolved_mpi_datatype);
+	int blocklengths[3] = {1,1,1};
+	MPI_Datatype types[3] = {MPI_DOUBLE,MPI_INT,MPI_DOUBLE};
+	const MPI_Aint offsets[3]= { 0, sizeof(double),sizeof(int)*100+sizeof(double)};
+
+	MPI_Type_create_struct(3, blocklengths, offsets, types,  &resolved_mpi_datatype);
 	MPI_Type_commit ( &resolved_mpi_datatype);-
 	printf("\n+++++++++++++++++++++++++++++++++++++++++++\npre send mpi");
 	MPE_Init_log();
 //	MPE_Log_event(1, 0, "start broadcast");
-	MPI_Send( &resolved, num_resolved, resolved_mpi_datatype, num_process, tag_resolved, MPI_COMM_WORLD );
+	MPI_Send( &resolved, 1, resolved_mpi_datatype, num_process, tag_resolved, MPI_COMM_WORLD );
 //	MPE_Log_event(2, 0, "end broadcast");
 	printf("\n+++++++++++++++++++++++++++++++++++++++++++\npost send mpi %f",resolved.value);
 	MPI_Type_free( &resolved_mpi_datatype);
@@ -471,10 +497,12 @@ int rcv_best()
 {
 	double new_best;
 	MPI_Request request;
+	MPE_Log_event(event4a, 0, "start receive best");
 	MPI_Irecv(&new_best,1,MPI_DOUBLE,MPI_ANY_SOURCE,tag_best,MPI_COMM_WORLD,&request);
 	printf("===========================\n"
 			"============================\n"
 			"RCV best: %f", new_best);
+	MPE_Log_event(event4b, 0, "end receive best");
 	return 0;
 }
 int send_best(PalgorithmPD palg)
@@ -482,11 +510,12 @@ int send_best(PalgorithmPD palg)
 	int res=0;
 	double best=palg->best;
 	int count = 1;
-
+	MPE_Log_event(event3a, 0, "start send best");
 	MPI_Request request = MPI_REQUEST_NULL;
 	printf("\n sending best: %f to %d",best,master);
 	MPI_Isend(&best, count, MPI_INT, master, tag_best, MPI_COMM_WORLD, &request);
 	printf("\n send best: %f to %d",best,master);
+	MPE_Log_event(event3b, 0, "end send best");
 	return res;
 }
 int broadcast_best(PalgorithmPD palg){

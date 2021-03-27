@@ -19,9 +19,9 @@
 #define tag_alternatives 4
 #define tag_best 5
 #define tag_ask_work 6
-
 #define tag_resolved 100
 
+extern int numprocs;
 
 extern int event1a;
 extern int event1b;
@@ -29,6 +29,9 @@ extern int event2a;
 extern int event2b;
 extern int event3a;
 extern int event3b;
+extern int event4a;
+extern int event4b;
+
 extern int event1, event2;
 extern int startEvent, endEvent;
 
@@ -49,8 +52,9 @@ extern int master;
 
   struct  Resolved
 	  {
-		double value;
-		//TODO
+		int num_resolved;
+		int resources[100];//TODO
+		double value[100];//TODO
 
 	  }r_mpi;
 
@@ -62,7 +66,7 @@ extern int master;
 	  }Problem_MPI;
   typedef Problem_MPI* Pproblem_MPI;
 
-int distribution(PalgorithmPD, int);
+int distribution(PalgorithmPD);
 int rcv_work();
 int ask_work();
 int init_work(PAproblem, int, int*);
@@ -74,6 +78,7 @@ int send_best(const PalgorithmPD);
 int broadcast_best(const PalgorithmPD);
 void waitting_best(const PalgorithmPD);
 int scan_petition();
+int resolved();
 //aux
 int serializer_tasks(PalgorithmPD, char*);
 int deserializer_tasks(char*, int, PTask );

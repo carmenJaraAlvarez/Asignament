@@ -25,6 +25,7 @@
 
 int ierr;
 int master=0;
+int numprocs;
 
 int event1a;
 int event1b;
@@ -42,7 +43,7 @@ double startwtime, endwtime;
 
 int main(int argc, char **argv)
 {
-  int n, myid, numprocs,rc;
+  int n, myid,rc;
 
   MPI_Init(&argc,&argv);
   MPI_Comm_size(MPI_COMM_WORLD,&numprocs);
@@ -79,22 +80,25 @@ int main(int argc, char **argv)
 
   }
 
-  MPI_Barrier(MPI_COMM_WORLD);
-  MPI_Pcontrol( 1 );
-  //testing mpe
-  MPE_Log_event(event3a, 0, "start broadcast");
-  MPI_Bcast(&n, 1, MPI_INT, 0, MPI_COMM_WORLD);
-  MPE_Log_event(event3b, 0, "end broadcast");
+//  MPI_Barrier(MPI_COMM_WORLD);
+//  MPI_Pcontrol( 1 );
+//  //testing mpe
+//  MPE_Log_event(event3a, 0, "start broadcast");
+//  MPI_Bcast(&n, 1, MPI_INT, 0, MPI_COMM_WORLD);
+//  MPE_Log_event(event3b, 0, "end broadcast");
   /////////////
   MPE_Log_sync_clocks();
   if (myid != 0)
   {
 	  rcv_work();
   }
-  MPE_Finish_log("c");
+
   if (myid == 0)
   {
+
+	  rcv_resolved();//TODO TEST
 	  end_clock();
   }
+  MPE_Finish_log("c");
   MPI_Finalize();
 }

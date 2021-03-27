@@ -25,12 +25,12 @@ int describe_logs(){
 
 
 	  /*  Get event ID from MPE, user should NOT assign event ID  */
-    MPE_Describe_state(event1a, event1b, "Send", "red");
-    MPE_Describe_state(event2a, event2b, "Receive",   "blue");
-    MPE_Describe_state(event3a, event3b, "Broadcast",    "green");
-    MPE_Describe_state(event4a, event4b, "Sync",      "orange");
+    MPE_Describe_state(event1a, event1b, "Send work", "red");
+    MPE_Describe_state(event2a, event2b, "Receive work",   "blue");
+    MPE_Describe_state(event3a, event3b, "Send best",    "green");
+    MPE_Describe_state(event4a, event4b, "Receive best",      "orange");
 
-    MPE_Describe_event( event1, "Broadcast Post", "white" );
+    MPE_Describe_event( event1, "Broadcast", "white" );
     MPE_Describe_event( event2, "Compute Start", "purple" );
 
     return 0;

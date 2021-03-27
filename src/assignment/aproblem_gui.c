@@ -39,9 +39,9 @@ void resolve_aPD(PAproblem pap, int num_processes)
 //	testInitAProblemPD(&appd, *pap);//TODO
 	AlgorithmPD alg;
 	init_algorithmPD(&alg, appd);
-	distribution(&alg,num_processes);
-	gtk_main_quit();//TODO checking
+	distribution(&alg);
 
+	gtk_main_quit();//TODO checking
 	//delete_algorithmPD(&alg);
 }
 
