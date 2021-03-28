@@ -553,17 +553,39 @@ void waitting_best(PalgorithmPD palg)
 	}
 }
 
-int scan_petition()
+int scan_petition(MPI_Request *request_petition)
 {
 	MPE_Log_event(event2, 0, "listen");
+	MPI_Status status;
 	int n=0;
-	MPI_Request found_request;
-	MPI_Irecv(&n, 1, MPI_INT, MPI_ANY_SOURCE, tag_ask_work, MPI_COMM_WORLD, &found_request);
-	//TODO
-	printf("\n 				LISTENING-> %d",n);
+	int flag=0;
+	printf("\n 				PRE TEST");
+	MPI_Test(request_petition, &flag, &status);
+	printf("\n 				POST TEST");
+	if(flag)
+	{
+		printf("\n 				SENDER-> %d",status.MPI_SOURCE);
+		printf("\n 				POSTPRINT SENDER");
+		MPE_Log_event(event3, 0, "rcve petition");
+		MPI_Irecv(&n, 1, MPI_INT, MPI_ANY_SOURCE, tag_ask_work, MPI_COMM_WORLD, request_petition);
+
+	}
+
 	return n;
 }
 
+int init_listening(MPI_Request *request_petition)
+{
+	int n;
+	MPI_Irecv(&n, 1, MPI_INT, MPI_ANY_SOURCE, tag_ask_work, MPI_COMM_WORLD, request_petition);
+	return 0;
+}
+
+int finish_work()
+{
+	rcv_resolved();
+	return 0;
+}
 
 int serializer_tasks(PalgorithmPD palg, char* all)
 {

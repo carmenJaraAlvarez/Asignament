@@ -36,7 +36,7 @@ extern int event5b;
 extern int event6a;
 extern int event6b;
 
-extern int event1, event2;
+extern int event1, event2, event3;
 extern int startEvent, endEvent;
 
 extern int master;
@@ -81,8 +81,11 @@ int rcv_best();
 int send_best(const PalgorithmPD);
 int broadcast_best(const PalgorithmPD);
 void waitting_best(const PalgorithmPD);
-int scan_petition();
+int scan_petition(MPI_Request*);
+int init_listening(MPI_Request*);
+int finish_work();
 int resolved();
+
 //aux
 int serializer_tasks(PalgorithmPD, char*);
 int deserializer_tasks(char*, int, PTask );

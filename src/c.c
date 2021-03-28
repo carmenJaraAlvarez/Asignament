@@ -40,19 +40,20 @@ int event5b;
 int event6a;
 int event6b;
 
-int event1, event2;
+int event1, event2, event3;
 int startEvent, endEvent;
 
 double startwtime, endwtime;
 
 int main(int argc, char **argv)
 {
-  int n, myid,flag=0;
+  int n, myid,all_finished=0;
 
   MPI_Init(&argc,&argv);
   MPI_Comm_size(MPI_COMM_WORLD,&numprocs);
   MPI_Comm_rank(MPI_COMM_WORLD,&myid);
   MPI_Request request;
+  MPI_Request request_petition;
 
   //init_logs();
 
@@ -68,6 +69,7 @@ int main(int argc, char **argv)
 
   MPE_Log_get_solo_eventID( &event1 );
   MPE_Log_get_solo_eventID( &event2 );
+  MPE_Log_get_solo_eventID( &event3 );
 
   if (myid == 0)
   {
@@ -97,14 +99,14 @@ int main(int argc, char **argv)
   //printf("[MPI process %d] I got my rank, it is %d, I now call MPI_Ibarrier.\n", myid, myid);
   if (myid == 0)
   {
-
-	  scan_petition();
-	  while(!flag)
+	  init_listening(&request_petition);
+	  while(!all_finished)
 	  {
-		  scan_petition();
-		  MPI_Test(&request,&flag, MPI_STATUS_IGNORE);
+		  scan_petition(&request_petition);
+		  MPI_Test(&request,&all_finished, MPI_STATUS_IGNORE);//test barrier
 	  }
-	  rcv_resolved();//TODO TEST
+	  finish_work();
+//	  rcv_resolved();//TODO TEST
 	  end_clock();
   }
   MPE_Finish_log("c");
