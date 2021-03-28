@@ -21,7 +21,7 @@ int distribution(PalgorithmPD palg)
     MPI_Status status;
     int flag;
 
-	rcv_best();
+
 
 
 	printf("\n num problems-num slaves: %d-%d",palg->num_problems,num_slaves);
@@ -555,13 +555,13 @@ void waitting_best(PalgorithmPD palg)
 
 int scan_petition()
 {
-	int proccess;
-	MPE_Log_event(event1, 0, "ask work");
+	MPE_Log_event(event2, 0, "listen");
 	int n=0;
 	MPI_Request found_request;
 	MPI_Irecv(&n, 1, MPI_INT, MPI_ANY_SOURCE, tag_ask_work, MPI_COMM_WORLD, &found_request);
 	//TODO
-	return proccess;
+	printf("\n 				LISTENING-> %d",n);
+	return n;
 }
 
 

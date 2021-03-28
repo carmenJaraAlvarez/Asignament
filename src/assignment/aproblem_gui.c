@@ -40,9 +40,9 @@ void resolve_aPD(PAproblem pap, int num_processes)
 	AlgorithmPD alg;
 	init_algorithmPD(&alg, appd);
 	distribution(&alg);
-
 	gtk_main_quit();//TODO checking
 	//delete_algorithmPD(&alg);
+
 }
 
 void create_aproblem_window(GtkWidget *window,int num_processes)

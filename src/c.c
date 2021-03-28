@@ -47,11 +47,12 @@ double startwtime, endwtime;
 
 int main(int argc, char **argv)
 {
-  int n, myid,rc;
+  int n, myid,flag=0;
 
   MPI_Init(&argc,&argv);
   MPI_Comm_size(MPI_COMM_WORLD,&numprocs);
   MPI_Comm_rank(MPI_COMM_WORLD,&myid);
+  MPI_Request request;
 
   //init_logs();
 
@@ -86,22 +87,23 @@ int main(int argc, char **argv)
 
   }
 
-//  MPI_Barrier(MPI_COMM_WORLD);
-//  MPI_Pcontrol( 1 );
-//  //testing mpe
-//  MPE_Log_event(event3a, 0, "start broadcast");
-//  MPI_Bcast(&n, 1, MPI_INT, 0, MPI_COMM_WORLD);
-//  MPE_Log_event(event3b, 0, "end broadcast");
-  /////////////
   MPE_Log_sync_clocks();
-  if (myid != 0)
-  {
+  if (myid != 0)  {
 	  rcv_work();
-  }
 
+  }
+  MPI_Ibarrier(MPI_COMM_WORLD, &request);
+
+  //printf("[MPI process %d] I got my rank, it is %d, I now call MPI_Ibarrier.\n", myid, myid);
   if (myid == 0)
   {
 
+	  scan_petition();
+	  while(!flag)
+	  {
+		  scan_petition();
+		  MPI_Test(&request,&flag, MPI_STATUS_IGNORE);
+	  }
 	  rcv_resolved();//TODO TEST
 	  end_clock();
   }
