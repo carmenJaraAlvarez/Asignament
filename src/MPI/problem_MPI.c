@@ -571,9 +571,8 @@ int scan_petition(MPI_Request *request_petition)
 	int n=0;
 	int flag=0;
 	int sender;
-	printf("\n 				PRE TEST");
+//	printf("\n 				PRE TEST");
 	MPI_Test(request_petition, &flag, &status);
-	printf("\n 				POST TEST");
 	if(flag)
 	{
 		sender=status.MPI_SOURCE;

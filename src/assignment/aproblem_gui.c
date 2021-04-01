@@ -18,36 +18,64 @@ void get_data(GtkWidget *calculate, gpointer data) {
     int num_processes=(int)data;
 
     printf("\n++++++++++++++++NUM PROCESSES,%d",num_processes);
-    Aproblem *ap;
+    //Aproblem *ap;
 
 	Cadena cadena_url;
 	strcpy(cadena_url,text);
 
-    read_aproblem_file(&ap, numt, numr, cadena_url);
+    read_aproblem_file(&pap_from_gui, numt, numr, cadena_url);
+    printf("READ\n VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV");
+    resolve_aPD(&pap_from_gui, num_processes);
     //gtk_label_set_text(GTK_LABEL(values), buffer);
     //printf("\n %s", text);
-
-    resolve_aPD(&ap,num_processes);
-
 
 }
 
 void resolve_aPD(PAproblem pap, int num_processes)
 {
+	all_finished=0;
     AproblemPD appd;
     initAProblemPD(&appd, pap);
 //	testInitAProblemPD(&appd, *pap);//TODO
 //	AlgorithmPD alg;
 	init_algorithmPD(&final_alg, appd);
 	distribution(&final_alg);
-	gtk_main_quit();//TODO checking
+	init_slaves=1;
+	MPI_Bcast(&init_slaves,1,MPI_INT,0,MPI_COMM_WORLD);
+	MPI_Ibarrier(MPI_COMM_WORLD, &request);
+	printf("INSIDE resolve_aPD\n VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV");
+	  init_listening(&request_petition);
+	  while(!all_finished)
+	  {
+		  scan_petition(&request_petition);
+		  MPI_Test(&request,&all_finished, MPI_STATUS_IGNORE);//test barrier
+	  }
+	  finish_work();
+//	  ////////////////////////////
+	  GtkWidget  *window_solved, *grid_solved;
+	  window_solved = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+
+	  grid_solved = gtk_grid_new();
+	  gtk_container_add(GTK_CONTAINER(window_solved), grid_solved);
+	  gtk_window_set_title (GTK_WINDOW (window_solved), "Solved");
+	  gtk_window_set_default_size (GTK_WINDOW (window_solved), 200, 200);
+	  double best_final_value=102.2;
+	  gchar *str = g_strdup_printf("%f", best_final_value);
+	  value = gtk_label_new(str);
+	  gtk_grid_attach(GTK_GRID(grid_solved), value, 0, 0, 1, 1);
+
+	  gtk_widget_show_all(window_solved);
+
+//	  //////////////////////////////
+	  end_clock();
+	//gtk_main_quit();//TODO checking
 	//delete_algorithmPD(&alg);
 
 }
 
 void create_aproblem_window(GtkWidget *window,int num_processes)
 {
-	GtkWidget *grid, *done;
+		GtkWidget *grid, *done;
 		printf("\n Num process: %d", num_processes);
 
 	    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -75,11 +103,6 @@ void create_aproblem_window(GtkWidget *window,int num_processes)
 
 	    done = gtk_button_new_with_label("Done");
 
-//	    Aproblem ap;
-//
-//	    Problem_MPI pmpi;
-//	   	pmpi.ap=ap;
-//	   	pmpi.num_processes=num_processes;
 	    int n=num_processes;
 	   	printf("\n In problemDataRun num process: %d",n);
 

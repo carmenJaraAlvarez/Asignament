@@ -21,14 +21,20 @@ static GtkWidget *url;
 static GtkWidget *resources;
 static GtkWidget *tasks;
 static GtkWidget *values;
+static GtkWidget *value;
 static GtkWidget *url_file;
 //the problem
 PAproblem pap_from_gui;
 
+int init_slaves;
+int all_finished;
 
+MPI_Request request_petition;
+MPI_Request request;
 
   void get_data(GtkWidget *, gpointer);
   void create_aproblem_window(GtkWidget *,int );
+ //void resolve_aPD(PAproblem pap, int num_processes);
 
   
   #endif /* INCLUDES_APROBLEM_GUI_H_ */
