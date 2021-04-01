@@ -28,7 +28,7 @@ extern int event5a;
 extern int event5b;
 extern int event6a;
 extern int event6b;
-extern int event1, event2, event3;
+extern int event1, event2, event3, event4, event5;
 extern int startEvent, endEvent;
 
 int init_clock();

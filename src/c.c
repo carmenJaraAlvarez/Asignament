@@ -40,7 +40,7 @@ int event5b;
 int event6a;
 int event6b;
 
-int event1, event2, event3;
+int event1, event2, event3, event4, event5;
 int startEvent, endEvent;
 
 double startwtime, endwtime;
@@ -72,6 +72,8 @@ int main(int argc, char **argv)
   MPE_Log_get_solo_eventID( &event1 );
   MPE_Log_get_solo_eventID( &event2 );
   MPE_Log_get_solo_eventID( &event3 );
+  MPE_Log_get_solo_eventID( &event4 );
+  MPE_Log_get_solo_eventID( &event5 );
 
   init_slaves=0;
   if (myid != 0)  {
