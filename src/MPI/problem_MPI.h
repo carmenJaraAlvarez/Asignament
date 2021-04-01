@@ -19,6 +19,7 @@
 #define tag_alternatives 4
 #define tag_best 5
 #define tag_ask_work 6
+#define tag_give_work 7
 #define tag_resolved 100
 
 extern int numprocs;
@@ -40,6 +41,7 @@ extern int event1, event2, event3;
 extern int startEvent, endEvent;
 
 extern int master;
+AlgorithmPD final_alg;
 
   struct  Work
 	  {
@@ -49,10 +51,14 @@ extern int master;
 		Type type;
 		//alternative the process will select
 		int num_alternatives;
-
-
-
 	  }w_mpi;
+
+  struct  Node_work
+	  {
+		int index;
+		int solution[100];//TODO
+		double value;
+	  }node_w_mpi;
 
   struct  Resolved
 	  {
@@ -70,20 +76,24 @@ extern int master;
 	  }Problem_MPI;
   typedef Problem_MPI* Pproblem_MPI;
 
-int distribution(PalgorithmPD);
+
+//slaves
 int rcv_work();
 int ask_work();
 int init_work(PAproblem, int, int*);
-int send_work(const PalgorithmPD,int *, int, int);
 int send_resolved(const PalgorithmPD);
-int rcv_resolved();
-int rcv_best();
 int send_best(const PalgorithmPD);
+//master
+int distribution(PalgorithmPD);
+int send_work(const PalgorithmPD,int *, int, int);
 int broadcast_best(const PalgorithmPD);
 void waitting_best(const PalgorithmPD);
+int rcv_resolved();
+int rcv_best();
 int scan_petition(MPI_Request*);
 int init_listening(MPI_Request*);
 int finish_work();
+int give_me_work(int process);
 int resolved();
 
 //aux

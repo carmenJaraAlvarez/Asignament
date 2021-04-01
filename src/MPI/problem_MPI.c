@@ -98,12 +98,6 @@ int distribution(PalgorithmPD palg)
 		}
 
 	}
-//    MPI_Test(&request, &flag, &status);
-//    if (flag != 0) {
-//        printf("recv in test , slave : %d\n",status.MPI_SOURCE);
-//    }
-
-//		rcv_resolved(palg);
 
 	printf("00000000000000000000000000 outgoing distribution");
 	return res;
@@ -230,23 +224,39 @@ int rcv_resolved()
 	MPI_Type_commit ( &resolved_mpi_datatype );
 	MPI_Status status;
 	//rcve every process
-	for(int i=1;i<numprocs;i++)
+	for(int p=1;p<numprocs;p++)
 	{
 		printf("+\n+++++++++++++++++++++++++++++++++++++++++++++++++++"
 				"\npre mpi_rcev\n");
 
-		MPI_Recv(&resolved, 1, resolved_mpi_datatype , i, tag_resolved, MPI_COMM_WORLD, &status);
+		MPI_Recv(&resolved, 1, resolved_mpi_datatype , p, tag_resolved, MPI_COMM_WORLD, &status);
+		printf("");
 		if(resolved.num_resolved>0)//TODO
 		{
 			//palg->best=resolved.value;
 			printf("\n ONE BEST IN MASTER-> %f",resolved.value[0]);
+			for(int i=0; i<resolved.num_resolved;i++)
+				{
+					if(resolved.value[i]>=final_alg.best)//TODO
+					{
+						final_alg.best=resolved.value[i];
+						for(int j=0;j<final_alg.ppd.solution.lengthArrays;j++)
+						{
+							final_alg.solvedProblems[i].solution.resources[j].position=resolved.resources[j];
+
+						}
+						final_alg.num_solved=resolved.num_resolved;
+					}
+				}
+
+
 		}
 
 		printf("+\n+++++++++++++++++++++++++++++++++++++++++++++++++++\npost mpi_rcev\n"
-				"******************received resolved from %d\n ",i);
+				"******************received resolved from %d\n ",p);
 	}
-//	printf("+\n+++++++++++++++++++++++++++++++++++++++++++++++++++\npost mpi_rcev\n"
-//			"END: num_recv %d\n data %f",numprocs-1,palg->best);
+
+
 
     MPI_Type_free ( &resolved_mpi_datatype);
     MPE_Log_event(event6b, 0, "end receive resolved");
@@ -268,6 +278,7 @@ int init_work(PAproblem pa, int num_alternatives, int * alternatives)
 	if (num_alternatives==0){
 		ask_work();
 		printf("\n---------------------------------------------------------------------------------------------------------------------------------\n");
+		//recive_work?
 		alg.num_solved=0;//TODO TEST
 		send_resolved(&alg);//TODO
 	}
@@ -559,19 +570,42 @@ int scan_petition(MPI_Request *request_petition)
 	MPI_Status status;
 	int n=0;
 	int flag=0;
+	int sender;
 	printf("\n 				PRE TEST");
 	MPI_Test(request_petition, &flag, &status);
 	printf("\n 				POST TEST");
 	if(flag)
 	{
-		printf("\n 				SENDER-> %d",status.MPI_SOURCE);
-		printf("\n 				POSTPRINT SENDER");
+		sender=status.MPI_SOURCE;
+		printf("\n 				SENDER %d", sender);
 		MPE_Log_event(event3, 0, "rcve petition");
+
+		give_me_work(1);//TODO
 		MPI_Irecv(&n, 1, MPI_INT, MPI_ANY_SOURCE, tag_ask_work, MPI_COMM_WORLD, request_petition);
 
 	}
 
 	return n;
+}
+
+int give_me_work(int process)
+{
+	int n;
+	MPI_Request request_w;
+	MPI_Request request_rcv;
+	MPI_Datatype node_mpi_datatype;
+	int blocklengths[3] = {1,100,1};
+	MPI_Datatype types[3] = {MPI_INT, MPI_INT,MPI_DOUBLE};
+	const MPI_Aint offsets[3]= { 0, sizeof(int),sizeof(int)*101};
+	MPI_Type_create_struct(3, blocklengths, offsets, types,  &node_mpi_datatype);
+	MPI_Type_commit ( &node_mpi_datatype );
+	MPI_Status status;
+	MPI_Isend(&n, 1, MPI_INT, process, tag_give_work, MPI_COMM_WORLD, &request_w);
+	struct  Node_work node_w;
+	MPI_Irecv(&node_w, 1, node_mpi_datatype, process, tag_ask_work, MPI_COMM_WORLD, &request_rcv);
+
+	return 0;
+
 }
 
 int init_listening(MPI_Request *request_petition)
@@ -584,6 +618,9 @@ int init_listening(MPI_Request *request_petition)
 int finish_work()
 {
 	rcv_resolved();
+	//TODO
+	printf("\n END OF FINISH WORK ON MASTER\n ");
+	printf("\n BEST: %f\n",final_alg.best);
 	return 0;
 }
 
