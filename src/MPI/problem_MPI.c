@@ -274,13 +274,14 @@ int init_work(PAproblem pa, int num_alternatives, int * alternatives)
 	init_algorithmPD(&alg, appd);
 	printf("best post init: %f",alg.best);
 	show_aproblem(&(alg.ppd.aproblem));
-
+	new_best=alg.best;
+	MPE_Log_event(event5, 0, "init listening broadcast");
+	MPI_Irecv(&new_best, 1, MPI_DOUBLE, master, tag_best, MPI_COMM_WORLD, &request_bcast);
 	if (num_alternatives==0){
 		ask_work();
 		printf("\n---------------------------------------------------------------------------------------------------------------------------------\n");
-		//recive_work?
-		alg.num_solved=0;//TODO TEST
-		send_resolved(&alg);//TODO
+		alg.num_solved=0;
+		send_resolved(&alg);
 	}
 	else
 	{
@@ -499,18 +500,22 @@ int send_resolved(const PalgorithmPD palg)
 	MPI_Type_commit ( &resolved_mpi_datatype);-
 	printf("\n+++++++++++++++++++++++++++++++++++++++++++\npre send mpi");
 	MPE_Init_log();
-//	MPE_Log_event(1, 0, "start broadcast");
+
 	MPI_Send( &resolved, 1, resolved_mpi_datatype, num_process, tag_resolved, MPI_COMM_WORLD );
-//	MPE_Log_event(2, 0, "end broadcast");
+
 	printf("\n+++++++++++++++++++++++++++++++++++++++++++\npost send mpi %f",resolved.value);
 	MPI_Type_free( &resolved_mpi_datatype);
 	MPE_Log_event(event5b, 0, "end send resolved");
 	return 0;
 }
-int rcv_best(double b)
+int rcv_best(double rcvd_best, MPI_Request *request_bcast)
 {
-	if(b>final_alg.best){
-//		broadcast_best(b);
+	if((rcvd_best>final_alg.best && final_alg.ppd.aproblem.type==MAX) ||
+			(rcvd_best<final_alg.best && final_alg.ppd.aproblem.type==MIN)){
+		final_alg.best=rcvd_best;
+		MPE_Log_event(event5, 0, "start broadcast");
+		broadcast_best(rcvd_best);
+
 		printf("\n INSIDE RCV BEST AND IS BETTER");
 	}
 	return 0;
@@ -528,39 +533,39 @@ int send_best(PalgorithmPD palg)
 	MPE_Log_event(event3b, 0, "end send best");
 	return res;
 }
-int broadcast_best(double b){
+int broadcast_best(double better){
 	int res=0;
-	double best;
+	double best_to_broadcast;
 	int count = 1;
 	int rank;
 	MPE_Log_event(event5, 0, "broadcast");
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	if(rank==master){
-		best=b;
+		best_to_broadcast=better;
+		printf("\n I am %d, and the best to broadcast is %f",rank, best_to_broadcast);
+		MPE_Log_event(event5, 0, "broadcast best");
+		MPI_Ibcast(&best_to_broadcast, count, MPI_DOUBLE, master, MPI_COMM_WORLD, &request_bcast);
 	}
-	MPI_Bcast(&best, count, MPI_DOUBLE, master, MPI_COMM_WORLD);
+
 	return res;
 }
 
-void waitting_best(PalgorithmPD palg)
+void waitting_best(MPI_Request *request_bcast)
 {
-	double best=SMALL;//TODO for diferent max min
-	int ready;
+	double best=final_alg.best;
+	int ready=0;
 
-	MPI_Request found_request;
-	MPI_Irecv(&best, 1, MPI_DOUBLE, MPI_ANY_SOURCE, tag_best, MPI_COMM_WORLD, &found_request);//TODO provisional
-	MPI_Test(&found_request, &ready, MPI_STATUS_IGNORE);
+	MPI_Test(&request_bcast, &ready, MPI_STATUS_IGNORE);
 	if(ready)
 	{
-		printf("\nSomeone has found a better result");
-	}
-	else
-	{
-		printf("\nNOT found better result");
+		printf("\nMaster has send best result %f", best);
+		MPE_Log_event(event5, 0, "broadcast best");
+		MPI_Irecv(&best, 1, MPI_DOUBLE, master, tag_best, MPI_COMM_WORLD, &request_bcast);
+
 	}
 }
 
-int scan_petition(MPI_Request *request_ask_work, MPI_Request *request_best)
+int scan_petition(MPI_Request *request_ask_work, MPI_Request *request_best, MPI_Request *request_bcast)
 {
 	MPE_Log_event(event2, 0, "listen");
 	MPI_Status status;
@@ -577,7 +582,7 @@ int scan_petition(MPI_Request *request_ask_work, MPI_Request *request_best)
 				"				Best %f", sender, b);
 		MPE_Log_event(event4, 0, "rcve best");
 		double new_best=b;
-		rcv_best(new_best);
+		rcv_best(new_best, request_bcast);
 		MPI_Irecv(&b, 1, MPI_DOUBLE, MPI_ANY_SOURCE, tag_best, MPI_COMM_WORLD, request_best);
 		flag_b=0;
 	}

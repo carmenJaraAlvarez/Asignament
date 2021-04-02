@@ -31,6 +31,7 @@ int all_finished;
 
 MPI_Request request_petition;
 MPI_Request request_best;
+MPI_Request request_bcast;
 MPI_Request request;
 
   void get_data(GtkWidget *, gpointer);

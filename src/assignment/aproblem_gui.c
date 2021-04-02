@@ -44,7 +44,7 @@ void resolve_aPD(PAproblem pap, int num_processes)
 	  init_listening(&request_petition, &request_best);
 	  while(!all_finished)
 	  {
-		  scan_petition(&request_petition, &request_best);
+		  scan_petition(&request_petition, &request_best, &request_bcast);
 		  MPI_Test(&request,&all_finished, MPI_STATUS_IGNORE);//test barrier
 	  }
 	  finish_work();

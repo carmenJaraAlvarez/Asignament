@@ -40,10 +40,13 @@ extern int event6b;
 extern int event1, event2, event3, event4, event5;
 extern int startEvent, endEvent;
 
+extern MPI_Request request_bcast;
+
 extern int master;
 AlgorithmPD final_alg;
 int n;//buffer for ask work
-double b;//bufer for best
+double b;//buffer for best
+double new_best;//buffer for broadcast best
 
   struct  Work
 	  {
@@ -85,14 +88,14 @@ int ask_work();
 int init_work(PAproblem, int, int*);
 int send_resolved(const PalgorithmPD);
 int send_best(const PalgorithmPD);
+void waitting_best(MPI_Request *);
 //master
 int distribution(PalgorithmPD);
 int send_work(const PalgorithmPD,int *, int, int);
 int broadcast_best(const double);
-void waitting_best(const PalgorithmPD);
 int rcv_resolved();
-int rcv_best(double b);
-int scan_petition(MPI_Request*, MPI_Request*);
+int rcv_best(double b, MPI_Request*);
+int scan_petition(MPI_Request*, MPI_Request*,MPI_Request*);
 int init_listening(MPI_Request*, MPI_Request*);
 int finish_work();
 int give_me_work(int process);
