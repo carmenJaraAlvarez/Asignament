@@ -46,6 +46,7 @@ int startEvent, endEvent;
 double startwtime, endwtime;
 
 extern int init_slaves;
+extern MPI_Request request;
 
 int main(int argc, char **argv)
 {
@@ -54,7 +55,7 @@ int main(int argc, char **argv)
   MPI_Init(&argc,&argv);
   MPI_Comm_size(MPI_COMM_WORLD,&numprocs);
   MPI_Comm_rank(MPI_COMM_WORLD,&myid);
-  extern MPI_Request request;
+
 
 
   //init_logs();
@@ -76,6 +77,9 @@ int main(int argc, char **argv)
   MPE_Log_get_solo_eventID( &event5 );
 
   init_slaves=0;
+
+  //MPE_Log_sync_clocks();
+
   if (myid != 0)  {
 	  MPI_Bcast(&init_slaves,1,MPI_INT,0,MPI_COMM_WORLD);//waiting master's order
 	  rcv_work();
@@ -99,7 +103,7 @@ int main(int argc, char **argv)
 
   }
 
-  MPE_Log_sync_clocks();
+  //MPE_Log_sync_clocks();
 
   MPE_Finish_log("c");
   MPI_Finalize();

@@ -36,7 +36,7 @@ int describe_logs(){
     MPE_Describe_event( event2, "Scan petition", "orange" );
     MPE_Describe_event( event3, "Receive petition", "blue" );
     MPE_Describe_event( event4, "Receive best", "green" );
-    MPE_Describe_event( event5, "...", "pink" );
+    MPE_Describe_event( event5, "Broadcast", "pink" );
 
     return 0;
 }

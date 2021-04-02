@@ -37,11 +37,13 @@ extern int event5b;
 extern int event6a;
 extern int event6b;
 
-extern int event1, event2, event3;
+extern int event1, event2, event3, event4, event5;
 extern int startEvent, endEvent;
 
 extern int master;
 AlgorithmPD final_alg;
+int n;//buffer for ask work
+double b;//bufer for best
 
   struct  Work
 	  {
@@ -86,12 +88,12 @@ int send_best(const PalgorithmPD);
 //master
 int distribution(PalgorithmPD);
 int send_work(const PalgorithmPD,int *, int, int);
-int broadcast_best(const PalgorithmPD);
+int broadcast_best(const double);
 void waitting_best(const PalgorithmPD);
 int rcv_resolved();
-int rcv_best();
-int scan_petition(MPI_Request*);
-int init_listening(MPI_Request*);
+int rcv_best(double b);
+int scan_petition(MPI_Request*, MPI_Request*);
+int init_listening(MPI_Request*, MPI_Request*);
 int finish_work();
 int give_me_work(int process);
 int resolved();

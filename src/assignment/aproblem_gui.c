@@ -17,8 +17,7 @@ void get_data(GtkWidget *calculate, gpointer data) {
     text=gtk_entry_get_text(GTK_ENTRY(url));
     int num_processes=(int)data;
 
-    printf("\n++++++++++++++++NUM PROCESSES,%d",num_processes);
-    //Aproblem *ap;
+    printf("\nVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV\n NUM PROCESSES,%d",num_processes);
 
 	Cadena cadena_url;
 	strcpy(cadena_url,text);
@@ -36,18 +35,16 @@ void resolve_aPD(PAproblem pap, int num_processes)
 	all_finished=0;
     AproblemPD appd;
     initAProblemPD(&appd, pap);
-//	testInitAProblemPD(&appd, *pap);//TODO
-//	AlgorithmPD alg;
 	init_algorithmPD(&final_alg, appd);
 	distribution(&final_alg);
 	init_slaves=1;
 	MPI_Bcast(&init_slaves,1,MPI_INT,0,MPI_COMM_WORLD);
-	MPI_Ibarrier(MPI_COMM_WORLD, &request);
+	MPI_Ibarrier(MPI_COMM_WORLD, &request);//the slaves join when they have finished
 	printf("INSIDE resolve_aPD\n VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV");
-	  init_listening(&request_petition);
+	  init_listening(&request_petition, &request_best);
 	  while(!all_finished)
 	  {
-		  scan_petition(&request_petition);
+		  scan_petition(&request_petition, &request_best);
 		  MPI_Test(&request,&all_finished, MPI_STATUS_IGNORE);//test barrier
 	  }
 	  finish_work();
@@ -59,7 +56,7 @@ void resolve_aPD(PAproblem pap, int num_processes)
 	  gtk_container_add(GTK_CONTAINER(window_solved), grid_solved);
 	  gtk_window_set_title (GTK_WINDOW (window_solved), "Solved");
 	  gtk_window_set_default_size (GTK_WINDOW (window_solved), 200, 200);
-	  double best_final_value=102.2;
+	  double best_final_value=final_alg.best;
 	  gchar *str = g_strdup_printf("%f", best_final_value);
 	  value = gtk_label_new(str);
 	  gtk_grid_attach(GTK_GRID(grid_solved), value, 0, 0, 1, 1);

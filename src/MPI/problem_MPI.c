@@ -507,16 +507,12 @@ int send_resolved(const PalgorithmPD palg)
 	MPE_Log_event(event5b, 0, "end send resolved");
 	return 0;
 }
-int rcv_best()
+int rcv_best(double b)
 {
-	double new_best;
-	MPI_Request request;
-	MPE_Log_event(event4a, 0, "start receive best");
-	MPI_Irecv(&new_best,1,MPI_DOUBLE,MPI_ANY_SOURCE,tag_best,MPI_COMM_WORLD,&request);
-	printf("===========================\n"
-			"============================\n"
-			"RCV best: %f", new_best);
-	MPE_Log_event(event4b, 0, "end receive best");
+	if(b>final_alg.best){
+//		broadcast_best(b);
+		printf("\n INSIDE RCV BEST AND IS BETTER");
+	}
 	return 0;
 }
 int send_best(PalgorithmPD palg)
@@ -525,22 +521,22 @@ int send_best(PalgorithmPD palg)
 	double best=palg->best;
 	int count = 1;
 	MPE_Log_event(event3a, 0, "start send best");
-	MPI_Request request = MPI_REQUEST_NULL;
+	MPI_Request request_b;
 	printf("\n sending best: %f to %d",best,master);
-	MPI_Isend(&best, count, MPI_INT, master, tag_best, MPI_COMM_WORLD, &request);
+	MPI_Isend(&best, count, MPI_DOUBLE, master, tag_best, MPI_COMM_WORLD, &request_b);
 	printf("\n send best: %f to %d",best,master);
 	MPE_Log_event(event3b, 0, "end send best");
 	return res;
 }
-int broadcast_best(PalgorithmPD palg){
+int broadcast_best(double b){
 	int res=0;
 	double best;
 	int count = 1;
 	int rank;
-
+	MPE_Log_event(event5, 0, "broadcast");
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	if(rank==master){
-		best=palg->best;
+		best=b;
 	}
 	MPI_Bcast(&best, count, MPI_DOUBLE, master, MPI_COMM_WORLD);
 	return res;
@@ -564,25 +560,41 @@ void waitting_best(PalgorithmPD palg)
 	}
 }
 
-int scan_petition(MPI_Request *request_petition)
+int scan_petition(MPI_Request *request_ask_work, MPI_Request *request_best)
 {
 	MPE_Log_event(event2, 0, "listen");
 	MPI_Status status;
-	int n=0;
+	MPI_Status status_best;
 	int flag=0;
+	int flag_b=0;
 	int sender;
 //	printf("\n 				PRE TEST");
-	MPI_Test(request_petition, &flag, &status);
+	MPI_Test(request_best, &flag_b, &status_best);
+	if(flag_b)
+	{
+		sender=status_best.MPI_SOURCE;
+		printf("\n 				SENDER BEST %d\n"
+				"				Best %f", sender, b);
+		MPE_Log_event(event4, 0, "rcve best");
+		double new_best=b;
+		rcv_best(new_best);
+		MPI_Irecv(&b, 1, MPI_DOUBLE, MPI_ANY_SOURCE, tag_best, MPI_COMM_WORLD, request_best);
+		flag_b=0;
+	}
+	MPI_Test(request_ask_work, &flag, &status);
 	if(flag)
 	{
 		sender=status.MPI_SOURCE;
-		printf("\n 				SENDER %d", sender);
+		printf("\n 				SENDER PETITION %d\n"
+				"				PETITION %d", sender, n);
 		MPE_Log_event(event3, 0, "rcve petition");
 
 		give_me_work(1);//TODO
-		MPI_Irecv(&n, 1, MPI_INT, MPI_ANY_SOURCE, tag_ask_work, MPI_COMM_WORLD, request_petition);
+		MPI_Irecv(&n, 1, MPI_INT, MPI_ANY_SOURCE, tag_ask_work, MPI_COMM_WORLD, request_ask_work);
 
 	}
+
+
 
 	return n;
 }
@@ -607,10 +619,11 @@ int give_me_work(int process)
 
 }
 
-int init_listening(MPI_Request *request_petition)
+int init_listening(MPI_Request *request_petition,MPI_Request *request_best )
 {
-	int n;
+
 	MPI_Irecv(&n, 1, MPI_INT, MPI_ANY_SOURCE, tag_ask_work, MPI_COMM_WORLD, request_petition);
+	MPI_Irecv(&b, 1, MPI_DOUBLE, MPI_ANY_SOURCE, tag_best, MPI_COMM_WORLD, request_best);
 	return 0;
 }
 
