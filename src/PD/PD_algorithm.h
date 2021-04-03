@@ -15,6 +15,10 @@
 #include "../assignment/PD/a_problem_PD.h"
 //***************************************************
 
+extern int numprocs;
+extern int event6;
+
+
 typedef struct
   {
 	Logico isRandomize;
@@ -44,5 +48,7 @@ typedef struct
   int pD(PalgorithmPD);
   int getPreviousProblems(PalgorithmPD,PAproblemPD);
   int delete_algorithmPD(PalgorithmPD);
+  double get_best(PalgorithmPD);
 
+  extern AlgorithmPD final_alg;
 #endif /* PD_PD_ALGORITHM_H_ */

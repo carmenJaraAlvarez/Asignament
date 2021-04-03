@@ -550,7 +550,7 @@ int broadcast_best(double better){
 	return res;
 }
 
-void waitting_best(MPI_Request *request_bcast)
+void waitting_best(PalgorithmPD palg)
 {
 	double best=final_alg.best;
 	int ready=0;
@@ -561,8 +561,20 @@ void waitting_best(MPI_Request *request_bcast)
 		printf("\nMaster has send best result %f", best);
 		MPE_Log_event(event5, 0, "broadcast best");
 		MPI_Irecv(&best, 1, MPI_DOUBLE, master, tag_best, MPI_COMM_WORLD, &request_bcast);
-
+		if((best>palg->best && palg->ppd.aproblem.type==MAX) ||
+				(best<palg->best && palg->ppd.aproblem.type==MIN)){
+			palg->best=best;
+		}
+		if((best>final_alg.best && palg->ppd.aproblem.type==MAX) ||
+				(best>final_alg.best && palg->ppd.aproblem.type==MIN)){
+			final_alg.best=best;
+		}
 	}
+}
+int log_prune()
+{
+
+	return 0;
 }
 
 int scan_petition(MPI_Request *request_ask_work, MPI_Request *request_best, MPI_Request *request_bcast)

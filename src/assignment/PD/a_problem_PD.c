@@ -198,20 +198,56 @@ Type get_type(PAproblemPD appd)
   double get_estimate(PAproblemPD appd)//the minimum value my problem will get
   {
 	  double res;
-	  //if not pruning and in this problem
-	  res=GREAT;
-	  //if not//TODO
+	  //dummy prune
+	  double worst_value;
+	  int num_to_end;
+	  //if not pruning
+	  if(appd->aproblem.type==MAX)
+	  {
+		  res=GREAT;
+	  }
+	  else
+	  {
+		  res=SMALL;
+	  }
+	  if(1)//if pruning//TODO and optimizer worst_value in var
+	  {
+		  printf("\nESTIMATED.PRUNE\n");
+		  num_to_end =appd->aproblem.numTask-appd->solution.lengthArrays;
+		  res=appd->solution.acum;
+		  if(appd->aproblem.type==MAX)
+		  {
+			  worst_value=appd->aproblem.values[0];
+
+			    for ( int c = 1 ; c < appd->aproblem.numResources*appd->aproblem.numTask ; c++ )
+			    {
+			        if ( appd->aproblem.values[c] < worst_value )
+			        {
+			        	worst_value = appd->aproblem.values[c];
+			         }
+			    }
+		  }
+		  else
+		  {
+			  worst_value=appd->aproblem.values[0];
+
+			    for ( int c = 1 ; c < appd->aproblem.numResources*appd->aproblem.numTask ; c++ )
+			    {
+			        if ( appd->aproblem.values[c] > worst_value )
+			        {
+			        	worst_value = appd->aproblem.values[c];
+			         }
+			    }
+		  }
+
+		  res=res+num_to_end*worst_value;
+		  printf("\nESTIMATED worst value->%f\n",worst_value);
+		  printf("\nESTIMATED ->%f\n",res);
+	  }
+
 	  return res;
   }
 
-  double get_best(PAproblemPD appd)
-  {
-	  int res;
-	  //if not pruning and in this problem
-	  res=SMALL;
-	  //if not//TODO
-	  return res;
-  }
   double get_target(PAproblemPD appd)
   {
 	  double res;

@@ -25,7 +25,7 @@
 
 int ierr;
 int master=0;
-int numprocs;
+int numprocs=0;
 
 int event1a;
 int event1b;
@@ -40,7 +40,7 @@ int event5b;
 int event6a;
 int event6b;
 
-int event1, event2, event3, event4, event5;
+int event1, event2, event3, event4, event5, event6, event7;
 int startEvent, endEvent;
 
 double startwtime, endwtime;
@@ -75,6 +75,8 @@ int main(int argc, char **argv)
   MPE_Log_get_solo_eventID( &event3 );
   MPE_Log_get_solo_eventID( &event4 );
   MPE_Log_get_solo_eventID( &event5 );
+  MPE_Log_get_solo_eventID( &event6 );
+  MPE_Log_get_solo_eventID( &event7 );
 
   init_slaves=0;
 

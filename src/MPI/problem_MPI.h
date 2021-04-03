@@ -37,7 +37,7 @@ extern int event5b;
 extern int event6a;
 extern int event6b;
 
-extern int event1, event2, event3, event4, event5;
+extern int event1, event2, event3, event4, event5, even6, even7;
 extern int startEvent, endEvent;
 
 extern MPI_Request request_bcast;
@@ -88,7 +88,8 @@ int ask_work();
 int init_work(PAproblem, int, int*);
 int send_resolved(const PalgorithmPD);
 int send_best(const PalgorithmPD);
-void waitting_best(MPI_Request *);
+void waitting_best(PalgorithmPD);
+int log_prune();
 //master
 int distribution(PalgorithmPD);
 int send_work(const PalgorithmPD,int *, int, int);
