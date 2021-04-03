@@ -12,6 +12,8 @@
 #include "alternative.h"
 #define TAM_ARRAY_SOLUTION
 
+extern int print_all;
+
 typedef struct
   {
 

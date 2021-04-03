@@ -26,6 +26,7 @@
 int ierr;
 int master=0;
 int numprocs=0;
+int print_all=0;//to help to debug. Simple logs for developer
 
 int event1a;
 int event1b;
@@ -90,8 +91,10 @@ int main(int argc, char **argv)
   else
   {
 	describe_logs();
-
-    printf("\nAn MPI program.\n The number of processes is %d \n This is %d\n",numprocs,myid);
+	if(print_all)
+	{
+		printf("\nAn MPI program.\n The number of processes is %d \n This is %d\n",numprocs,myid);
+	}
 
 	GtkWidget *window_init;
 	gtk_init(&argc, &argv);

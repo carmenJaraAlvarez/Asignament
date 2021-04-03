@@ -16,6 +16,7 @@
 
 extern double startwtime, endwtime;
 
+extern int print_all;
 extern int event1a;
 extern int event1b;
 extern int event2a;

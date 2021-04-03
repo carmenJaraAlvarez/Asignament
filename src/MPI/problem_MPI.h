@@ -12,6 +12,9 @@
 #include "mpe_log.h"
 #include "../PD/PD_algorithm.h"
 
+#define MAX_NUM_ALT	100
+#define MAX_TAM_STRING	1000
+
 #define tag_work 0
 #define tag_values 1
 #define tag_tasks 2
@@ -22,6 +25,7 @@
 #define tag_give_work 7
 #define tag_resolved 100
 
+extern int print_all;
 extern int numprocs;
 
 extern int event1a;

@@ -33,10 +33,9 @@ MPI_Request request_petition;
 MPI_Request request_best;
 MPI_Request request_bcast;
 MPI_Request request;
+extern int print_all;
 
-  void get_data(GtkWidget *, gpointer);
-  void create_aproblem_window(GtkWidget *,int );
- //void resolve_aPD(PAproblem pap, int num_processes);
-
+void get_data(GtkWidget *, gpointer);
+void create_aproblem_window(GtkWidget *,int );
   
-  #endif /* INCLUDES_APROBLEM_GUI_H_ */
+#endif /* INCLUDES_APROBLEM_GUI_H_ */

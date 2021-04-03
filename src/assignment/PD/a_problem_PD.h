@@ -15,6 +15,9 @@
 
 #define GREAT 999999.
 #define SMALL -999999.
+
+extern int print_all;
+
 typedef struct
   {
 	Aproblem aproblem;

@@ -17,7 +17,11 @@ double end_clock()
 {
 	  endwtime = MPI_Wtime();
 	  double res=endwtime-startwtime;
-	  printf("clock time = %f\n", res);
+	  if(print_all)
+	  {
+		  printf("\n metrics.c end_clock()->clock time = %f\n", res);
+	  }
+
 	  return res;
 }
 

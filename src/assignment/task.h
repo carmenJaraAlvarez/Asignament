@@ -13,6 +13,7 @@
 #ifndef ASSIGNMENT_TASK_H_
 #define ASSIGNMENT_TASK_H_
 
+extern int print_all;
 
 typedef struct
   {

@@ -13,7 +13,7 @@
 #include "../common/cadena.h"
 #include "../common/logico.h"
 
-
+extern int print_all;
 
 typedef struct
   {

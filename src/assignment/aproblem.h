@@ -13,7 +13,7 @@
 #include "solution.h"
 #include "task.h"
 
-
+extern int print_all;
 
 
 #define TAM_MAX_READ 100//length names
@@ -36,9 +36,6 @@ typedef struct
   } Aproblem;
 
   typedef Aproblem* PAproblem;
-  //fake
-  int init_aproblem2(PAproblem,const PTask,const PResource,const int, const int, const double values[]);
-
 
   int init_aproblem(PAproblem,const PTask,const PResource,const int, const int, const double values[]);
   int delete_aproblem(PAproblem);//free memory init
@@ -47,8 +44,6 @@ typedef struct
   Type get_aproblem_type(const PAproblem);
   int get_max_num_problems(const PAproblem);
   int get_max_num_alternatives(const PAproblem);
-
-
 
 
   
