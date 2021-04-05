@@ -195,7 +195,7 @@ Type get_type(PAproblemPD appd)
 	  return res;
   }
 
-  double get_estimate(PAproblemPD appd)//the minimum value my problem will get
+  double get_worst_estimate(PAproblemPD appd)//the minimum value my problem will get
   {
 	  double res;
 	  //dummy prune
@@ -247,6 +247,59 @@ Type get_type(PAproblemPD appd)
 
 	  return res;
   }
+  double get_best_estimate(PAproblemPD appd)//the maximum value my problem will get
+   {
+ 	  double res;
+ 	  //dummy prune
+ 	  double best_value;
+ 	  int num_to_end;
+ 	  //if not pruning
+ 	  if(appd->aproblem.type==MAX)
+ 	  {
+ 		  res=GREAT;
+ 	  }
+ 	  else
+ 	  {
+ 		  res=SMALL;
+ 	  }
+ 	  if(1)//if pruning//TODO
+ 	  {
+ 		  printf("\nget_best_estimate()\n");
+ 		  num_to_end =appd->aproblem.numTask-appd->solution.lengthArrays;
+ 		  res=appd->solution.acum;
+ 		  if(appd->aproblem.type==MAX)
+ 		  {
+ 			  best_value=appd->aproblem.values[0];
+
+ 			    for ( int c = 1 ; c < appd->aproblem.numResources*appd->aproblem.numTask ; c++ )
+ 			    {
+ 			        if ( appd->aproblem.values[c] >best_value )
+ 			        {
+ 			        	best_value = appd->aproblem.values[c];
+ 			         }
+ 			    }
+ 		  }
+ 		  else
+ 		  {
+ 			  best_value=appd->aproblem.values[0];
+
+ 			    for ( int c = 1 ; c < appd->aproblem.numResources*appd->aproblem.numTask ; c++ )
+ 			    {
+ 			        if ( appd->aproblem.values[c] < best_value )
+ 			        {
+ 			        	best_value = appd->aproblem.values[c];
+ 			         }
+ 			    }
+ 		  }
+
+ 		  res=res+num_to_end*best_value;
+ 		  printf("\nESTIMATED best value->%f\n",best_value);
+ 		  printf("\nESTIMATED ->%f\n",res);
+ 	  }
+
+ 	  return res;
+   }
+
 
   double get_target(PAproblemPD appd)
   {

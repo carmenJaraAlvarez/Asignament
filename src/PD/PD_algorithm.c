@@ -222,12 +222,17 @@
 					  ismin=is_min(palg);
 					  ismax=is_max(palg);
 
-					  double estimated=get_estimate(&newArrayAppd[m]);
-					  if((ismin && estimated<=final_alg.best)
-										  || (ismax && estimated>=final_alg.best))
+					  double b_estimated=get_best_estimate(&newArrayAppd[m]);
+					  if((ismin && b_estimated<=final_alg.best)
+										  || (ismax && b_estimated>=final_alg.best))
 					  {
-						  printf("\n ESTIMATED IN PD %f\n FINAL ALG BEST %f", estimated, final_alg.best);
-						  final_alg.best=estimated;//TODO mpi var
+						  printf("\nBEST ESTIMATED IN PD %f\n FINAL ALG BEST %f", b_estimated, final_alg.best);
+						  //case no prune,control our worst is better than global to change it
+						  double w_estimated=get_worst_estimate(&newArrayAppd[m]);
+						  if((w_estimated>final_alg.best && ismax) ||
+								  (w_estimated<final_alg.best && ismin)  )
+						  final_alg.best=w_estimated;//TODO mpi var
+						  ////////////////////////////////////////////////////////////////////
 						  int numSubproblems=get_num_subproblems();
 						  AproblemPD appdNew;
 						  for(int j=0;j<numSubproblems;j++)
@@ -248,13 +253,10 @@
 
 						  }//end for num subproblem=1
 					  }//end if not prune
-					  else
+					  else//prune
 					  {
-						  MPE_Log_event(event6, 0, "prune");
-						  if(estimated>final_alg.best )//TODO max min
-						  {
-							  final_alg.best=estimated;
-						  }
+						  MPE_Log_event(event6, 0, "prune in PD");
+
 					  }
 				  }//end for alternatives
 				  for(int w=len_problems; w<lengthNewArrayAppd;w++)//TODO optimizer

@@ -800,10 +800,16 @@ int pD_distribution(PalgorithmPD palg)
 					  //prune
 					  ismin=is_min(palg);
 					  ismax=is_max(palg);
-					  double estimated=get_estimate(&problems[0]);
-					  if((ismin && estimated<=palg->best)
-										  || (ismax && estimated>=palg->best))
+					  double b_estimated=get_best_estimate(&problems[0]);
+					  if((ismin && b_estimated<=palg->best)
+										  || (ismax && b_estimated>=palg->best))
 					  {
+						  //case no prune,control our worst is better than global to change it
+						  double w_estimated=get_worst_estimate(&problems[0]);
+						  if((w_estimated>final_alg.best && ismax) ||
+								  (w_estimated<final_alg.best && ismin)  )
+						  final_alg.best=w_estimated;
+						  ////////////////////////////////////////////////////////////////////
 						  int numSubproblems=get_num_subproblems();
 						  AproblemPD appdNew;
 						  for(int j=0;j<numSubproblems;j++)
@@ -820,6 +826,10 @@ int pD_distribution(PalgorithmPD palg)
 
 						  }//end for num subproblem=1
 					  }//end if not prune
+					  else
+					  {
+						  MPE_Log_event(event6, 0, "prune in distribution");
+					  }
 				   }//end for alternatives
 			  }//end else (not base case)
 			}//end else (exits alternative)
