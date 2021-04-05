@@ -13,8 +13,8 @@
 #include "../solution.h"
 #include "../../PD/Sp_PD.h"
 
-#define GREAT 999999.
-#define SMALL -999999.
+#define GREAT 9999999.
+#define SMALL -9999999.
 
 extern int print_all;
 

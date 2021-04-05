@@ -277,10 +277,21 @@ Type get_type(PAproblemPD appd)
 	  return res;
   }
 
-  double get_target(PAproblemPD appd)
+  double get_target(PAproblemPD appd)//estimated
   {
 	  double res;
+	  //no prune
+//	  if(appd->aproblem.type==MAX)
+//	  {
+//		  res=SMALL;
+//	  }
+//	  else
+//	  {
+//		  res=GREAT;
+//	  }
+	  //prune
 	  res=appd->solution.acum;
+
 	  return res;
   }
   int get_size(const PAproblemPD papd){
@@ -342,9 +353,14 @@ Type get_type(PAproblemPD appd)
 	  rcv->solution=sol;
 	  rcv->solution.acum=origin.solution.acum;
 	  rcv->solution.lengthArrays=origin.solution.lengthArrays;
-	  for(int i=0;i<rcv->solution.lengthArrays;i++){
-		  rcv->solution.resources[i]=origin.solution.resources[i];
+	  if(print_all)
+	  {
+		  for(int i=0;i<rcv->solution.lengthArrays;i++){
+			  rcv->solution.resources[i]=origin.solution.resources[i];
+			  printf("\na_problem_PD		copy_aproblem_PD ORIGIN resource %d %s",origin.solution.resources[i].position, origin.solution.resources[i].name);
+			  printf("\na_problem_PD		copy_aproblem_PD OUTPUT resource %d %s",rcv->solution.resources[i].position, rcv->solution.resources[i].name);
 
+		  }
 	  }
 	  return 0;
   }
@@ -356,7 +372,7 @@ Type get_type(PAproblemPD appd)
 	  printf("\n Acum: %f",papd->solution.acum);
 	  for(int i=0;i<papd->solution.lengthArrays;i++)
 	  {
-		  printf("\n Resource %d: %s",i,papd->solution.resources[i].name);
+		  printf("\n Task %d: Resource %d: %s",i,papd->solution.resources[i].position,papd->solution.resources[i].name);
 	  }
 	  return 0;
   }

@@ -26,7 +26,7 @@
 int ierr;
 int master=0;
 int numprocs=0;
-int print_all=0;//to help to debug. Simple logs for developer
+int print_all=1;//to help to debug. Simple logs for developer
 
 int event1a;
 int event1b;
@@ -40,6 +40,10 @@ int event5a;
 int event5b;
 int event6a;
 int event6b;
+int event7a;
+int event7b;
+int event8a;
+int event8b;
 
 int event1, event2, event3, event4, event5, event6, event7;
 int startEvent, endEvent;
@@ -70,6 +74,8 @@ int main(int argc, char **argv)
   MPE_Log_get_state_eventIDs( &event4a, &event4b );
   MPE_Log_get_state_eventIDs( &event5a, &event5b );
   MPE_Log_get_state_eventIDs( &event6a, &event6b );
+  MPE_Log_get_state_eventIDs( &event7a, &event7b );
+  MPE_Log_get_state_eventIDs( &event8a, &event8b );
 
   MPE_Log_get_solo_eventID( &event1 );
   MPE_Log_get_solo_eventID( &event2 );

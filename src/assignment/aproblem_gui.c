@@ -74,7 +74,7 @@ void resolve_aPD(PAproblem pap, int num_processes)
 
 
 	  for(int i=0;i<final_alg.ppd.aproblem.numTask;i++){
-		  gchar *str = g_strdup_printf("%s->", (final_alg.ppd.aproblem.tasks[i].name));
+		  gchar *str = g_strdup_printf("%s->%d", (final_alg.ppd.aproblem.tasks[i].name),(final_alg.ppd.solution.resources[i].position));
 		  gtk_grid_attach(GTK_GRID(grid_solved), gtk_label_new(str), 0, i+1, 1, 1);
 	  }
 
