@@ -1,9 +1,3 @@
-/*
- * problem_MPI.c
- *
- *  Created on: 13 ene. 2021
- *      Author: practica
- */
 
 #include "problem_MPI.h"
 #include <stddef.h>

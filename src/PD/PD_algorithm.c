@@ -102,11 +102,13 @@
 		  printf("there is not solution");
 	  }
 	  else if(palg->num_solved==1){
-
-
 		  palg->ppd=palg->solvedProblems[0];//TODO needed??
 		  palg->best=palg->solvedProblems[0].solution.acum;
-		  printf("there is only one solution");
+		  if(print_all)
+		  {
+			  printf("\nPD_algorithm.c	get_PDsolution		there is only one solution");
+		  }
+
 	  }else{
 		  for(int i=0;i<palg->num_solved;i++){
 			  	  if(palg->solvedProblems[i].solution.acum>=palg->best){
@@ -128,26 +130,38 @@
 	  int lengthNewArrayAppd=palg->num_problems;
 	  int index;
 	  index=palg->ppd.index;
-	  printf("\n PPPPPPPPPPPPPPPPPPPPPPP index of ppd in pd: %d", index);
-	  printf("\n PPPPPPPPPPPPPPPPPPPPPPP num problems: %d", len_problems);
-	  for(int m=0;m<len_problems;m++){
-		  show_aproblem_PD(&(palg->problems[m]));
+	  if(print_all)
+	  {
+		  printf("\nPD_algorithm.c		pD		index of ppd in pd: %d", index);
+		  printf("\nPD_algorithm.c		pD		num problems: %d", len_problems);
+		  for(int m=0;m<len_problems;m++){
+			  show_aproblem_PD(&(palg->problems[m]));
+		  }
 	  }
 	  for(int m=0;m<lengthNewArrayAppd;m++){
 		  AproblemPD newArrayAppd[get_max_num_problems(&appd)+lengthNewArrayAppd];
-		  printf("\n***************************************\n");
-		  printf("\nfirst len array problem in PD = %d", lengthNewArrayAppd);
+		  if(print_all)
+		  {
+			  printf("\nPD_algorithm.c		pD		first len array problem in PD = %d", lengthNewArrayAppd);
+
+		  }
 		  //get previous problems
 		  int numPreviousProblems=getPreviousProblems(palg, newArrayAppd);
-
-		  printf("\n PREVIOUS PROBLEM_________________________%d",m);
-		  show_aproblem_PD(&(palg->problems[m]));
-		  printf("\n COPY PROBLEM_________________________%d",m);
-		  show_aproblem_PD(&(newArrayAppd[m]));
+		  if(print_all)
+		  {
+			  printf("\nPD_algorithm.c		pD		PREVIOUS PROBLEM %d",m);
+			  show_aproblem_PD(&(palg->problems[m]));
+			  printf("\nPD_algorithm.c		pD		COPY PROBLEM %d",m);
+			  show_aproblem_PD(&(newArrayAppd[m]));
+		  }
 
 		  int max_num_alternatives=get_max_num_alternatives(&appd);
 		  Alternative as[max_num_alternatives];
-		  printf("\n 	000000000000 num max alternatives %d",max_num_alternatives);
+		  if(print_all)
+		  {
+			  printf("\n 	000000000000 num max alternatives %d",max_num_alternatives);
+		  }
+
 		  init_alternative_array(&as,max_num_alternatives);
 		  int numAlternatives=get_alternatives(&(newArrayAppd[m]), as);
 
@@ -158,61 +172,78 @@
 		  }
 		  else
 		  {
-
 			  if(is_base_case(&newArrayAppd[m]))
 			  {
-					  printf("\nfirst get solution case base");
+				  if(print_all)
+				  {
+					  printf("\nPD_algorithm.c		pD		before get solution case base");
 					  show_aproblem_PD(&newArrayAppd[m]);
-					  printf("\n````````````````````````````\n");
-					  //show_aproblem_PD(&(palg->problems[39]));//TODO check
-					  SpPD sp;
-					  get_solution_base_case((&newArrayAppd[m]),&sp);
-					  printf("\nPPPPPPPPPPPPPPPPPPPPPPPP case base");
-					  printf("\n in base case. best: %f",palg->best);
-					  printf("\n in base case. acum: %f",newArrayAppd[m].solution.acum);
-					  AproblemPD solved[100];//TODO
-					  //palg->solvedProblems=&solved;
-					  if(newArrayAppd[m].solution.acum==palg->best)//more than one solution
+				  }
+				  //show_aproblem_PD(&(palg->problems[39]));//TODO check
+				  SpPD sp;
+				  get_solution_base_case((&newArrayAppd[m]),&sp);
+				  if(print_all)
+				  {
+					  printf("\nPD_algorithm.c		pD		case base");
+					  printf("\nPD_algorithm.c		pD		in base case. best: %f",palg->best);
+					  printf("\nPD_algorithm.c		pD		in base case. acum: %f",newArrayAppd[m].solution.acum);
+				  }
+				  AproblemPD solved[100];//TODO
+				  //palg->solvedProblems=&solved;
+				  if(newArrayAppd[m].solution.acum==palg->best)//more than one solution
+				  {
+					  copy_aproblem_PD( &(palg->solvedProblems[palg->num_solved]),newArrayAppd[m]);
+					  palg->num_solved++;
+					  update_best(palg,&(newArrayAppd[m]));
+				  }
+				  else if(newArrayAppd[m].solution.acum>palg->best)//now this is the only one best solution
+				  {
+					  palg->solvedProblems=&solved;
+					  if(print_all)
 					  {
-						  copy_aproblem_PD( &(palg->solvedProblems[palg->num_solved]),newArrayAppd[m]);
-						  palg->num_solved++;
-						  update_best(palg,&(newArrayAppd[m]));
-					  }
-					  else if(newArrayAppd[m].solution.acum>palg->best)//now this is the only one best solution
-					  {
-						  palg->solvedProblems=&solved;
-						  printf("\nThis solution is the best now. acum: %f",newArrayAppd[m].solution.acum);
-						  palg->num_solved=1;
+						  printf("\nPD_algorithm.c		pD		This solution is the best now. acum: %f",newArrayAppd[m].solution.acum);
 						  show_aproblem_PD(&(newArrayAppd[m]));
-						  update_best(palg,&(newArrayAppd[m]) );
-						  printf("\npost update best======================\n");
-						  //show_aproblem_PD(&(palg->problems[39]));//TODO check
-						  printf("\n NUM SOLVED: %d",palg->num_solved);
-						  printf("\n UPDATED BEST TO %f",palg->best);
-						  printf("\n we are going to copy the problem in solved");
-						  //AproblemPD solved;
-						  copy_aproblem_PD( &solved,newArrayAppd[m]);
-						  printf("\npd problem aux======================\n");
-						  show_aproblem_PD(&solved);
-
-						  //printf("\npost copy solved 39======================\n");
-						 // show_aproblem_PD(&(palg->problems[39]));//TODO check
-						  printf("\npost copy solved 0======================\n");
-						  show_aproblem_PD(&(palg->solvedProblems[0]));
-
 					  }
-					  printf("     is base case and takes alternative: %d\n", sp.alternative.indexResource);
-
+					  palg->num_solved=1;
+					  update_best(palg,&(newArrayAppd[m]) );
+					  if(print_all)
+					  {
+						  printf("\nPD_algorithm.c		pD		post update best");
+						  //show_aproblem_PD(&(palg->problems[39]));//TODO check
+						  printf("\nPD_algorithm.c		pD		NUM SOLVED: %d",palg->num_solved);
+						  printf("\nPD_algorithm.c		pD		UPDATED BEST TO %f",palg->best);
+						  printf("\nPD_algorithm.c		pD		we are going to copy the problem in solved");
+					  }
+					  //AproblemPD solved;
+					  copy_aproblem_PD( &solved,newArrayAppd[m]);
+					  if(print_all)
+					  {
+						  printf("\nPD_algorithm.c		pD		problem aux\n");
+						  show_aproblem_PD(&solved);
+						  //printf("\npost copy solved 39======================\n");
+						  //show_aproblem_PD(&(palg->problems[39]));//TODO check
+						  printf("\nPD_algorithm.c		pD		post copy solved 0\n");
+						  show_aproblem_PD(&(palg->solvedProblems[0]));
+					  }
+				  }
+				  if(print_all)
+				  {
+					  printf("\nPD_algorithm.c		pD		is base case and takes alternative: %d\n", sp.alternative.indexResource);
+				  }
 			  }
 			  else//not case base
 			  {
 				  //get new problems
-				  printf("        Alternatives: ");
-				  for(int k=0;k<numAlternatives;k++)
+				  if(print_all)
 				  {
-					  printf("%d ", as[k].indexResource);
+					  printf("\nPD_algorithm.c		pD		Not case base. Alternatives: ");
+					  for(int k=0;k<numAlternatives;k++)
+					  {
+						  printf("%d ", as[k].indexResource);
+					  }
+					  printf("\n");
 				  }
-				  printf("\n");
+
 				  randomize(palg,as);//now not using
 				  Logico ismin;
 				  Logico ismax;
@@ -240,16 +271,21 @@
 							  initAProblemPD(&appdNew,&(palg->ppd.aproblem));
 
 							  get_subproblem(&newArrayAppd[m], &appdNew, as[u],numSubproblems);
-							  printf("\ninside pd acum post get subproblem father: %f",palg->ppd.solution.acum);
-							  printf("\ninside pd acum post get subproblem new m: %f",appdNew.solution.acum);
-							  printf("\n     is NOT base case: last appdNew sol: %s\n",appdNew.solution.resources[appdNew.solution.lengthArrays-1].name);
-							  printf("     i=%d of %d alternatives\n",u, numAlternatives);
+							  if(print_all)
+							  {
+								  printf("\nPD_algorithm.c		pD		acum post get subproblem father: %f",palg->ppd.solution.acum);
+								  printf("\nPD_algorithm.c		pD		acum post get subproblem new m: %f",appdNew.solution.acum);
+								  printf("\nPD_algorithm.c		pD		is NOT base case: last appdNew sol: %s\n",appdNew.solution.resources[appdNew.solution.lengthArrays-1].name);
+								  printf("\nPD_algorithm.c		pD		i=%d of %d alternatives\n",u, numAlternatives);
+							  }
 							  //if problem//TODO
-									  //add problem to new array
+								  //add problem to new array
 							  copy_aproblem_PD( &(newArrayAppd[lengthNewArrayAppd]),appdNew);
-							 lengthNewArrayAppd++;
-							  printf("\n***************************************\n");
-							  printf("\nadding alt len array problem in PD = %d", lengthNewArrayAppd);
+							  lengthNewArrayAppd++;
+							  if(print_all)
+							  {
+								  printf("\nPD_algorithm.c		pD		adding alt len array problem in PD = %d", lengthNewArrayAppd);
+							  }
 
 						  }//end for num subproblem=1
 					  }//end if not prune
@@ -262,25 +298,23 @@
 				  for(int w=len_problems; w<lengthNewArrayAppd;w++)//TODO optimizer
 				  {
 					  //palg->problems[w]=newArrayAppd[problems_index];
-
-					  printf("\n PPPPPPPPPPPPPPPPPPPP inside PD, new problem %d to copy", w);
-					  show_aproblem_PD(&(newArrayAppd[w]));
-
+					  if(print_all)
+					  {
+						  printf("\nPD_algorithm.c		pD		new problem %d to copy", w);
+						  show_aproblem_PD(&(newArrayAppd[w]));
+					  }
 					  //copy_aproblem_PD( &(palg->problems[0]),newArrayAppd[problems_index]);
 					  palg->problems[w]=newArrayAppd[w];
-					  printf("\n PPPPPPPPPPPPPPPPPPPP inside PD, new problem %d copied in alg", w);
-					  show_aproblem_PD(&(palg->problems[w]));
+					  if(print_all)
+					  {
+						  printf("\nPD_algorithm.c		pD		new problem %d copied in alg", w);
+						  show_aproblem_PD(&(palg->problems[w]));
+					  }
 					  //copy_aproblem_PD( &(newArrayAppd[lengthNewArrayAppd]),appdNew);
 				  }
 				  palg->num_problems=lengthNewArrayAppd;
 			  }//end else (not base case)
-//					}//end else (exits alternative)
-//			  }//end for every previous problem
-
-			  //change problems array and add num problems to array
-
-
-		  }//end if num previous>0
+		  }//end if num alt>0
 	  }//end for size
 	  return res;
   }

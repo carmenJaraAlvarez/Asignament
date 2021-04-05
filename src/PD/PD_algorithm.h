@@ -14,9 +14,12 @@
 //***************************************************
 #include "../assignment/PD/a_problem_PD.h"
 //***************************************************
+#define NUM_MAX_SOLVED 100
+
 
 extern int numprocs;
-extern int event6;
+extern int event6;//for MPE log
+extern int print_all;
 
 
 typedef struct
