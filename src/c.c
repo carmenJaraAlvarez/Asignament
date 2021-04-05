@@ -26,6 +26,7 @@
 int ierr;
 int master=0;
 int numprocs=0;
+int print_all=0;
 
 int event1a;
 int event1b;
