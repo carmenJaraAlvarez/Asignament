@@ -33,10 +33,10 @@
 	  palg->sizeRef=100;//we are not using
 	  if(is_min(palg))
 	  {
-		  palg->best=999999.;//TODO
+		  palg->best=GREAT;
 	  }
 	  else{
-		  palg->best=-999999.;//TODO
+		  palg->best=SMALL;
 	  }
 	  int num=get_max_num_problems(&(ap));
 	  palg->problems=(AproblemPD*)malloc(sizeof(AproblemPD)*num);
@@ -77,10 +77,10 @@
 	  return res;
   }
 
-  int update_best(PalgorithmPD palg,const PAproblemPD papd)
+  int update_best(PalgorithmPD palg,const PAproblemPD papd)//Function for case base
   {
 	  int res=0;
-	  double target=get_target(papd);
+	  double target=get_target(papd);//acum
 	  if(is_min(palg) && target<palg->best)
 	  {
 		  palg->best=target;
@@ -132,6 +132,8 @@
 	  index=palg->ppd.index;
 	  if(print_all)
 	  {
+		  printf("\nPD_algorithm.c		pD		best in palg: %f", palg->best);
+		  printf("\nPD_algorithm.c		pD		best in final_alg: %f", final_alg.best);
 		  printf("\nPD_algorithm.c		pD		index of ppd in pd: %d", index);
 		  printf("\nPD_algorithm.c		pD		num problems: %d", len_problems);
 		  for(int m=0;m<len_problems;m++){
@@ -178,6 +180,8 @@
 				  {
 					  printf("\nPD_algorithm.c		pD		before get solution case base");
 					  show_aproblem_PD(&newArrayAppd[m]);
+					  printf("\nPD_algorithm.c		pD		before get solution case base.best in palg: %f", palg->best);
+					  printf("\nPD_algorithm.c		pD		before get solution case base.best in final_alg: %f", final_alg.best);
 				  }
 				  //show_aproblem_PD(&(palg->problems[39]));//TODO check
 				  SpPD sp;
@@ -185,7 +189,8 @@
 				  if(print_all)
 				  {
 					  printf("\nPD_algorithm.c		pD		case base");
-					  printf("\nPD_algorithm.c		pD		in base case. best: %f",palg->best);
+					  printf("\nPD_algorithm.c		pD		post get solution case base. best palg: %f",palg->best);
+					  printf("\nPD_algorithm.c		pD		post get solution case base. best final: %f",final_alg.best);
 					  printf("\nPD_algorithm.c		pD		in base case. acum: %f",newArrayAppd[m].solution.acum);
 				  }
 				  AproblemPD solved[100];//TODO
@@ -194,7 +199,7 @@
 				  {
 					  copy_aproblem_PD( &(palg->solvedProblems[palg->num_solved]),newArrayAppd[m]);
 					  palg->num_solved++;
-					  update_best(palg,&(newArrayAppd[m]));
+					  //update_best(palg,&(newArrayAppd[m]));
 				  }
 				  else if(newArrayAppd[m].solution.acum>palg->best)//now this is the only one best solution
 				  {
@@ -203,6 +208,8 @@
 					  {
 						  printf("\nPD_algorithm.c		pD		This solution is the best now. acum: %f",newArrayAppd[m].solution.acum);
 						  show_aproblem_PD(&(newArrayAppd[m]));
+						  printf("\nPD_algorithm.c		pD		pre update best palg: %f",palg->best);
+						  printf("\nPD_algorithm.c		pD		pre update best final_alg: %f", final_alg.best);
 					  }
 					  palg->num_solved=1;
 					  update_best(palg,&(newArrayAppd[m]) );
@@ -211,7 +218,8 @@
 						  printf("\nPD_algorithm.c		pD		post update best");
 						  //show_aproblem_PD(&(palg->problems[39]));//TODO check
 						  printf("\nPD_algorithm.c		pD		NUM SOLVED: %d",palg->num_solved);
-						  printf("\nPD_algorithm.c		pD		UPDATED BEST TO %f",palg->best);
+						  printf("\nPD_algorithm.c		pD		post update best palg: %f",palg->best);
+						  printf("\nPD_algorithm.c		pD		post update best final_alg: %f", final_alg.best);
 						  printf("\nPD_algorithm.c		pD		we are going to copy the problem in solved");
 					  }
 					  //AproblemPD solved;
@@ -249,20 +257,44 @@
 				  Logico ismax;
 				  for(int u=0;u<numAlternatives;u++)
 				  {
-					  //prune
+					  //prune control
 					  ismin=is_min(palg);
 					  ismax=is_max(palg);
 
 					  double b_estimated=get_best_estimate(&newArrayAppd[m]);
 					  if((ismin && b_estimated<=final_alg.best)
-										  || (ismax && b_estimated>=final_alg.best))
+										  || (ismax && b_estimated>=final_alg.best))//no prune, go on
 					  {
-						  printf("\nBEST ESTIMATED IN PD %f\n FINAL ALG BEST %f", b_estimated, final_alg.best);
+						  if(print_all)
+						  {
+							  printf("\nPD_algorithm.c		pD		NO PRUNE best in palg: %f", palg->best);
+							  printf("\nBEST ESTIMATED IN PD var %f\n .IN FINAL ALG BEST %f", b_estimated, final_alg.best);
+						  }
+
 						  //case no prune,control our worst is better than global to change it
 						  double w_estimated=get_worst_estimate(&newArrayAppd[m]);
 						  if((w_estimated>final_alg.best && ismax) ||
 								  (w_estimated<final_alg.best && ismin)  )
-						  final_alg.best=w_estimated;//TODO mpi var
+						  {
+							  if(print_all)
+							  {
+								  printf("\nPD_algorithm.c		pD		NO PRUNE AND CHANGE final_alg.best: %f to worst estimated %f", palg->best, w_estimated);
+
+							  }
+
+							  final_alg.best=w_estimated;
+							  send_best(&final_alg);
+						  }
+						  if((w_estimated>palg->best && ismax) ||
+								  (w_estimated<palg->best && ismin)  )
+						  {
+							  if(print_all)
+							  {
+								  printf("\nPD_algorithm.c		pD		NO PRUNE AND CHANGE palg->best: %f to worst estimated %f", palg->best, w_estimated);
+
+							  }
+							  palg->best=w_estimated;
+						  }
 						  ////////////////////////////////////////////////////////////////////
 						  int numSubproblems=get_num_subproblems();
 						  AproblemPD appdNew;
@@ -313,6 +345,10 @@
 					  //copy_aproblem_PD( &(newArrayAppd[lengthNewArrayAppd]),appdNew);
 				  }
 				  palg->num_problems=lengthNewArrayAppd;
+				  if(print_all)
+				  {
+					  printf("\nPD_algorithm.c		pD()		end of not case base solution");
+				  }
 			  }//end else (not base case)
 		  }//end if num alt>0
 	  }//end for size

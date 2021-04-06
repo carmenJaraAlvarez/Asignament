@@ -26,7 +26,7 @@
 int ierr;
 int master=0;
 int numprocs=0;
-int print_all=1;//to help to debug. Simple logs for developer
+int print_all=0;//to help to debug. Simple logs for developer
 
 int event1a;
 int event1b;
@@ -62,8 +62,6 @@ int main(int argc, char **argv)
   MPI_Comm_rank(MPI_COMM_WORLD,&myid);
 
 
-
-  //init_logs();
 
   MPE_Init_log();
 
