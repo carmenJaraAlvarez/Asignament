@@ -34,11 +34,8 @@ MPI_Request request_best;
 MPI_Request request_bcast;
 MPI_Request request;
 extern int print_all;
-extern double best;
-
 
 void get_data(GtkWidget *, gpointer);
 void create_aproblem_window(GtkWidget *,int );
-void init_best(MPI_Request *);
   
 #endif /* INCLUDES_APROBLEM_GUI_H_ */

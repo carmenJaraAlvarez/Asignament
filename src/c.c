@@ -94,6 +94,7 @@ int main(int argc, char **argv)
 	  ////////////////////
 
 	  MPI_Ibcast(&best,1,MPI_DOUBLE,0,MPI_COMM_WORLD, &request_b);
+
 	  ////////////////////
 
 	  MPI_Bcast(&init_slaves,1,MPI_INT,0,MPI_COMM_WORLD);//waiting master's order
@@ -122,12 +123,20 @@ int main(int argc, char **argv)
   }
   int rcv_bcast=0;
   MPI_Status status;
-  while(!rcv_bcast)
+  if(1)
   {
-	  printf( "\ntesting");
-	  MPI_Test(&request_b,&rcv_bcast,&status);
+	  while(!rcv_bcast)
+	   {
+	 	  printf( "\ntesting");
+	 	  MPI_Test(&request_b,&rcv_bcast,&status);
+	   }
+	   if(rcv_bcast)
+	   {
+	 	  printf( "\nMessage from process %d : best %f\n", myid, best);
+	   }
+	   waiting_best(&request);//testing function
   }
-  printf( "Message from process %d : %f\n", myid, best);
+
   //MPE_Log_sync_clocks();
 
   MPE_Finish_log("c");

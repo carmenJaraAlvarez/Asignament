@@ -51,7 +51,6 @@ void resolve_aPD(PAproblem pap, int num_processes)
     {
     	printf("\naproblem_gui.c resolve_aPD()-> Resolving\n");
     }
-
 	  init_listening(&request_petition, &request_best);
 	  while(!all_finished)
 	  {
@@ -85,15 +84,6 @@ void resolve_aPD(PAproblem pap, int num_processes)
 	//gtk_main_quit();
 	//delete_algorithmPD(&alg);
 
-}
-void init_best(MPI_Request * request_b){
-	  ////////////////////
-	  best=final_alg.best;
-	  if(1)
-	  {
-		 printf("\n init best()-------------------%f",final_alg.best);
-	  }
-	  MPI_Ibcast(&best,1,MPI_DOUBLE,0,MPI_COMM_WORLD, &request_b);
 }
 
 void create_aproblem_window(GtkWidget *window,int num_processes)

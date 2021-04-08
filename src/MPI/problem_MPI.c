@@ -706,29 +706,28 @@ int broadcast_best(double better){
 	return res;
 }
 
-void waitting_best(PalgorithmPD palg)
+void waiting_best(MPI_Request* request_b)
 {
-	double best=final_alg.best;
 	int ready=0;
 
-	MPI_Test(&request_bcast, &ready, MPI_STATUS_IGNORE);
+	MPI_Test(request_b, &ready, MPI_STATUS_IGNORE);
 	if(ready)
 	{
-		if(print_all)
+		if(1)
 		{
 			printf("\nMaster has send best result %f", best);
 		}
 
 		MPE_Log_event(event5, 0, "broadcast best");
-		MPI_Irecv(&best, 1, MPI_DOUBLE, master, tag_best, MPI_COMM_WORLD, &request_bcast);
-		if((best>palg->best && palg->ppd.aproblem.type==MAX) ||
-				(best<palg->best && palg->ppd.aproblem.type==MIN)){
-			palg->best=best;
-		}
-		if((best>final_alg.best && palg->ppd.aproblem.type==MAX) ||
-				(best>final_alg.best && palg->ppd.aproblem.type==MIN)){
-			final_alg.best=best;
-		}
+//		MPI_Irecv(&best, 1, MPI_DOUBLE, master, tag_best, MPI_COMM_WORLD, &request_bcast);
+//		if((best>palg->best && palg->ppd.aproblem.type==MAX) ||
+//				(best<palg->best && palg->ppd.aproblem.type==MIN)){
+//			palg->best=best;
+//		}
+//		if((best>final_alg.best && palg->ppd.aproblem.type==MAX) ||
+//				(best>final_alg.best && palg->ppd.aproblem.type==MIN)){
+//			final_alg.best=best;
+//		}
 	}
 }
 int log_prune()
@@ -802,6 +801,16 @@ int give_me_work(int process)
 
 	return 0;
 
+}
+void init_best(MPI_Request * request_b){
+	  ////////////////////
+	  best=final_alg.best;
+
+	  if(1)
+	  {
+		 printf("\n init best()-------------------%f",final_alg.best);
+	  }
+	  MPI_Ibcast(&best,1,MPI_DOUBLE,0,MPI_COMM_WORLD, &request_b);
 }
 
 int init_listening(MPI_Request *request_petition,MPI_Request *request_best )

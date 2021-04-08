@@ -45,6 +45,7 @@ extern int event1, event2, event3, event4, event5, even6, even7;
 extern int startEvent, endEvent;
 
 extern MPI_Request request_bcast;
+extern double best;
 
 extern int master;
 AlgorithmPD final_alg;
@@ -92,7 +93,7 @@ int ask_work();
 int init_work(PAproblem, int, int*);
 int send_resolved(const PalgorithmPD);
 int send_best(const PalgorithmPD);
-void waitting_best(PalgorithmPD);
+void waiting_best(MPI_Request*);
 int log_prune();
 //master
 int distribution(PalgorithmPD);
@@ -105,6 +106,7 @@ int init_listening(MPI_Request*, MPI_Request*);
 int finish_work();
 int give_me_work(int process);
 int resolved();
+void init_best(MPI_Request *);
 
 //aux
 int serializer_tasks(PalgorithmPD, char*);

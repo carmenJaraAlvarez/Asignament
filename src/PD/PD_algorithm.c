@@ -141,6 +141,8 @@
 		  }
 	  }
 	  for(int m=0;m<lengthNewArrayAppd;m++){
+		  double test=get_best(palg);
+		  printf("\nPD_algorithm.c		pD()		-----------best %f",test);
 		  AproblemPD newArrayAppd[get_max_num_problems(&appd)+lengthNewArrayAppd];
 		  if(print_all)
 		  {
@@ -161,7 +163,7 @@
 		  Alternative as[max_num_alternatives];
 		  if(print_all)
 		  {
-			  printf("\n 	000000000000 num max alternatives %d",max_num_alternatives);
+			  printf("\nPD_algorithm.c		pD		num max alternatives %d",max_num_alternatives);
 		  }
 
 		  init_alternative_array(&as,max_num_alternatives);
@@ -170,7 +172,7 @@
 		  if(numAlternatives==0)
 		  {
 				  //TODO
-				  printf("\n no alternatives\n");
+				  printf("\nPD_algorithm.c		pD		no alternatives\n");
 		  }
 		  else
 		  {
@@ -392,10 +394,12 @@
 	  {
 		  if(numprocs>2)//more than 1 slave
 		  {
-			  waitting_best(palg);
+			  printf("\n-------------------- init waiting_best");
+			  //waiting_best(&requestb);
 		  }
 		  res=palg->best;
 	  }
 
 	  return res;
   }
+
