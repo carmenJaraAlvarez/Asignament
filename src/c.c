@@ -52,10 +52,13 @@ double startwtime, endwtime;
 
 extern int init_slaves;
 extern MPI_Request request;
-
+MPI_Request request_b=MPI_REQUEST_NULL;
+double best;
 int main(int argc, char **argv)
 {
   int myid;
+
+
 
   MPI_Init(&argc,&argv);
   MPI_Comm_size(MPI_COMM_WORLD,&numprocs);
@@ -88,12 +91,18 @@ int main(int argc, char **argv)
   //MPE_Log_sync_clocks();
 
   if (myid != 0)  {
+	  ////////////////////
+
+	  MPI_Ibcast(&best,1,MPI_DOUBLE,0,MPI_COMM_WORLD, &request_b);
+	  ////////////////////
+
 	  MPI_Bcast(&init_slaves,1,MPI_INT,0,MPI_COMM_WORLD);//waiting master's order
 	  rcv_work();
 	  MPI_Ibarrier(MPI_COMM_WORLD, &request);//to know every process is finished
   }
-  else
+  else//master
   {
+	  init_best(&request_b);
 	describe_logs();
 	if(print_all)
 	{
@@ -111,7 +120,14 @@ int main(int argc, char **argv)
 	gtk_main();
 
   }
-
+  int rcv_bcast=0;
+  MPI_Status status;
+  while(!rcv_bcast)
+  {
+	  printf( "\ntesting");
+	  MPI_Test(&request_b,&rcv_bcast,&status);
+  }
+  printf( "Message from process %d : %f\n", myid, best);
   //MPE_Log_sync_clocks();
 
   MPE_Finish_log("c");
