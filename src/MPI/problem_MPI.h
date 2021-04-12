@@ -28,6 +28,8 @@
 extern int print_all;
 extern int numprocs;
 
+extern  MPI_Comm world;
+
 extern int event1a;
 extern int event1b;
 extern int event2a;
@@ -45,6 +47,7 @@ extern int event1, event2, event3, event4, event5, even6, even7;
 extern int startEvent, endEvent;
 
 extern MPI_Request request_bcast;
+extern MPI_Request request_b;
 extern double best;
 
 extern int master;
@@ -52,6 +55,12 @@ AlgorithmPD final_alg;
 int n;//buffer for ask work
 double b;//buffer for best
 double new_best;//buffer for broadcast best
+
+
+AproblemPD *newArrayAppd;
+AproblemPD *problems;
+
+
 
   struct  Work
 	  {
@@ -88,12 +97,13 @@ double new_best;//buffer for broadcast best
 
 
 //slaves
-int rcv_work();
+int rcv_work(double *,MPI_Request * );
 int ask_work();
-int init_work(PAproblem, int, int*);
+int init_work(PAproblem, int, int*,double *,MPI_Request * );
 int send_resolved(const PalgorithmPD);
 int send_best(const PalgorithmPD);
-void waiting_best(MPI_Request*);
+int init_waiting_best(double *,MPI_Request*);
+void waiting_best(double *,MPI_Request*);
 int log_prune();
 //master
 int distribution(PalgorithmPD);
@@ -106,7 +116,7 @@ int init_listening(MPI_Request*, MPI_Request*);
 int finish_work();
 int give_me_work(int process);
 int resolved();
-void init_best(MPI_Request *);
+void init_best(MPI_Request *, MPI_Comm *);
 
 //aux
 int serializer_tasks(PalgorithmPD, char*);

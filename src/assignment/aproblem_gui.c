@@ -26,10 +26,10 @@ void get_data(GtkWidget *calculate, gpointer data) {
 	Cadena cadena_url;
 	strcpy(cadena_url,text);
 
-    read_aproblem_file(&pap_from_gui, numt, numr, cadena_url);
-    if(print_all)
+    int i=read_aproblem_file(&pap_from_gui, numt, numr, cadena_url);
+    if(1)
     {
-    	printf("\naproblem_gui.c get_data()-> READED file\n");
+    	printf("\naproblem_gui.c get_data()-> READED file  %d\n",i);
     }
     resolve_aPD(&pap_from_gui, num_processes);
     //gtk_label_set_text(GTK_LABEL(values), buffer);
@@ -43,19 +43,32 @@ void resolve_aPD(PAproblem pap, int num_processes)
     AproblemPD appd;
     initAProblemPD(&appd, pap);
 	init_algorithmPD(&final_alg, appd);
+    {
+    	printf("\naproblem_gui.c resolve_aPD()-> Resolving\n");
+    }
+
 	distribution(&final_alg);
 	init_slaves=1;
-	MPI_Bcast(&init_slaves,1,MPI_INT,0,MPI_COMM_WORLD);
-	MPI_Ibarrier(MPI_COMM_WORLD, &request);//the slaves join when they have finished
     if(print_all)
     {
     	printf("\naproblem_gui.c resolve_aPD()-> Resolving\n");
     }
+	MPI_Bcast(&init_slaves,1,MPI_INT,0,MPI_COMM_WORLD);
+    if(print_all)
+    {
+    	printf("\naproblem_gui.c resolve_aPD()-> Resolving\n");
+    }
+	MPI_Ibarrier(MPI_COMM_WORLD, &request);//the slaves join when they have finished
+
 	  init_listening(&request_petition, &request_best);
 	  while(!all_finished)
 	  {
 		  scan_petition(&request_petition, &request_best, &request_bcast);
 		  MPI_Test(&request,&all_finished, MPI_STATUS_IGNORE);//test barrier
+	  }
+	  if(print_all)
+	  {
+		  printf("\naproblem_gui.c		resolve_aPD()	all finished ibarrier");
 	  }
 	  finish_work();
 	  //////////////////////////// Solved window

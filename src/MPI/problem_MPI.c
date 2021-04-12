@@ -122,11 +122,10 @@ int distribution(PalgorithmPD palg)
 
 }
 
-int rcv_work()
+int rcv_work(double * buffer,MPI_Request * request_b)
 {
 	MPE_Log_event(event2a, 0, "start receive work");
 	int res=0;
-	int ierr=0;
 	if(print_all)
 	{
 		printf("rcv...\n");
@@ -208,8 +207,14 @@ int rcv_work()
 	//printf("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
 	show_aproblem(&a);
 
-    init_work(&a, work.num_alternatives, &alternatives);//TODO testing mpe
-    printf("\n outgoing rcv_work");
+    init_work(&a, work.num_alternatives, &alternatives,buffer,request_b );//TODO testing mpe
+    if(1)
+    {
+        int id;
+        MPI_Comm_rank(MPI_COMM_WORLD,&id);
+        printf("\nproblem_MPI.c	rcv_work()	outgoing process %d\n",id);
+    }
+
 
 
 ////    printf("\n Inside RCV. num alternatives: %d", work.num_alternatives);
@@ -317,7 +322,7 @@ int rcv_resolved()
 
 }
 
-int init_work(PAproblem pa, int num_alternatives, int * alternatives)
+int init_work(PAproblem pa, int num_alternatives, int * alternatives,double * buffer,MPI_Request * request_b)
 {
 	int res=0;
 	AproblemPD appd;
@@ -432,7 +437,7 @@ int init_work(PAproblem pa, int num_alternatives, int * alternatives)
 			printf("\nBefore exec algoritm\n");
 		}
 
-		exec_algorithm(&alg);
+		exec_algorithm(&alg,buffer,request_b );
 		if(print_all)
 		{
 			printf("\nAfter exec algoritm\n");
@@ -700,34 +705,39 @@ int broadcast_best(double better){
 		}
 
 		MPE_Log_event(event5, 0, "broadcast best");
-		MPI_Ibcast(&best_to_broadcast, count, MPI_DOUBLE, master, MPI_COMM_WORLD, &request_bcast);
+		//TODO control buffer free
+		MPI_Ibcast(&best_to_broadcast, count, MPI_DOUBLE, master, world, &request_b);
 	}
 
 	return res;
 }
-
-void waiting_best(MPI_Request* request_b)
+int init_waiting_best(double * buffer, MPI_Request * request_b)
+{
+//	MPI_Ibcast(buffer,1,MPI_DOUBLE,0,world, request_b);
+	return 0;
+}
+void waiting_best(double * buffer, MPI_Request* request_b)
 {
 	int ready=0;
-
-	MPI_Test(request_b, &ready, MPI_STATUS_IGNORE);
+	double d;
+//	MPI_Test(request_b, &ready, MPI_STATUS_IGNORE);
 	if(ready)
 	{
-		if(1)
+		if(print_all)
 		{
-			printf("\nMaster has send best result %f", best);
+			printf("\nproblem_MPI.c		waiting_best()		Master has send best result %f", buffer);
 		}
-
+//				if((buffer>palg->best && palg->ppd.aproblem.type==MAX) ||
+//						(buffer<palg->best && palg->ppd.aproblem.type==MIN)){
+//					palg->best=buffer;
+//				}
+				if((*buffer>final_alg.best && final_alg.ppd.aproblem.type==MAX) ||
+						(*buffer>final_alg.best && final_alg.ppd.aproblem.type==MIN)){
+					final_alg.best=best;
+				}
 		MPE_Log_event(event5, 0, "broadcast best");
-//		MPI_Irecv(&best, 1, MPI_DOUBLE, master, tag_best, MPI_COMM_WORLD, &request_bcast);
-//		if((best>palg->best && palg->ppd.aproblem.type==MAX) ||
-//				(best<palg->best && palg->ppd.aproblem.type==MIN)){
-//			palg->best=best;
-//		}
-//		if((best>final_alg.best && palg->ppd.aproblem.type==MAX) ||
-//				(best>final_alg.best && palg->ppd.aproblem.type==MIN)){
-//			final_alg.best=best;
-//		}
+		MPI_Ibcast(&d, 1, MPI_DOUBLE, master, world, request_b);//TODO d
+
 	}
 }
 int log_prune()
@@ -802,15 +812,18 @@ int give_me_work(int process)
 	return 0;
 
 }
-void init_best(MPI_Request * request_b){
+void init_best(MPI_Request * request_b, MPI_Comm * world){
 	  ////////////////////
 	  best=final_alg.best;
 
 	  if(1)
 	  {
-		 printf("\n init best()-------------------%f",final_alg.best);
+		  int myid;
+		 MPI_Comm_rank(MPI_COMM_WORLD,&myid);
+		 printf("\n problem_MPI.c		init best()-------------------%f",best);
+	 	 printf( "\nproblem_MPI.c		init best()		Message from process %d : best %f\n", myid, best);
 	  }
-	  MPI_Ibcast(&best,1,MPI_DOUBLE,0,MPI_COMM_WORLD, &request_b);
+	 // MPI_Ibcast(&best,1,MPI_DOUBLE,0,*world, request_b);
 }
 
 int init_listening(MPI_Request *request_petition,MPI_Request *request_best )
@@ -972,13 +985,29 @@ void waitting_answer()
 
 int pD_distribution(PalgorithmPD palg)
 {
-	 	  int res=0;
+	 	  if(print_all)
+	 	  {
+	 		  printf("\nproblem_MPI.c		pD_distribution()");
+	 	  }
+		  int res=0;
 		  AproblemPD appd=palg->ppd;
-		  AproblemPD newArrayAppd[get_max_num_problems(&appd)];
 		  int lengthNewArrayAppd=0;
 		  int max_num_problem=get_max_num_problems(&appd);
-		  AproblemPD problems[max_num_problem];
+	 	  if(print_all)
+	 	  {
+	 		  printf("\nproblem_MPI.c		pD_distribution()		max num %d",max_num_problem);
+	 	  }
+//	 	 int memoryArrayValues=sizeof(double)*numTasks*numResources;
+//	 	 pa->values=(double*)malloc(memoryArrayValues);
+	 	 newArrayAppd = (AproblemPD*)malloc(max_num_problem * sizeof(AproblemPD));
+	 	 problems= (AproblemPD*)malloc(max_num_problem * sizeof(AproblemPD));
+//	 	  AproblemPD newArrayAppd[max_num_problem];
+//		  AproblemPD problems[max_num_problem];
 		  int numPreviousProblems=getPreviousProblems(palg, problems);
+		  if(print_all)
+		 	  {
+		 		  printf("\nproblem_MPI.c		pD_distribution()		num previous problems %d",numPreviousProblems);
+		 	  }
 		  Alternative * as;
 		  init_alternative_array(&as,get_max_num_alternatives(&appd));
 		  //as=(Alternative*)malloc(sizeof(Alternative)*50);//TODO
@@ -991,13 +1020,17 @@ int pD_distribution(PalgorithmPD palg)
 		  }
 		  else
 		  {
+		 	  if(print_all)
+		 	  {
+		 		  printf("\nproblem_MPI.c		pD_distribution()		num alt %d",numAlternatives);
+		 	  }
+
 
 			  if(is_base_case(&problems[0]))
 			  {
 				  //TODO
 				  				  printf("\n too little\n");
 			  }
-
 			  else
 			  {
 				  //get new problems

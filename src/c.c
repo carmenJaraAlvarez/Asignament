@@ -49,7 +49,7 @@ int event1, event2, event3, event4, event5, event6, event7;
 int startEvent, endEvent;
 
 double startwtime, endwtime;
-
+MPI_Comm world;
 extern int init_slaves;
 extern MPI_Request request;
 MPI_Request request_b=MPI_REQUEST_NULL;
@@ -65,6 +65,7 @@ int main(int argc, char **argv)
   MPI_Comm_rank(MPI_COMM_WORLD,&myid);
 
 
+  MPI_Comm_dup(MPI_COMM_WORLD,&world);
 
   MPE_Init_log();
 
@@ -89,21 +90,29 @@ int main(int argc, char **argv)
   init_slaves=0;
 
   //MPE_Log_sync_clocks();
-
+  double buffer=1.;
   if (myid != 0)  {
 	  ////////////////////
 
-	  MPI_Ibcast(&best,1,MPI_DOUBLE,0,MPI_COMM_WORLD, &request_b);
+	  //MPI_Ibcast(&buffer,1,MPI_DOUBLE,0,world, &request_b);
 
+	  //init_waiting_best(&buffer,&request_b);
 	  ////////////////////
 
 	  MPI_Bcast(&init_slaves,1,MPI_INT,0,MPI_COMM_WORLD);//waiting master's order
-	  rcv_work();
+	  rcv_work(&buffer,&request_b);
 	  MPI_Ibarrier(MPI_COMM_WORLD, &request);//to know every process is finished
   }
   else//master
   {
-	  init_best(&request_b);
+	init_best(&request_b,&world);
+//	  double b=7;
+//	  	  if(1)
+//	  	  {
+//	   		 printf("\n -------------------%f",b);
+//	  	 	 printf( "\npMessage from process %d : best %f\n", myid, b);
+//	  	  }
+//	  	  MPI_Ibcast(&b,1,MPI_DOUBLE,0,world, &request_b);
 	describe_logs();
 	if(print_all)
 	{
@@ -121,21 +130,21 @@ int main(int argc, char **argv)
 	gtk_main();
 
   }
-  int rcv_bcast=0;
-  MPI_Status status;
-  if(1)
-  {
-	  while(!rcv_bcast)
-	   {
-	 	  printf( "\ntesting");
-	 	  MPI_Test(&request_b,&rcv_bcast,&status);
-	   }
-	   if(rcv_bcast)
-	   {
-	 	  printf( "\nMessage from process %d : best %f\n", myid, best);
-	   }
-	   waiting_best(&request);//testing function
-  }
+//  int rcv_bcast=0;
+//  MPI_Status status;
+//  if(1)
+//  {
+//	  while(!rcv_bcast)
+//	   {
+//	 	  printf( "\ntesting");
+//	 	  MPI_Test(&request_b,&rcv_bcast,&status);
+//	   }
+//	   if(rcv_bcast)
+//	   {
+//	 	  printf( "\nMessage from process %d : best %f\n", myid, buffer);
+//	   }
+//	   waiting_best(&request);//testing function
+//  }
 
   //MPE_Log_sync_clocks();
 

@@ -53,7 +53,7 @@
 	  return res;
   }
 
-  int exec_algorithm(PalgorithmPD palg)
+  int exec_algorithm(PalgorithmPD palg,double * buffer,MPI_Request * request_b )
   {
 	  int res=0;
 	  Solution sol;
@@ -61,7 +61,7 @@
 	  {
 		  for(int i=0;i<get_num_subproblems();i++)
 		  {
-			  pD(palg);
+			  pD(palg,buffer, request_b);
 		  }
 	  }while(palg->isRandomize && get_PDsolution(palg,&sol)!=0);
 	  return res;
@@ -122,7 +122,7 @@
 	  return res;;
   }
 
-  int pD(PalgorithmPD palg)
+  int pD(PalgorithmPD palg,double * buffer,MPI_Request * request_b)
   {
 	  int res=0;
 	  AproblemPD appd=palg->ppd;
@@ -141,9 +141,21 @@
 		  }
 	  }
 	  for(int m=0;m<lengthNewArrayAppd;m++){
-		  double test=get_best(palg);
-		  printf("\nPD_algorithm.c		pD()		-----------best %f",test);
-		  AproblemPD newArrayAppd[get_max_num_problems(&appd)+lengthNewArrayAppd];
+		  waiting_best(buffer, request_b);
+		 // double test=get_best(palg);
+		  if((palg->best<final_alg.best && palg->ppd.aproblem.type==MAX) ||
+				  (palg->best>final_alg.best && palg->ppd.aproblem.type==MIN ) ){
+			  palg->best=final_alg.best;
+			  printf("\nPD_algorithm.c		pD()		-----------new best %f",palg->best);
+		  }
+//		  newArrayAppd = (AproblemPD*)malloc(max_num_problem * sizeof(AproblemPD));
+//		  problems= (AproblemPD*)malloc(max_num_problem * sizeof(AproblemPD));
+//
+//		  AproblemPD newArrayAppd[get_max_num_problems(&appd)+lengthNewArrayAppd];
+		  int max_num_problem=get_max_num_problems(&appd);
+		  int len=max_num_problem+lengthNewArrayAppd;
+		  newArrayAppd = (AproblemPD*)malloc(len * sizeof(AproblemPD));
+
 		  if(print_all)
 		  {
 			  printf("\nPD_algorithm.c		pD		first len array problem in PD = %d", lengthNewArrayAppd);
@@ -181,7 +193,7 @@
 				  if(print_all)
 				  {
 					  printf("\nPD_algorithm.c		pD		before get solution case base");
-					  show_aproblem_PD(&newArrayAppd[m]);
+					 // show_aproblem_PD(&newArrayAppd[m]);
 					  printf("\nPD_algorithm.c		pD		before get solution case base.best in palg: %f", palg->best);
 					  printf("\nPD_algorithm.c		pD		before get solution case base.best in final_alg: %f", final_alg.best);
 				  }
@@ -247,10 +259,10 @@
 				  if(print_all)
 				  {
 					  printf("\nPD_algorithm.c		pD		Not case base. Alternatives: ");
-					  for(int k=0;k<numAlternatives;k++)
-					  {
-						  printf("%d ", as[k].indexResource);
-					  }
+//					  for(int k=0;k<numAlternatives;k++)
+//					  {
+//						  printf("%d ", as[k].indexResource);
+//					  }
 					  printf("\n");
 				  }
 
@@ -351,6 +363,7 @@
 				  {
 					  printf("\nPD_algorithm.c		pD()		end of not case base solution");
 				  }
+			  free(newArrayAppd);
 			  }//end else (not base case)
 		  }//end if num alt>0
 	  }//end for size
@@ -390,7 +403,7 @@
 		  res=GREAT;
 	  }
 
-	  if(1)//prune //TODO
+	  if(print_all)//prune //TODO
 	  {
 		  if(numprocs>2)//more than 1 slave
 		  {
