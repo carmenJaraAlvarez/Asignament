@@ -30,6 +30,7 @@ extern int final_sol[100];
 
 int init_slaves;
 int all_finished;
+extern int prune;
 
 MPI_Request request_petition;
 MPI_Request request_best;
