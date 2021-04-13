@@ -148,10 +148,7 @@
 			  palg->best=final_alg.best;
 			  printf("\nPD_algorithm.c		pD()		-----------new best IN %f",palg->best);
 		  }
-//		  newArrayAppd = (AproblemPD*)malloc(max_num_problem * sizeof(AproblemPD));
-//		  problems= (AproblemPD*)malloc(max_num_problem * sizeof(AproblemPD));
-//
-//		  AproblemPD newArrayAppd[get_max_num_problems(&appd)+lengthNewArrayAppd];
+
 		  int max_num_problem=get_max_num_problems(&appd);
 		  int len=max_num_problem+lengthNewArrayAppd;
 		  newArrayAppd = (AproblemPD*)malloc(len * sizeof(AproblemPD));
@@ -200,7 +197,7 @@
 				  //show_aproblem_PD(&(palg->problems[39]));//TODO check
 				  SpPD sp;
 				  get_solution_base_case((&newArrayAppd[m]),&sp);
-				  if(print_all)
+				  if(1)
 				  {
 					  printf("\nPD_algorithm.c		pD		case base");
 					  printf("\nPD_algorithm.c		pD		post get solution case base. best palg: %f",palg->best);
@@ -209,13 +206,15 @@
 				  }
 				  AproblemPD solved[100];//TODO
 				  //palg->solvedProblems=&solved;
-				  if(newArrayAppd[m].solution.acum==palg->best)//more than one solution
+
+				  if(palg->num_solved>0 && newArrayAppd[m].solution.acum==palg->solvedProblems[0].solution.acum)//more than one solution
 				  {
 					  copy_aproblem_PD( &(palg->solvedProblems[palg->num_solved]),newArrayAppd[m]);
 					  palg->num_solved++;
 					  //update_best(palg,&(newArrayAppd[m]));
 				  }
-				  else if(newArrayAppd[m].solution.acum>palg->best)//now this is the only one best solution
+				  else if(palg->num_solved==0 ||
+						  (palg->num_solved>0 && newArrayAppd[m].solution.acum>palg->solvedProblems[0].solution.acum))//now this is the only one best solution
 				  {
 					  palg->solvedProblems=&solved;
 					  if(print_all)
@@ -248,6 +247,7 @@
 						  show_aproblem_PD(&(palg->solvedProblems[0]));
 					  }
 				  }
+
 				  if(print_all)
 				  {
 					  printf("\nPD_algorithm.c		pD		is base case and takes alternative: %d\n", sp.alternative.indexResource);

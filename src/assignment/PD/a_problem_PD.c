@@ -225,15 +225,18 @@ Type get_type(PAproblemPD appd)
 	  double worst_value;
 	  int num_to_end;
 	  //if not pruning
-	  if(appd->aproblem.type==MAX)
-	  {
-		  res=GREAT;
+	  if(!prune)
+		  {
+		  if(appd->aproblem.type==MAX)
+		  {
+			  res=SMALL;
+		  }
+		  else
+		  {
+			  res=GREAT;
+		  }
 	  }
-	  else
-	  {
-		  res=SMALL;
-	  }
-	  if(1)//if pruning//TODO and optimizer worst_value in var
+	  else//if pruning//TODO and optimizer worst_value in var
 	  {
 		  if(print_all)
 		  {
@@ -283,15 +286,18 @@ Type get_type(PAproblemPD appd)
  	  double best_value;
  	  int num_to_end;
  	  //if not pruning
- 	  if(appd->aproblem.type==MAX)
+ 	  if(!prune)
  	  {
- 		  res=GREAT;
+		  if(appd->aproblem.type==MAX)
+		  {
+			  res=GREAT;
+		  }
+		  else
+		  {
+			  res=SMALL;
+		  }
  	  }
- 	  else
- 	  {
- 		  res=SMALL;
- 	  }
- 	  if(1)//if pruning//TODO
+ 	  else//if pruning//TODO
  	  {
  		  if(print_all)
  		  {
@@ -341,18 +347,21 @@ Type get_type(PAproblemPD appd)
   double get_target(PAproblemPD appd)//estimated
   {
 	  double res;
-	  //no prune
-//	  if(appd->aproblem.type==MAX)
-//	  {
-//		  res=SMALL;
-//	  }
-//	  else
-//	  {
-//		  res=GREAT;
-//	  }
+	  if(!prune)//no prune
+	  {
+		  if(appd->aproblem.type==MAX)
+		  {
+			  res=SMALL;
+		  }
+		  else
+		  {
+			  res=GREAT;
+		  }
+	  }
+	  else{
 	  //prune
 	  res=appd->solution.acum;
-
+	  }
 	  return res;
   }
   int get_size(const PAproblemPD papd){

@@ -27,6 +27,7 @@ int ierr;
 int master=0;
 int numprocs=0;
 int print_all=0;//to help to debug. Simple logs for developer
+int prune=1;
 
 int event1a;
 int event1b;

@@ -17,6 +17,7 @@
 #define SMALL -9999999.
 
 extern int print_all;
+extern int prune;
 
 typedef struct
   {
