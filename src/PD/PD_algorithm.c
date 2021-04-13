@@ -146,7 +146,7 @@
 		  if((palg->best<final_alg.best && palg->ppd.aproblem.type==MAX) ||
 				  (palg->best>final_alg.best && palg->ppd.aproblem.type==MIN ) ){
 			  palg->best=final_alg.best;
-			  printf("\nPD_algorithm.c		pD()		-----------new best %f",palg->best);
+			  printf("\nPD_algorithm.c		pD()		-----------new best IN %f",palg->best);
 		  }
 //		  newArrayAppd = (AproblemPD*)malloc(max_num_problem * sizeof(AproblemPD));
 //		  problems= (AproblemPD*)malloc(max_num_problem * sizeof(AproblemPD));

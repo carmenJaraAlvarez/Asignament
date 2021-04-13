@@ -268,7 +268,7 @@ int rcv_resolved()
 	for(int p=1;p<numprocs;p++)
 	{
 
-		if(1)
+		if(print_all)
 		{
 			printf("+\nproblem_MPI.c		rcv_resolved()		pre mpi_rcev\n");
 		}
@@ -279,7 +279,7 @@ int rcv_resolved()
 		if(resolved_from_slaves[p].num_resolved>0)//TODO
 		{
 			//palg->best=resolved.value;
-			if(1)
+			if(print_all)
 			{
 				printf("\nproblem_MPI.c		rcv_resolved()	 BEST IN -> %f",resolved_from_slaves[p].value);
 				printf("\nproblem_MPI.c		rcv_resolved()	 NUM SOLVED IN-> %d",resolved_from_slaves[p].num_resolved);
@@ -287,13 +287,13 @@ int rcv_resolved()
 
 			for(int i=0; i<resolved_from_slaves[p].num_resolved;i++)
 			{
-				if(1)
+				if(print_all)
 				{
 					printf("\nproblem_MPI.c		rcv_resolved()	 Inside for EACH resolved of process %d",p);
 				}
 				if(resolved_from_slaves[p].value>=final_alg.best)//TODO
 				{
-					if(1)
+					if(print_all)
 					{
 						printf("\nproblem_MPI.c		rcv_resolved()	 Inside if received:%f >=final:%f",resolved_from_slaves[p].value,final_alg.best);
 					}
@@ -301,9 +301,9 @@ int rcv_resolved()
 					for(int j=0;j<final_alg.ppd.aproblem.numTask;j++)//TODO
 					{
 
-		//					final_alg.solvedProblems[i].solution.resources[j].position=resolved.resources[j];
+		//				final_alg.solvedProblems[i].solution.resources[j].position=resolved.resources[j];
 						final_sol[j]=resolved_from_slaves[p].resources[j];//TODO create resolved problem
-						if(1)
+						if(print_all)
 							{
 							printf("\nproblem_MPI.c		rcv_resolved()		received t%d->%d",j, resolved_from_slaves[p].resources[j]);
 							printf("\nproblem_MPI.c		rcv_resolved()		final_alg from process %d t%d->",i, j);
@@ -634,7 +634,7 @@ int send_resolved(const PalgorithmPD palg)
 
 			for(int j=0;j<palg->problems->aproblem.numTask;j++){
 				resolved.resources[i*palg->problems->aproblem.numTask+j]=palg->solvedProblems[i].solution.resources[j].position;
-				if(1)
+				if(print_all)
 				{
 					printf("\nproblem_MPI.c		send_resolved()		resource%d:%d",i*palg->problems->aproblem.numTask+j,palg->solvedProblems[i].solution.resources[j].position);
 					printf("\nproblem_MPI.c		send_resolved()		send%d:%d",i*palg->problems->aproblem.numTask+j,resolved.resources[i*palg->problems->aproblem.numTask+j]);
@@ -679,13 +679,14 @@ int send_resolved(const PalgorithmPD palg)
 int rcv_best(double rcvd_best, MPI_Request *request_bcast)
 {
 	if((rcvd_best>final_alg.best && final_alg.ppd.aproblem.type==MAX) ||
-			(rcvd_best<final_alg.best && final_alg.ppd.aproblem.type==MIN)){
+			(rcvd_best<final_alg.best && final_alg.ppd.aproblem.type==MIN))
+	{
 		final_alg.best=rcvd_best;
 		MPE_Log_event(event5, 0, "start broadcast");
 		broadcast_best(rcvd_best);
 		if(print_all)
 		{
-			printf("\n INSIDE RCV BEST AND IS BETTER");
+			printf("\nproblem_MPI.c		rcv_best()		BETTER %f",rcvd_best);
 		}
 
 	}
@@ -713,6 +714,10 @@ int send_best(PalgorithmPD palg)
 	return res;
 }
 int broadcast_best(double better){
+	if(1)
+	{
+		printf("\nproblem_MPI.c		broadcast_best()		better IN %f",better);
+	}
 	int res=0;
 	double best_to_broadcast;
 	int count = 1;
@@ -721,7 +726,7 @@ int broadcast_best(double better){
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	if(rank==master){
 		best_to_broadcast=better;
-		if(print_all){
+		if(1){
 			printf("\n I am %d, and the best to broadcast is %f",rank, best_to_broadcast);
 		}
 
@@ -739,25 +744,34 @@ int init_waiting_best(double * buffer, MPI_Request * request_b)
 }
 void waiting_best(double * buffer, MPI_Request* request_b)
 {
+	if(print_all)
+	{
+		printf("\nproblem_MPI.c		waiting_best()");
+	}
 	int ready=0;
 	double d;
-//	MPI_Test(request_b, &ready, MPI_STATUS_IGNORE);
+	MPI_Test(request_b, &ready, MPI_STATUS_IGNORE);
 	if(ready)
 	{
-		if(print_all)
+		if(1)
 		{
-			printf("\nproblem_MPI.c		waiting_best()		Master has send best result %f", buffer);
+			printf("\nproblem_MPI.c		waiting_best()		Master has send best result %f", *buffer);
 		}
 //				if((buffer>palg->best && palg->ppd.aproblem.type==MAX) ||
 //						(buffer<palg->best && palg->ppd.aproblem.type==MIN)){
 //					palg->best=buffer;
 //				}
 				if((*buffer>final_alg.best && final_alg.ppd.aproblem.type==MAX) ||
-						(*buffer>final_alg.best && final_alg.ppd.aproblem.type==MIN)){
-					final_alg.best=best;
+						(*buffer>final_alg.best && final_alg.ppd.aproblem.type==MIN))
+				{
+					if(1)
+					{
+						printf("\nproblem_MPI.c		waiting_best()		buffer rcv better");
+					}
+					final_alg.best=*buffer;
 				}
 		MPE_Log_event(event5, 0, "broadcast best");
-		MPI_Ibcast(&d, 1, MPI_DOUBLE, master, world, request_b);//TODO d
+		MPI_Ibcast(buffer, 1, MPI_DOUBLE, master, world, request_b);//TODO d
 
 	}
 }
@@ -780,10 +794,9 @@ int scan_petition(MPI_Request *request_ask_work, MPI_Request *request_best, MPI_
 	if(flag_b)
 	{
 		sender=status_best.MPI_SOURCE;
-		if(print_all)
+		if(1)
 		{
-			printf("\n 				SENDER BEST %d\n"
-					"				Best %f", sender, b);
+			printf("\nproblem_MPI.c		scan_petition()			SENDER %d Best %f", sender, b);
 		}
 
 		MPE_Log_event(event4, 0, "rcve best");
@@ -844,7 +857,7 @@ void init_best(MPI_Request * request_b, MPI_Comm * world){
 		 printf("\n problem_MPI.c		init best()-------------------%f",best);
 	 	 printf( "\nproblem_MPI.c		init best()		Message from process %d : best %f\n", myid, best);
 	  }
-	 // MPI_Ibcast(&best,1,MPI_DOUBLE,0,*world, request_b);
+	 MPI_Ibcast(&best,1,MPI_DOUBLE,0,*world, request_b);
 }
 
 int init_listening(MPI_Request *request_petition,MPI_Request *request_best )
