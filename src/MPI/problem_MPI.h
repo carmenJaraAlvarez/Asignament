@@ -51,11 +51,12 @@ extern MPI_Request request_b;
 extern double best;
 
 extern int master;
+extern int numprocs;
 AlgorithmPD final_alg;
 int n;//buffer for ask work
 double b;//buffer for best
 double new_best;//buffer for broadcast best
-
+int final_sol[100];//TODO test
 
 AproblemPD *newArrayAppd;
 AproblemPD *problems;
@@ -79,13 +80,15 @@ AproblemPD *problems;
 		double value;
 	  }node_w_mpi;
 
-  struct  Resolved
+  typedef struct
 	  {
 		int num_resolved;
+		double value;
 		int resources[100];//TODO
-		double value[100];//TODO
 
-	  }r_mpi;
+
+	  }Resolved;
+  typedef Resolved* PResolved;
 
   typedef struct
 	  {
@@ -123,5 +126,7 @@ int serializer_tasks(PalgorithmPD, char*);
 int deserializer_tasks(char*, int, PTask );
 int serializer_resources(PalgorithmPD palg, char* all);
 int deserializer_resources(char*, int, PResource);
+
+
 
 #endif /* MPI_PROBLEM_MPI_H_ */

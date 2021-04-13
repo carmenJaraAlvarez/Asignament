@@ -3,7 +3,7 @@
 #include <stddef.h>
 
 static int pD_distribution(PalgorithmPD palg);
-
+static PResolved resolved_from_slaves;
 
 //we will free process 0 from problem resolution.
 int distribution(PalgorithmPD palg)
@@ -243,24 +243,23 @@ int ask_work()
 
 int rcv_resolved()
 {
-	MPE_Log_event(event6a, 0, "start receive resolved");
+		MPE_Log_event(event6a, 0, "start receive resolved");
 	if(print_all)
 	{
-		printf("+\n+++++++++++++++++++++++++++++++++++++++++++++++++++\nINSIDE RCV_REVOLVED\n");
+		printf("+\nproblem_MPI.c		rcv_resolved()");
 
 	}
 	int res=0;
-	int ierr=0;
 
-	struct Resolved resolved;
-
+	 int memoryArrayValues=sizeof(Resolved)*numprocs;
+	 resolved_from_slaves=(Resolved*)malloc(memoryArrayValues);
 
 	//getting
 
 	MPI_Datatype resolved_mpi_datatype;
-	int blocklengths[3] = {1,1,1};
-	MPI_Datatype types[3] = {MPI_DOUBLE,MPI_INT,MPI_DOUBLE};
-	const MPI_Aint offsets[3]= { 0, sizeof(double),sizeof(int)*100+sizeof(double)};
+	int blocklengths[3] = {1,1,100};
+	MPI_Datatype types[3] = {MPI_DOUBLE,MPI_DOUBLE,MPI_INT};
+	const MPI_Aint offsets[3]= { 0, sizeof(double),sizeof(double)*2};
 
 	MPI_Type_create_struct(3, blocklengths, offsets, types,  &resolved_mpi_datatype);
 	MPI_Type_commit ( &resolved_mpi_datatype );
@@ -268,43 +267,60 @@ int rcv_resolved()
 	//rcve every process
 	for(int p=1;p<numprocs;p++)
 	{
-		if(print_all)
+
+		if(1)
 		{
-			printf("+\n+++++++++++++++++++++++++++++++++++++++++++++++++++"
-					"\npre mpi_rcev\n");
+			printf("+\nproblem_MPI.c		rcv_resolved()		pre mpi_rcev\n");
 		}
 
 
-		MPI_Recv(&resolved, 1, resolved_mpi_datatype , p, tag_resolved, MPI_COMM_WORLD, &status);
+		MPI_Recv(&(resolved_from_slaves[p]), 1, resolved_mpi_datatype , p, tag_resolved, MPI_COMM_WORLD, &status);
 
-		if(resolved.num_resolved>0)//TODO
+		if(resolved_from_slaves[p].num_resolved>0)//TODO
 		{
 			//palg->best=resolved.value;
-			if(print_all)
+			if(1)
 			{
-				printf("\n ONE BEST IN MASTER-> %f",resolved.value[0]);
+				printf("\nproblem_MPI.c		rcv_resolved()	 BEST IN -> %f",resolved_from_slaves[p].value);
+				printf("\nproblem_MPI.c		rcv_resolved()	 NUM SOLVED IN-> %d",resolved_from_slaves[p].num_resolved);
 			}
 
-			for(int i=0; i<resolved.num_resolved;i++)
+			for(int i=0; i<resolved_from_slaves[p].num_resolved;i++)
+			{
+				if(1)
 				{
-					if(resolved.value[i]>=final_alg.best)//TODO
+					printf("\nproblem_MPI.c		rcv_resolved()	 Inside for EACH resolved of process %d",p);
+				}
+				if(resolved_from_slaves[p].value>=final_alg.best)//TODO
+				{
+					if(1)
 					{
-						final_alg.best=resolved.value[i];
-						for(int j=0;j<final_alg.ppd.solution.lengthArrays;j++)
-						{
-							final_alg.solvedProblems[i].solution.resources[j].position=resolved.resources[j];
-
-						}
-						final_alg.num_solved=resolved.num_resolved;
+						printf("\nproblem_MPI.c		rcv_resolved()	 Inside if received:%f >=final:%f",resolved_from_slaves[p].value,final_alg.best);
 					}
+					final_alg.best=resolved_from_slaves[p].value;
+					for(int j=0;j<final_alg.ppd.aproblem.numTask;j++)//TODO
+					{
+
+		//					final_alg.solvedProblems[i].solution.resources[j].position=resolved.resources[j];
+						final_sol[j]=resolved_from_slaves[p].resources[j];//TODO create resolved problem
+						if(1)
+							{
+							printf("\nproblem_MPI.c		rcv_resolved()		received t%d->%d",j, resolved_from_slaves[p].resources[j]);
+							printf("\nproblem_MPI.c		rcv_resolved()		final_alg from process %d t%d->",i, j);
+
+							}
+					}
+					final_alg.num_solved=resolved_from_slaves[p].num_resolved;
+
+
+				}
 				}
 
 
 		}
 		if(print_all)
 		{
-			printf("+\n+++++++++++++++++++++++++++++++++++++++++++++++++++\npost mpi_rcev\n"
-					"******************received resolved from %d\n ",p);
+			printf("+\nproble_MPI.c		rcv_resolved()		received resolved from %d\n ",p);
 		}
 
 	}
@@ -312,6 +328,7 @@ int rcv_resolved()
 
 
     MPI_Type_free ( &resolved_mpi_datatype);
+    free(resolved_from_slaves);
     MPE_Log_event(event6b, 0, "end receive resolved");
     if(print_all)
     {
@@ -596,17 +613,14 @@ int send_work(const PalgorithmPD palg,int *alternatives, int num_alternatives, i
 int send_resolved(const PalgorithmPD palg)
 {
 	MPE_Log_event(event5a, 0, "start send resolved");
-	int res;
 	int num_process=0;//to master
-	MPI_Request request;
-	MPI_Status  status;
 	if(print_all)
 	{
 		printf("\nSENDING RESOLVED TO MASTER");
 	}
 
 
-	struct Resolved resolved;
+	Resolved resolved;
 	int num_resolved=palg->num_solved;
 	if(num_resolved==0)
 	{
@@ -615,10 +629,17 @@ int send_resolved(const PalgorithmPD palg)
 	}
 	else
 	{
+		resolved.value=palg->solvedProblems[0].solution.acum;
 		for(int i=0;i<num_resolved;i++){
-			resolved.value[i]=palg->solvedProblems[i].solution.acum;//TODO
-			for(int j=0;j<palg->problems->aproblem.numResources;j++){
-				resolved.resources[i+j]=palg->solvedProblems[i].solution.resources->position;
+
+			for(int j=0;j<palg->problems->aproblem.numTask;j++){
+				resolved.resources[i*palg->problems->aproblem.numTask+j]=palg->solvedProblems[i].solution.resources[j].position;
+				if(1)
+				{
+					printf("\nproblem_MPI.c		send_resolved()		resource%d:%d",i*palg->problems->aproblem.numTask+j,palg->solvedProblems[i].solution.resources[j].position);
+					printf("\nproblem_MPI.c		send_resolved()		send%d:%d",i*palg->problems->aproblem.numTask+j,resolved.resources[i*palg->problems->aproblem.numTask+j]);
+
+				}
 			}
 
 		}
@@ -628,19 +649,19 @@ int send_resolved(const PalgorithmPD palg)
 	//num_resolved=1;//TODO test
 	if(print_all)
 	{
-		printf("\nSENDING RESOLVED TO MASTER2");
+		printf("\nproblem_MPI.c		send_resolved()			SENDING RESOLVED TO MASTER2");
 	}
 
 	MPI_Datatype resolved_mpi_datatype;
-	int blocklengths[3] = {1,1,1};
-	MPI_Datatype types[3] = {MPI_DOUBLE,MPI_INT,MPI_DOUBLE};
-	const MPI_Aint offsets[3]= { 0, sizeof(double),sizeof(int)*100+sizeof(double)};
+	int blocklengths[3] = {1,1,100};
+	MPI_Datatype types[3] = {MPI_DOUBLE,MPI_DOUBLE,MPI_INT};
+	const MPI_Aint offsets[3]= { 0, sizeof(double),sizeof(double)*2};
 
 	MPI_Type_create_struct(3, blocklengths, offsets, types,  &resolved_mpi_datatype);
 	MPI_Type_commit ( &resolved_mpi_datatype);
 	if(print_all)
 	{
-		printf("\n+++++++++++++++++++++++++++++++++++++++++++\npre send mpi");
+		printf("\nproblem_MPI.c		send_resolved()			pre send mpi");
 	}
 
 	MPE_Init_log();
@@ -648,7 +669,7 @@ int send_resolved(const PalgorithmPD palg)
 	MPI_Send( &resolved, 1, resolved_mpi_datatype, num_process, tag_resolved, MPI_COMM_WORLD );
 	if(print_all)
 	{
-		printf("\n+++++++++++++++++++++++++++++++++++++++++++\npost send mpi %f",resolved.value);
+		printf("\nproblem_MPI.c		send_resolved()			post send mpi %f",resolved.value);
 	}
 
 	MPI_Type_free( &resolved_mpi_datatype);

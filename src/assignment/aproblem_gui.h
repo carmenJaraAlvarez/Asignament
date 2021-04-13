@@ -26,6 +26,8 @@ static GtkWidget *url_file;
 //the problem
 PAproblem pap_from_gui;
 extern MPI_Request request_b;
+extern int final_sol[100];
+
 int init_slaves;
 int all_finished;
 
