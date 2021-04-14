@@ -69,8 +69,10 @@ AproblemPD *problems;
 		int num_resources;
 		//problem type: min, max, other
 		Type type;
+		int prune;
 		//alternative the process will select
 		int num_alternatives;
+
 	  }w_mpi;
 
   struct  Node_work
@@ -109,8 +111,8 @@ int init_waiting_best(double *,MPI_Request*);
 void waiting_best(double *,MPI_Request*);
 int log_prune();
 //master
-int distribution(PalgorithmPD);
-int send_work(const PalgorithmPD,int *, int, int);
+int distribution(PalgorithmPD, int);
+int send_work(const PalgorithmPD,int *, int, int, int);
 int broadcast_best(const double);
 int rcv_resolved();
 int rcv_best(double b, MPI_Request*);

@@ -9,6 +9,7 @@
 #include "../MPI/problem_MPI.h"
 
 static void resolve_aPD(PAproblem, int);
+int prune=1;
 
 void get_data(GtkWidget *calculate, gpointer data) {
 	init_clock();
@@ -49,7 +50,7 @@ void resolve_aPD(PAproblem pap, int num_processes)
     	printf("\naproblem_gui.c resolve_aPD()-> Resolving\n");
     }
 
-	distribution(&final_alg);
+	distribution(&final_alg,prune);
 	init_slaves=1;
     if(print_all)
     {
@@ -100,7 +101,7 @@ void resolve_aPD(PAproblem pap, int num_processes)
 	//delete_algorithmPD(&alg);
 
 }
-static void
+void
 button_toggled_cb (GtkWidget *button,
                    gpointer   user_data)
 {

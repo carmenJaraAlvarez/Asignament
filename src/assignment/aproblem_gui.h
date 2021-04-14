@@ -30,15 +30,15 @@ extern int final_sol[100];
 
 int init_slaves;
 int all_finished;
-extern int prune;
+extern int print_all;
 
 MPI_Request request_petition;
 MPI_Request request_best;
 MPI_Request request_bcast;
 MPI_Request request;
-extern int print_all;
 
 void get_data(GtkWidget *, gpointer);
 void create_aproblem_window(GtkWidget *,int );
+void button_toggled_cb (GtkWidget * ,gpointer );
   
 #endif /* INCLUDES_APROBLEM_GUI_H_ */

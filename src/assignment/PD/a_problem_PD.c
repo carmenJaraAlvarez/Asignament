@@ -288,6 +288,10 @@ Type get_type(PAproblemPD appd)
  	  //if not pruning
  	  if(!prune)
  	  {
+ 		  if(1)
+ 		  {
+ 			  printf("\na_problem_PD.c		get_best_estimate()		NO prune");
+ 		  }
 		  if(appd->aproblem.type==MAX)
 		  {
 			  res=GREAT;
@@ -299,9 +303,9 @@ Type get_type(PAproblemPD appd)
  	  }
  	  else//if pruning//TODO
  	  {
- 		  if(print_all)
+ 		  if(1)
  		  {
- 			 printf("\nget_best_estimate()\n");
+ 			  printf("\na_problem_PD.c		get_best_estimate()		prune");
  		  }
 
  		  num_to_end =appd->aproblem.numTask-appd->solution.lengthArrays;

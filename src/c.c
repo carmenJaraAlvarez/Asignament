@@ -23,11 +23,11 @@
 #include "../tests/test_aPD_algorithm.c"
 #include "algorithms/metrics.h"
 
-int ierr;
+
 int master=0;
 int numprocs=0;
 int print_all=0;//to help to debug. Simple logs for developer
-int prune=1;
+
 
 int event1a;
 int event1b;
@@ -107,13 +107,7 @@ int main(int argc, char **argv)
   else//master
   {
 	init_best(&request_b,&world);
-//	  double b=7;
-//	  	  if(1)
-//	  	  {
-//	   		 printf("\n -------------------%f",b);
-//	  	 	 printf( "\npMessage from process %d : best %f\n", myid, b);
-//	  	  }
-//	  	  MPI_Ibcast(&b,1,MPI_DOUBLE,0,world, &request_b);
+
 	describe_logs();
 	if(print_all)
 	{
@@ -131,21 +125,6 @@ int main(int argc, char **argv)
 	gtk_main();
 
   }
-//  int rcv_bcast=0;
-//  MPI_Status status;
-//  if(1)
-//  {
-//	  while(!rcv_bcast)
-//	   {
-//	 	  printf( "\ntesting");
-//	 	  MPI_Test(&request_b,&rcv_bcast,&status);
-//	   }
-//	   if(rcv_bcast)
-//	   {
-//	 	  printf( "\nMessage from process %d : best %f\n", myid, buffer);
-//	   }
-//	   waiting_best(&request);//testing function
-//  }
 
   //MPE_Log_sync_clocks();
 
