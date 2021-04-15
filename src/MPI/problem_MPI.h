@@ -43,7 +43,7 @@ extern int event5b;
 extern int event6a;
 extern int event6b;
 
-extern int event1, event2, event3, event4, event5, even6, even7;
+extern int event1, event2, event3, event4, event5, event6, event7, event8;
 extern int startEvent, endEvent;
 
 extern MPI_Request request_bcast;
@@ -100,11 +100,22 @@ AproblemPD *problems;
 	  }Problem_MPI;
   typedef Problem_MPI* Pproblem_MPI;
 
+  typedef struct
+	  {
+		int index;
+		int * receivers_plus;
+		int len_receivers_plus;
+		int * receivers_less;
+		int len_receivers_less;
+		int * receivers_empty;
+		int len_receivers_empty;
+	  }Distribution_rr;
+
 
 //slaves
-int rcv_work(double *,MPI_Request * );
+int rcv_work(double *,MPI_Request * ,int *,MPI_Request * );
 int ask_work();
-int init_work(PAproblem, int, int*,double *,MPI_Request * );
+int init_work(PAproblem, int, int*,double *,MPI_Request *,int *,MPI_Request * );
 int send_resolved(const PalgorithmPD);
 int send_best(const PalgorithmPD);
 int init_waiting_best(double *,MPI_Request*);

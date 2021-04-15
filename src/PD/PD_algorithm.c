@@ -53,7 +53,7 @@
 	  return res;
   }
 
-  int exec_algorithm(PalgorithmPD palg,double * buffer,MPI_Request * request_b )
+  int exec_algorithm(PalgorithmPD palg,double * buffer,MPI_Request * request_b,int * buffer_w, MPI_Request * request_w )
   {
 	  int res=0;
 	  Solution sol;
@@ -61,7 +61,7 @@
 	  {
 		  for(int i=0;i<get_num_subproblems();i++)
 		  {
-			  pD(palg,buffer, request_b);
+			  pD(palg,buffer, request_b, buffer_w, request_w);
 		  }
 	  }while(palg->isRandomize && get_PDsolution(palg,&sol)!=0);
 	  return res;
@@ -122,7 +122,7 @@
 	  return res;;
   }
 
-  int pD(PalgorithmPD palg,double * buffer,MPI_Request * request_b)
+  int pD(PalgorithmPD palg,double * buffer,MPI_Request * request_b,int * buffer_w,MPI_Request * request_w)
   {
 	  int res=0;
 	  AproblemPD appd=palg->ppd;
@@ -141,6 +141,7 @@
 		  }
 	  }
 	  for(int m=0;m<lengthNewArrayAppd;m++){
+		  waiting_petition(buffer_w,request_w);
 		  waiting_best(buffer, request_b);
 		 // double test=get_best(palg);
 		  if((palg->best<final_alg.best && palg->ppd.aproblem.type==MAX) ||
@@ -185,7 +186,8 @@
 		  }
 		  else
 		  {
-			  if(is_base_case(&newArrayAppd[m]))
+			  //if(is_base_case(&newArrayAppd[m]))
+			  if(is_base_case(&(palg->problems[m])))
 			  {
 				  if(print_all)
 				  {
@@ -196,7 +198,7 @@
 				  }
 				  //show_aproblem_PD(&(palg->problems[39]));//TODO check
 				  SpPD sp;
-				  get_solution_base_case((&newArrayAppd[m]),&sp);
+				  get_solution_base_case((&(palg->problems[m])),&sp);
 				  if(1)
 				  {
 					  printf("\nPD_algorithm.c		pD		case base");
@@ -204,19 +206,20 @@
 					  printf("\nPD_algorithm.c		pD		post get solution case base. best final: %f",final_alg.best);
 					  printf("\nPD_algorithm.c		pD		in base case. acum: %f",newArrayAppd[m].solution.acum);
 				  }
-				  AproblemPD solved[100];//TODO
+				  //AproblemPD solved[100];//TODO
 				  //palg->solvedProblems=&solved;
 
-				  if(palg->num_solved>0 && newArrayAppd[m].solution.acum==palg->solvedProblems[0].solution.acum)//more than one solution
+				  if(palg->num_solved>0 && palg->problems[m].solution.acum==palg->solvedProblems[0].solution.acum)//more than one solution
 				  {
-					  copy_aproblem_PD( &(palg->solvedProblems[palg->num_solved]),newArrayAppd[m]);
+					  copy_aproblem_PD( &(palg->solvedProblems[palg->num_solved]),palg->problems[m]);
 					  palg->num_solved++;
 					  //update_best(palg,&(newArrayAppd[m]));
 				  }
 				  else if(palg->num_solved==0 ||
-						  (palg->num_solved>0 && newArrayAppd[m].solution.acum>palg->solvedProblems[0].solution.acum))//now this is the only one best solution
+						  (palg->num_solved>0 && palg->problems[m].solution.acum>palg->solvedProblems[0].solution.acum))//now this is the only one best solution
 				  {
-					  palg->solvedProblems=&solved;
+					  copy_aproblem_PD( &(palg->solvedProblems[0]),palg->problems[m]);
+					  palg->num_solved=1;
 					  if(print_all)
 					  {
 						  printf("\nPD_algorithm.c		pD		This solution is the best now. acum: %f",newArrayAppd[m].solution.acum);
@@ -224,8 +227,7 @@
 						  printf("\nPD_algorithm.c		pD		pre update best palg: %f",palg->best);
 						  printf("\nPD_algorithm.c		pD		pre update best final_alg: %f", final_alg.best);
 					  }
-					  palg->num_solved=1;
-					  update_best(palg,&(newArrayAppd[m]) );
+					  update_best(palg,&(palg->solvedProblems[m]) );
 					  if(print_all)
 					  {
 						  printf("\nPD_algorithm.c		pD		post update best");
@@ -236,11 +238,11 @@
 						  printf("\nPD_algorithm.c		pD		we are going to copy the problem in solved");
 					  }
 					  //AproblemPD solved;
-					  copy_aproblem_PD( &solved,newArrayAppd[m]);
+					  //copy_aproblem_PD( &solved,newArrayAppd[m]);
 					  if(print_all)
 					  {
-						  printf("\nPD_algorithm.c		pD		problem aux\n");
-						  show_aproblem_PD(&solved);
+						 // printf("\nPD_algorithm.c		pD		problem aux\n");
+						  //show_aproblem_PD(&solved);
 						  //printf("\npost copy solved 39======================\n");
 						  //show_aproblem_PD(&(palg->problems[39]));//TODO check
 						  printf("\nPD_algorithm.c		pD		post copy solved 0\n");
@@ -363,9 +365,10 @@
 				  {
 					  printf("\nPD_algorithm.c		pD()		end of not case base solution");
 				  }
-			  free(newArrayAppd);
+
 			  }//end else (not base case)
 		  }//end if num alt>0
+		  free(newArrayAppd);
 	  }//end for size
 	  return res;
   }

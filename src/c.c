@@ -46,7 +46,7 @@ int event7b;
 int event8a;
 int event8b;
 
-int event1, event2, event3, event4, event5, event6, event7;
+int event1, event2, event3, event4, event5, event6, event7, event8;
 int startEvent, endEvent;
 
 double startwtime, endwtime;
@@ -54,17 +54,18 @@ MPI_Comm world;
 extern int init_slaves;
 extern MPI_Request request;
 MPI_Request request_b=MPI_REQUEST_NULL;
+MPI_Request * request_work;
 double best;
 int main(int argc, char **argv)
 {
   int myid;
 
-
-
   MPI_Init(&argc,&argv);
   MPI_Comm_size(MPI_COMM_WORLD,&numprocs);
   MPI_Comm_rank(MPI_COMM_WORLD,&myid);
 
+  int memoryArrayValues=sizeof(MPI_Request)*numprocs;
+  request_work=(MPI_Request*)malloc(memoryArrayValues);
 
   MPI_Comm_dup(MPI_COMM_WORLD,&world);
 
@@ -87,11 +88,12 @@ int main(int argc, char **argv)
   MPE_Log_get_solo_eventID( &event5 );
   MPE_Log_get_solo_eventID( &event6 );
   MPE_Log_get_solo_eventID( &event7 );
-
+  MPE_Log_get_solo_eventID( &event8 );
   init_slaves=0;
 
   //MPE_Log_sync_clocks();
   double buffer=1.;
+  int buffer_work=0;
   if (myid != 0)  {
 	  ////////////////////
 
@@ -101,7 +103,7 @@ int main(int argc, char **argv)
 	  ////////////////////
 
 	  MPI_Bcast(&init_slaves,1,MPI_INT,0,MPI_COMM_WORLD);//waiting master's order
-	  rcv_work(&buffer,&request_b);
+	  rcv_work(&buffer,&request_b,&buffer_work,&request_work);
 	  MPI_Ibarrier(MPI_COMM_WORLD, &request);//to know every process is finished
   }
   else//master
