@@ -113,9 +113,9 @@ AproblemPD *problems;
 
 
 //slaves
-int rcv_work(double *,MPI_Request * ,int *,MPI_Request * );
+int rcv_work(double *,MPI_Request * ,int *);
 int ask_work();
-int init_work(PAproblem, int, int*,double *,MPI_Request *,int *,MPI_Request * );
+int init_work(PAproblem, int, int*,double *,MPI_Request *,int *);
 int send_resolved(const PalgorithmPD);
 int send_best(const PalgorithmPD);
 int init_waiting_best(double *,MPI_Request*);
@@ -133,6 +133,7 @@ int finish_work();
 int give_me_work(int process);
 int resolved();
 void init_best(MPI_Request *, MPI_Comm *);
+int init_redistribution(MPI_Request * );
 
 //aux
 int serializer_tasks(PalgorithmPD, char*);

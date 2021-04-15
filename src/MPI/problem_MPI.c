@@ -7,14 +7,12 @@ static PResolved resolved_from_slaves;
 static Distribution_rr rr;
 static int init_rr();
 static int send_more_work(int process);
-MPI_Request *request_w;
+static MPI_Request request_w[100];//TODO
+static int buffer_work;
 
 static int send_more_work(int process)
 {
 	printf("\nproblem_MPI.c		send_more_work()		to %d",process);
-
-	int memoryArrayValues=sizeof(MPI_Request)*numprocs;
-	request_w=(double*)malloc(memoryArrayValues);
 
 	if(0)//TODO batch
 	{
@@ -45,7 +43,7 @@ static int send_more_work(int process)
 			MPI_Isend(&n, 1, MPI_INT, sender, tag_give_work, MPI_COMM_WORLD, &request_w[sender]);
 			rr.index++;
 		}
-		else if((rr.len_receivers_plus+rr.len_receivers_less)>=rr.index)
+		else if((rr.len_receivers_plus+rr.len_receivers_less)>(rr.index))
 		{
 			sender=rr.receivers_less[rr.index-rr.len_receivers_plus];
 			if(1)
@@ -53,6 +51,7 @@ static int send_more_work(int process)
 				printf("\nproblem_MPI.c		send_more_work()		sender less %d",sender);
 			}
 			MPI_Isend(&n, 1, MPI_INT, sender, tag_give_work, MPI_COMM_WORLD, &request_w[sender]);
+			rr.index++;
 		}
 		else
 		{
@@ -83,7 +82,16 @@ static int init_rr()
 	rr.receivers_empty=(int*)malloc(memoryArrayValues);
 	return 0;
 }
-//we will free process 0 from problem resolution.
+int init_redistribution(MPI_Request * request_work){
+//	int memoryArrayValues=sizeof(MPI_Request)*numprocs;
+//	request_w=(double*)malloc(memoryArrayValues);
+	for(int i=0;i<numprocs;i++)
+	{
+		request_w[i]=request_work[i];
+	}
+
+	return 0;
+}
 int distribution(PalgorithmPD palg, int prune)
 {
 	int res=-1;
@@ -233,7 +241,7 @@ int distribution(PalgorithmPD palg, int prune)
 
 }
 
-int rcv_work(double * buffer,MPI_Request * request_b,int * buffer_w,MPI_Request * request_w)
+int rcv_work(double * buffer,MPI_Request * request_b,int * buffer_w)
 {
 	MPE_Log_event(event2a, 0, "start receive work");
 	int res=0;
@@ -319,7 +327,7 @@ int rcv_work(double * buffer,MPI_Request * request_b,int * buffer_w,MPI_Request 
 	//printf("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
 	show_aproblem(&a);
 
-    init_work(&a, work.num_alternatives, &alternatives,buffer,request_b,buffer_w,request_w );
+    init_work(&a, work.num_alternatives, &alternatives,buffer,request_b,buffer_w);
     if(1)
     {
         int id;
@@ -451,8 +459,9 @@ int rcv_resolved()
 
 }
 
-int init_work(PAproblem pa, int num_alternatives, int * alternatives,double * buffer,MPI_Request * request_b,int * buffer_w, MPI_Request * request_w)
+int init_work(PAproblem pa, int num_alternatives, int * alternatives,double * buffer,MPI_Request * request_b,int * buffer_w)
 {
+	MPI_Request request_work=MPI_REQUEST_NULL;
 	int res=0;
 	AproblemPD appd;
 	initAProblemPD(&appd, pa);
@@ -480,10 +489,9 @@ int init_work(PAproblem pa, int num_alternatives, int * alternatives,double * bu
 	}
 	else
 	{
-		int myid;
-		MPI_Comm_rank(MPI_COMM_WORLD,&myid);
+
 		MPE_Log_event(event7, 0, "waiting petition work");
-		MPI_Irecv(buffer_w,1,MPI_INT,master,tag_give_work,MPI_COMM_WORLD, &request_w[myid]);
+		MPI_Irecv(&buffer_work,1,MPI_INT,master,tag_give_work,MPI_COMM_WORLD, &request_work);
 		if(num_alternatives==1)
 		{
 			if(print_all)
@@ -571,7 +579,7 @@ int init_work(PAproblem pa, int num_alternatives, int * alternatives,double * bu
 			printf("\nBefore exec algoritm\n");
 		}
 
-		exec_algorithm(&alg,buffer,request_b, buffer_w, request_w );
+		exec_algorithm(&alg,buffer,request_b, buffer_w, &request_work);
 		if(print_all)
 		{
 			printf("\nAfter exec algoritm\n");
@@ -881,29 +889,27 @@ void waiting_best(double * buffer, MPI_Request* request_b)
 
 	}
 }
-void waiting_petition(int * buffer_w, MPI_Request* request_w)
+void waiting_petition(int * buffer_w, MPI_Request* r_w)
 {
 	if(1)
 	{
 		printf("\nproblem_MPI.c		waiting_petition()");
 	}
 	int ready=0;
-	double d;
-	int myid;
-	MPI_Comm_rank(MPI_COMM_WORLD,&myid);
-	MPI_Status status;
-	//MPE_Log_event(event7, 0, "waiting petition work");
-	MPI_Test(&(request_w[myid]), &ready, &status);
+	//MPE_Log_event(event7, 0, "waiting petition work");//error MPE
+	MPI_Test(r_w, &ready, MPI_STATUS_IGNORE);
 	if(ready)
 	{
+		MPE_Log_event(event8, 0, "rcv petition work");
+
 		if(1)
 		{
-			MPE_Log_event(event8, 0, "rcv petition work");
-			printf("\nproblem_MPI.c		waiting_petition()		Master has send work petition");
-		}
 
-//		MPE_Log_event(event5, 0, "broadcast best");
-//		MPI_Ibcast(buffer, 1, MPI_DOUBLE, master, world, request_b);//TODO d
+			printf("\nproblem_MPI.c		waiting_petition()		Master has send work petition from %d", *buffer_w);
+
+		}
+		MPI_Irecv(buffer_w,1,MPI_INT,master,tag_give_work,MPI_COMM_WORLD, r_w);
+
 
 	}
 }
