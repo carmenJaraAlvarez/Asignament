@@ -124,6 +124,7 @@
 
   int pD(PalgorithmPD palg,double * buffer,MPI_Request * request_b,int * buffer_w,MPI_Request * request_w)
   {
+	  init_transfered(&transfered);
 	  int res=0;
 	  AproblemPD appd=palg->ppd;
 	  int len_problems=palg->num_problems;
