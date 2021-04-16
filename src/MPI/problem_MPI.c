@@ -504,9 +504,10 @@ int init_work(PAproblem pa, int num_alternatives, int * alternatives,double * bu
 			i++;
 		}
 		if (!ready) {
-			if(1)
+			MPE_Log_event(event8, 0, "TIMEOUT");
+			if(print_all)
 			{
-				 printf("\nproblem_MPI.c		init_work()		TIMEOUT");
+				printf("\nproblem_MPI.c		init_work()		TIMEOUT");
 			}
 			alg.num_solved=0;
 			send_resolved(&alg);
@@ -514,8 +515,37 @@ int init_work(PAproblem pa, int num_alternatives, int * alternatives,double * bu
 		else
 		{
 			printf("\nproblem_MPI.c		init_work()		ready. Index= %d", node.index);
-			alg.num_solved=0;
+			alg.ppd.index=node.index;
+			alg.ppd.solution.lengthArrays=node.index;
+			alg.ppd.solution.acum=node.value;
+			for(int i=0;i<node.index;i++)
+			{
+				strcpy(alg.ppd.solution.resources[alg.ppd.solution.lengthArrays].name, pa->resources[node.solution[i]].name);
+				alg.ppd.solution.resources[alg.ppd.solution.lengthArrays].position=node.solution[i];
+			}
+			alg.problems[0]=alg.ppd;
+			exec_algorithm(&alg,buffer,request_b, buffer_w, &request_work);
+			if(print_all)
+			{
+				printf("\nAfter exec algoritm\n");
+			}
+			Solution sol;
+			get_PDsolution(&alg, &sol);
+			for(int i=0;i<alg.ppd.solution.lengthArrays;i++){
+				printf("\nResources: \n*%s\n",alg.ppd.solution.resources[i].name);
+			}
+			if(print_all)
+			{
+				printf("Solution value: %f", alg.ppd.solution.acum);
+			}
+
 			send_resolved(&alg);
+			if(print_all)
+			{
+				printf("\nSEND RESOLVED TO MASTER");
+			}
+
+			delete_algorithmPD(&alg);
 		}
 	}
 	else//more than 0 alternatives
@@ -920,16 +950,16 @@ void waiting_best(double * buffer, MPI_Request* request_b)
 
 	}
 }
-int sending_my_work(int recved)
+int sending_my_work(int recved,PalgorithmPD palg,int m)
 {
 	Node_work to_send;
 	MPI_Request r;
 	//test/////TODO
-	to_send.index=2;
-	to_send.value=1.;
+	to_send.index=palg->problems[m].index;
+	to_send.value=palg->problems[m].solution.acum;
 	for(int i=0;i<to_send.index;i++)
 	{
-		to_send.solution[i]=i;
+		to_send.solution[i]=palg->problems[m].solution.resources[i].position;
 	}
 	//////////
 	MPI_Datatype node_mpi_datatype;
@@ -958,8 +988,9 @@ int sending_my_work(int recved)
 
 	return 0;
 }
-void waiting_petition(int * buffer_w, MPI_Request* r_w)
+int waiting_petition(int * buffer_w, MPI_Request* r_w,PalgorithmPD palg,int m)
 {
+	int res=0;
 	if(print_all)
 	{
 		printf("\nproblem_MPI.c		waiting_petition()");
@@ -969,8 +1000,7 @@ void waiting_petition(int * buffer_w, MPI_Request* r_w)
 	MPI_Test(r_w, &ready, MPI_STATUS_IGNORE);
 	if(ready)
 	{
-		MPE_Log_event(event8, 0, "rcv petition work");
-
+		MPE_Log_event(event8a, 0, "rcv petition work");
 		if(print_all)
 		{
 
@@ -978,11 +1008,12 @@ void waiting_petition(int * buffer_w, MPI_Request* r_w)
 
 		}
 		int rcved=buffer_work;
-		sending_my_work(rcved);
+		sending_my_work(rcved,palg,m);
 		MPI_Irecv(&buffer_work,1,MPI_INT,master,tag_give_work,MPI_COMM_WORLD, r_w);
-
-
+		MPE_Log_event(event8b, 0, "rcv petition work");
+		res=1;
 	}
+	return res;
 }
 
 int scan_petition(MPI_Request *request_ask_work, MPI_Request *request_best, MPI_Request *request_bcast)

@@ -40,13 +40,11 @@ extern int event2a;
 extern int event2b;
 extern int event3a;
 extern int event3b;
-extern int event4a;
-extern int event4b;
-extern int event5a;
-extern int event5b;
-extern int event6a;
-extern int event6b;
-
+extern int event4a, event4b;
+extern int event5a, event5b;
+extern int event6a, event6b;
+extern int event7a, event7b;
+extern int event8a,event8b;
 extern int event1, event2, event3, event4, event5, event6, event7, event8;
 extern int startEvent, endEvent;
 
@@ -125,7 +123,8 @@ int send_best(const PalgorithmPD);
 int init_waiting_best(double *,MPI_Request*);
 void waiting_best(double *,MPI_Request*);
 int log_prune();
-int sending_my_work(int);
+int sending_my_work(int,PalgorithmPD,int);
+int waiting_petition(int * , MPI_Request* ,PalgorithmPD ,int);
 //master
 int distribution(PalgorithmPD, int);
 int send_work(const PalgorithmPD,int *, int, int, int);

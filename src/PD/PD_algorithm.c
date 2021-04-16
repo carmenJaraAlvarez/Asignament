@@ -141,7 +141,12 @@
 		  }
 	  }
 	  for(int m=0;m<lengthNewArrayAppd;m++){
-		  waiting_petition(buffer_w,request_w);
+		  int up=0;
+		  if((lengthNewArrayAppd-m)>1){//to not send the only one
+			  up = waiting_petition(buffer_w,request_w,palg,m);
+		  }
+
+		  m=m+up;
 		  waiting_best(buffer, request_b);
 		 // double test=get_best(palg);
 		  if((palg->best<final_alg.best && palg->ppd.aproblem.type==MAX) ||
