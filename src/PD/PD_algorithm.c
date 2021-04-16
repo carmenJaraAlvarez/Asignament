@@ -144,6 +144,11 @@
 		  int up=0;
 		  if((lengthNewArrayAppd-m)>1){//to not send the only one
 			  up = waiting_petition(buffer_w,request_w,palg,m);
+			  if(up)
+			  {
+				  transfered.transfered[transfered.len_transfered]=m;
+				  transfered.len_transfered++;
+			  }
 		  }
 
 		  m=m+up;

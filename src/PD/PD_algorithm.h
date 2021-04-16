@@ -9,7 +9,7 @@
 
 #ifndef PD_PD_ALGORITHM_H_
 #define PD_PD_ALGORITHM_H_
-
+#include "../algorithms/algorithm.h"
 //include path to particular PD problem
 //***************************************************
 #include "../assignment/PD/a_problem_PD.h"
@@ -22,7 +22,7 @@ extern int event6;//for MPE log
 extern int print_all;
 
 AproblemPD * newArrayAppd;
-
+Transfered_nodes transfered;//if redistribution
 
 typedef struct
   {
@@ -39,6 +39,7 @@ typedef struct
 //***************************************************
 	int num_problems;
 	int num_solved;
+
 
   } AlgorithmPD;
   typedef AlgorithmPD* PalgorithmPD;
