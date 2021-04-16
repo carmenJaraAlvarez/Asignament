@@ -27,7 +27,7 @@ static int send_more_work(int process)
 		MPI_Status status;
 		MPI_Isend(&n, 1, MPI_INT, process, tag_give_work, MPI_COMM_WORLD, &request_w);
 		struct  Node_work node_w;
-		MPI_Irecv(&node_w, 1, node_mpi_datatype, process, tag_ask_work, MPI_COMM_WORLD, &request_rcv);
+		MPI_Irecv(&node_w, 1, node_mpi_datatype, process, tag_give_work, MPI_COMM_WORLD, &request_rcv);
 	}
 	else
 	{//Boxy master
@@ -38,7 +38,7 @@ static int send_more_work(int process)
 			sender=rr.receivers_plus[rr.index];
 			if(1)
 			{
-				printf("\nproblem_MPI.c		send_more_work()		sender plus %d",sender);
+				printf("\nproblem_MPI.c		send_more_work() to %d.	sender plus %d",process,sender);
 			}
 			MPI_Isend(&n, 1, MPI_INT, sender, tag_give_work, MPI_COMM_WORLD, &request_w[sender]);
 			rr.index++;
@@ -48,7 +48,7 @@ static int send_more_work(int process)
 			sender=rr.receivers_less[rr.index-rr.len_receivers_plus];
 			if(1)
 			{
-				printf("\nproblem_MPI.c		send_more_work()		sender less %d",sender);
+				printf("\nproblem_MPI.c		send_more_work() to %d.	sender less %d",process,sender);
 			}
 			MPI_Isend(&n, 1, MPI_INT, sender, tag_give_work, MPI_COMM_WORLD, &request_w[sender]);
 			rr.index++;
@@ -905,10 +905,10 @@ void waiting_petition(int * buffer_w, MPI_Request* r_w)
 		if(1)
 		{
 
-			printf("\nproblem_MPI.c		waiting_petition()		Master has send work petition from %d", *buffer_w);
+			printf("\nproblem_MPI.c		waiting_petition()		Master has send work petition from %d",buffer_work);
 
 		}
-		MPI_Irecv(buffer_w,1,MPI_INT,master,tag_give_work,MPI_COMM_WORLD, r_w);
+		MPI_Irecv(&buffer_work,1,MPI_INT,master,tag_give_work,MPI_COMM_WORLD, r_w);
 
 
 	}
