@@ -241,7 +241,7 @@ int distribution(PalgorithmPD palg, int prune)
 
 }
 
-int rcv_work(double * buffer,MPI_Request * request_b,int * buffer_w)
+int rcv_work(double * buffer,MPI_Request * request_b,int * buffer_w, MPI_Comm * comm)
 {
 	MPE_Log_event(event2a, 0, "start receive work");
 	int res=0;
@@ -327,7 +327,7 @@ int rcv_work(double * buffer,MPI_Request * request_b,int * buffer_w)
 	//printf("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
 	show_aproblem(&a);
 
-    init_work(&a, work.num_alternatives, &alternatives,buffer,request_b,buffer_w);
+    init_work(&a, work.num_alternatives, &alternatives,buffer,request_b,buffer_w,comm);
     if(1)
     {
         int id;
@@ -459,9 +459,9 @@ int rcv_resolved()
 
 }
 
-int init_work(PAproblem pa, int num_alternatives, int * alternatives,double * buffer,MPI_Request * request_b,int * buffer_w)
+int init_work(PAproblem pa, int num_alternatives, int * alternatives,double * buffer,MPI_Request * request_b,int * buffer_w, MPI_Comm * comm)
 {
-	MPI_Request request_work=MPI_REQUEST_NULL;
+	MPI_Request request_work=MPI_REQUEST_NULL;//to listen to masterś order
 	int res=0;
 	AproblemPD appd;
 	initAProblemPD(&appd, pa);
@@ -478,12 +478,15 @@ int init_work(PAproblem pa, int num_alternatives, int * alternatives,double * bu
 	MPI_Irecv(&new_best, 1, MPI_DOUBLE, master, tag_best, MPI_COMM_WORLD, &request_bcast);
 
 	if (num_alternatives==0){
+		ask_work();
 		Node_work node;
+		MPI_Request r=MPI_REQUEST_NULL;
 		MPI_Status s;
-		MPI_Request r;
 		int ready=0;
+
 		int myid;
 		MPI_Comm_rank(MPI_COMM_WORLD,&myid);
+
 		MPI_Datatype node_mpi_datatype;
 		int blocklengths[3] = {1,1,100};
 		MPI_Datatype types[3] = {MPI_INT, MPI_DOUBLE,MPI_INT};
@@ -491,41 +494,31 @@ int init_work(PAproblem pa, int num_alternatives, int * alternatives,double * bu
 		MPI_Type_create_struct(3, blocklengths, offsets, types,  &node_mpi_datatype);
 		MPI_Type_commit ( &node_mpi_datatype);
 
-		ask_work();
-//		time_t start_time = time(); //get start time
-		MPI_Irecv(&node, 1, node_mpi_datatype, MPI_ANY_SOURCE, tag_give_work, MPI_COMM_WORLD, &r);
+
+		MPI_Irecv(&node, 1, node_mpi_datatype, MPI_ANY_SOURCE, tag_redistribution+myid, MPI_COMM_WORLD, &r);
+
 		int i=0;
-		while(!ready && i<200000)
+		while(!ready && i<900000)//TODO
 		{
 			MPI_Test(&r,&ready,MPI_STATUS_IGNORE);
 			i++;
 		}
 		if (!ready) {
-		  //we must have timed out
 			if(1)
 			{
 				 printf("\nproblem_MPI.c		init_work()		TIMEOUT");
 			}
-//			  MPI_Cancel(&r);
-//			  MPI_Request_free(&r);
-
+			alg.num_solved=0;
+			send_resolved(&alg);
 		}
 		else
 		{
-			 printf("\nproblem_MPI.c		init_work()		RCVD in %d", myid);
+			printf("\nproblem_MPI.c		init_work()		ready. Index= %d", node.index);
+			alg.num_solved=0;
+			send_resolved(&alg);
 		}
-
-
-		if(1)
-		{
-			printf("\nproblem_MPI.c		init_work()		post test");
-
-		}
-
-		alg.num_solved=0;
-		send_resolved(&alg);
 	}
-	else
+	else//more than 0 alternatives
 	{
 
 		MPE_Log_event(event7, 0, "waiting petition work");
@@ -949,17 +942,25 @@ int sending_my_work(int recved)
 	if(1)
 	{
 		printf("\nproblem_MPI.c		sending_my_work()		index: %d",to_send.index);
+		for(int i=0;i<to_send.index;i++)
+		{
+			printf("\nproblem_MPI.c		sending_my_work()		solution.resources[%d]= %d",i, to_send.solution[i]);
+		}
 
 	}
 
-	MPI_Isend(&to_send, 1, node_mpi_datatype, recved, tag_give_work, MPI_COMM_WORLD,&r);
-
+	MPI_Isend(&to_send, 1, node_mpi_datatype, recved, tag_redistribution+recved, MPI_COMM_WORLD,&r);
+	int ready=0;
+	while (!ready){
+		MPI_Test(&r,&ready,MPI_STATUS_IGNORE);
+	}
+    MPI_Type_free( &node_mpi_datatype);
 
 	return 0;
 }
 void waiting_petition(int * buffer_w, MPI_Request* r_w)
 {
-	if(1)
+	if(print_all)
 	{
 		printf("\nproblem_MPI.c		waiting_petition()");
 	}

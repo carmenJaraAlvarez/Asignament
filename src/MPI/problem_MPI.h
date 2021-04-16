@@ -24,13 +24,15 @@
 #define tag_best 5
 #define tag_ask_work 6
 #define tag_give_work 7
+#define tag_redistribution 1000//init rank-> tag_redistribution+ id receiver
 #define tag_resolved 100
 
 
 extern int print_all;
 extern int numprocs;
 
-extern  MPI_Comm world;
+extern MPI_Comm world;
+extern MPI_Comm slaves;
 
 extern int event1a;
 extern int event1b;
@@ -115,9 +117,9 @@ AproblemPD *problems;
 
 
 //slaves
-int rcv_work(double *,MPI_Request * ,int *);
+int rcv_work(double *,MPI_Request * ,int *, MPI_Comm *);
 int ask_work();
-int init_work(PAproblem, int, int*,double *,MPI_Request *,int *);
+int init_work(PAproblem, int, int*,double *,MPI_Request *,int *, MPI_Comm *);
 int send_resolved(const PalgorithmPD);
 int send_best(const PalgorithmPD);
 int init_waiting_best(double *,MPI_Request*);

@@ -29,7 +29,7 @@ void testInit10();
 void testInit9(){
 	printf("\n 9 **********************\n");
 	//mpecc -mpilog -pthread
-	Cadena url="/home/practica/eclipse-workspace/c/files/data3.txt";
+	Cadena url="/home/practica/eclipse-workspace/c/files/data7.txt";
 
 //	Aproblem ap;
 //	int numTasks=3;
