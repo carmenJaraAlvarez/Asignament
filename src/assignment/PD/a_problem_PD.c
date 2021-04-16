@@ -288,7 +288,7 @@ Type get_type(PAproblemPD appd)
  	  //if not pruning
  	  if(!prune)
  	  {
- 		  if(1)
+ 		  if(print_all)
  		  {
  			  printf("\na_problem_PD.c		get_best_estimate()		NO prune");
  		  }
@@ -303,7 +303,7 @@ Type get_type(PAproblemPD appd)
  	  }
  	  else//if pruning//TODO
  	  {
- 		  if(1)
+ 		  if(print_all)
  		  {
  			  printf("\na_problem_PD.c		get_best_estimate()		prune");
  		  }

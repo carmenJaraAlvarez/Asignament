@@ -14,6 +14,7 @@
 
 #define MAX_NUM_ALT	100
 #define MAX_TAM_STRING	1000
+#define TIMEOUT	1000000
 
 #define tag_work 0
 #define tag_values 1
@@ -24,6 +25,7 @@
 #define tag_ask_work 6
 #define tag_give_work 7
 #define tag_resolved 100
+
 
 extern int print_all;
 extern int numprocs;
@@ -75,12 +77,12 @@ AproblemPD *problems;
 
 	  }w_mpi;
 
-  struct  Node_work
+  typedef struct
 	  {
 		int index;
-		int solution[100];//TODO
 		double value;
-	  }node_w_mpi;
+		int solution[100];//TODO
+	  } Node_work;
 
   typedef struct
 	  {
@@ -121,6 +123,7 @@ int send_best(const PalgorithmPD);
 int init_waiting_best(double *,MPI_Request*);
 void waiting_best(double *,MPI_Request*);
 int log_prune();
+int sending_my_work(int);
 //master
 int distribution(PalgorithmPD, int);
 int send_work(const PalgorithmPD,int *, int, int, int);

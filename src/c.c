@@ -109,7 +109,7 @@ int main(int argc, char **argv)
   else//master
   {
 	init_best(&request_b,&world);
-	init_redistribution(&request_work);
+	//init_redistribution(&request_work);
 
 	describe_logs();
 	if(print_all)

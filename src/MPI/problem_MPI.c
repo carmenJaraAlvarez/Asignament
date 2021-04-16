@@ -26,7 +26,7 @@ static int send_more_work(int process)
 		MPI_Type_commit ( &node_mpi_datatype );
 		MPI_Status status;
 		MPI_Isend(&n, 1, MPI_INT, process, tag_give_work, MPI_COMM_WORLD, &request_w);
-		struct  Node_work node_w;
+		Node_work node_w;
 		MPI_Irecv(&node_w, 1, node_mpi_datatype, process, tag_give_work, MPI_COMM_WORLD, &request_rcv);
 	}
 	else
@@ -478,12 +478,50 @@ int init_work(PAproblem pa, int num_alternatives, int * alternatives,double * bu
 	MPI_Irecv(&new_best, 1, MPI_DOUBLE, master, tag_best, MPI_COMM_WORLD, &request_bcast);
 
 	if (num_alternatives==0){
+		Node_work node;
+		MPI_Status s;
+		MPI_Request r;
+		int ready=0;
+		int myid;
+		MPI_Comm_rank(MPI_COMM_WORLD,&myid);
+		MPI_Datatype node_mpi_datatype;
+		int blocklengths[3] = {1,1,100};
+		MPI_Datatype types[3] = {MPI_INT, MPI_DOUBLE,MPI_INT};
+		const MPI_Aint offsets[3]= { 0, sizeof(int),sizeof(double)+sizeof(int)};
+		MPI_Type_create_struct(3, blocklengths, offsets, types,  &node_mpi_datatype);
+		MPI_Type_commit ( &node_mpi_datatype);
+
 		ask_work();
-		if(print_all)
+//		time_t start_time = time(); //get start time
+		MPI_Irecv(&node, 1, node_mpi_datatype, MPI_ANY_SOURCE, tag_give_work, MPI_COMM_WORLD, &r);
+		int i=0;
+		while(!ready && i<200000)
 		{
-			printf("\n-----------------------------------------------\n");
+			MPI_Test(&r,&ready,MPI_STATUS_IGNORE);
+			i++;
+		}
+		if (!ready) {
+		  //we must have timed out
+			if(1)
+			{
+				 printf("\nproblem_MPI.c		init_work()		TIMEOUT");
+			}
+//			  MPI_Cancel(&r);
+//			  MPI_Request_free(&r);
 
 		}
+		else
+		{
+			 printf("\nproblem_MPI.c		init_work()		RCVD in %d", myid);
+		}
+
+
+		if(1)
+		{
+			printf("\nproblem_MPI.c		init_work()		post test");
+
+		}
+
 		alg.num_solved=0;
 		send_resolved(&alg);
 	}
@@ -889,6 +927,36 @@ void waiting_best(double * buffer, MPI_Request* request_b)
 
 	}
 }
+int sending_my_work(int recved)
+{
+	Node_work to_send;
+	MPI_Request r;
+	//test/////TODO
+	to_send.index=2;
+	to_send.value=1.;
+	for(int i=0;i<to_send.index;i++)
+	{
+		to_send.solution[i]=i;
+	}
+	//////////
+	MPI_Datatype node_mpi_datatype;
+	int blocklengths[3] = {1,1,100};
+	MPI_Datatype types[3] = {MPI_INT, MPI_DOUBLE,MPI_INT};
+	const MPI_Aint offsets[3]= { 0, sizeof(int),sizeof(double)+sizeof(int)};
+	MPI_Type_create_struct(3, blocklengths, offsets, types,  &node_mpi_datatype);
+	MPI_Type_commit ( &node_mpi_datatype);
+
+	if(1)
+	{
+		printf("\nproblem_MPI.c		sending_my_work()		index: %d",to_send.index);
+
+	}
+
+	MPI_Isend(&to_send, 1, node_mpi_datatype, recved, tag_give_work, MPI_COMM_WORLD,&r);
+
+
+	return 0;
+}
 void waiting_petition(int * buffer_w, MPI_Request* r_w)
 {
 	if(1)
@@ -902,12 +970,14 @@ void waiting_petition(int * buffer_w, MPI_Request* r_w)
 	{
 		MPE_Log_event(event8, 0, "rcv petition work");
 
-		if(1)
+		if(print_all)
 		{
 
 			printf("\nproblem_MPI.c		waiting_petition()		Master has send work petition from %d",buffer_work);
 
 		}
+		int rcved=buffer_work;
+		sending_my_work(rcved);
 		MPI_Irecv(&buffer_work,1,MPI_INT,master,tag_give_work,MPI_COMM_WORLD, r_w);
 
 

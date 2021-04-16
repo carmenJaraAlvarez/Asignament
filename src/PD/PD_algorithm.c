@@ -199,7 +199,7 @@
 				  //show_aproblem_PD(&(palg->problems[39]));//TODO check
 				  SpPD sp;
 				  get_solution_base_case((&(palg->problems[m])),&sp);
-				  if(1)
+				  if(print_all)
 				  {
 					  printf("\nPD_algorithm.c		pD		case base");
 					  printf("\nPD_algorithm.c		pD		post get solution case base. best palg: %f",palg->best);
