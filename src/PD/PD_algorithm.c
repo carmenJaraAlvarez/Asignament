@@ -125,6 +125,11 @@
   int pD(PalgorithmPD palg,double * buffer,MPI_Request * request_b,int * buffer_w,MPI_Request * request_w)
   {
 	  init_transfered(&transfered);
+	  if(1)
+	  {
+		  printf("\nPD_algorithm.c	 pD()		init transfered nodes");
+		  show_transfered(&transfered);
+	  }
 	  int res=0;
 	  AproblemPD appd=palg->ppd;
 	  int len_problems=palg->num_problems;
@@ -145,20 +150,23 @@
 		  ///redistribution
 		  int up=0;
 		  if((lengthNewArrayAppd-m)>1){//to not send the only one
-			  waiting_confirming(&transfered);
 			  int rcvr=0;
 			  up = waiting_petition(buffer_w,request_w,palg,m,&rcvr);
 			  if(up)
 			  {
-				  transfered.transfered[transfered.len_transfered]=m;
-				  transfered.receivers[transfered.len_transfered]=rcvr;
-				  transfered.len_transfered++;
+				  add_transfered(&transfered,(&palg->problems[m]),rcvr);
+				  if(1)
+				  {
+					  printf("\nPD_algorithm.c	 pD()		add_trasfered rcvr %d",rcvr);
+					  show_transfered(&transfered);
+				  }
 			  }
 		  }
 		  m=m+up;
+		  waiting_confirming(&transfered);
 		  ///////////
 		  waiting_best(buffer, request_b);
-		 // double test=get_best(palg);
+
 		  if((palg->best<final_alg.best && palg->ppd.aproblem.type==MAX) ||
 				  (palg->best>final_alg.best && palg->ppd.aproblem.type==MIN ) ){
 			  palg->best=final_alg.best;
@@ -383,8 +391,23 @@
 
 			  }//end else (not base case)
 		  }//end if num alt>0
+
 		  free(newArrayAppd);
 	  }//end for size
+	  //redistribution
+	  for(int j=0;j<transfered.len_transfered;j++)//no confirmed
+	  {
+		  //TODO
+		  if(1)
+		  {
+			  int myid;
+			  MPI_Comm_rank(MPI_COMM_WORLD,&myid);
+			  printf("\nPD_algorithm.c	pD()		transfered no confirmed in process %d:",myid);
+			  show_aproblem_PD(&(transfered.transfered[j]));
+		  }
+
+	  }
+
 	  return res;
   }
 

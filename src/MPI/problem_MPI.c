@@ -471,7 +471,7 @@ int confirming_work(int sender)
 	}
 
 	MPI_Isend(&n, count, MPI_INT, sender, tag_redistribution+myid, MPI_COMM_WORLD, &request_c);
-
+	int ready=0;
 	return res;
 
 }
@@ -1031,7 +1031,7 @@ int waiting_confirming(Transfered_nodes * transf)
 	MPI_Request r;
 
 
-	if(1)
+	if(print_all)
 	{
 		printf("\nproblem_MPI.c		waiting_confirming() leng transfered: %d",transf->len_transfered);
 	}
@@ -1039,7 +1039,7 @@ int waiting_confirming(Transfered_nodes * transf)
 	{
 		int tag=tag_redistribution+(transf->receivers[i]);
 		int sender=transf->receivers[i];
-		if(1)
+		if(print_all)
 		{
 			printf("\nproblem_MPI.c		waiting_confirming()		sender and tag: %d %d",sender,tag);
 		}
@@ -1049,34 +1049,23 @@ int waiting_confirming(Transfered_nodes * transf)
 			MPI_Irecv(&n,1,MPI_INT,sender,tag,MPI_COMM_WORLD, &r);
 			if(1)
 			{
-				printf("\nproblem_MPI.c		waiting_confirming()		iprobe ready");
+				printf("\nproblem_MPI.c		waiting_confirming()		iprobe ready. Transf previous:");
+				show_transfered(transf);
 			}
 			MPE_Log_event(event7, 0, "confirmed");
 			delete_transfered(transf,sender);
+			if(1)
+			{
+				printf("\nproblem_MPI.c		waiting_confirming()		iprobe ready. Transf POST. Sender %d:",sender);
+				show_transfered(transf);
+			}
 			ready=0;
 		}
 	}
 
 	return res;
 }
-int delete_transfered(Transfered_nodes * transf,int rcvr)
-{
-	Transfered_nodes aux;
-	init_transfered(&aux);
-	int j=0;
-	for(int i=0;i<transf->len_transfered;i++)
-	{
-		if(transf->receivers[i]!=rcvr)
-		{
-			aux.len_transfered++;
-			aux.receivers[j]=transf->receivers[i];
-			aux.transfered[j]=transf->transfered[i];
-			j++;
-		}
-	}
-	copy_transfered(&transf,&aux);
-	return 0;
-}
+
 
 int waiting_petition(int * buffer_w, MPI_Request* r_w,PalgorithmPD palg,int m, int * rcvd)
 {
@@ -1088,14 +1077,14 @@ int waiting_petition(int * buffer_w, MPI_Request* r_w,PalgorithmPD palg,int m, i
 	}
 	int ready=0;
 	MPI_Test(r_w, &ready, &s);
-	if(ready)
+	if(ready && buffer_work!=0)//TODO work around
 	{
 		MPE_Log_event(event8a, 0, "rcv petition work");
-		if(print_all)
+		if(1)
 		{
 
-			printf("\nproblem_MPI.c		waiting_petition()		Master has send work petition from %d",buffer_work);
-
+			printf("\nproblem_MPI.c		waiting_petition()		Ready. Master has send work petition from %d",buffer_work);
+			printf("\nproblem_MPI.c		waiting_petition()		error %d, source %d, tag %d, hi %d, lo %d",s.MPI_ERROR,s.MPI_SOURCE,s.MPI_TAG,s.count_hi_and_cancelled,s.count_lo);
 		}
 		int rcved=buffer_work;
 		*rcvd=rcved;
