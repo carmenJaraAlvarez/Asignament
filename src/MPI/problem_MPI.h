@@ -27,7 +27,7 @@
 #define tag_redistribution 1000//init rank-> tag_redistribution+ id receiver
 #define tag_resolved 100
 
-
+extern int redistribution_rr;
 extern int print_all;
 extern int numprocs;
 
@@ -72,6 +72,7 @@ AproblemPD *problems;
 		//problem type: min, max, other
 		Type type;
 		int prune;
+		int redistribution;
 		//alternative the process will select
 		int num_alternatives;
 
@@ -115,9 +116,9 @@ AproblemPD *problems;
 
 
 //slaves
-int rcv_work(double *,MPI_Request * ,int *, MPI_Comm *);
+int rcv_work(double *,MPI_Request * ,int *);
 int ask_work();
-int init_work(PAproblem, int, int*,double *,MPI_Request *,int *, MPI_Comm *);
+int init_work(PAproblem, int, int*,double *,MPI_Request *,int *);
 int send_resolved(const PalgorithmPD);
 int send_best(const PalgorithmPD);
 int init_waiting_best(double *,MPI_Request*);
@@ -126,8 +127,8 @@ int log_prune();
 int sending_my_work(int,PalgorithmPD,int);
 int waiting_petition(int * , MPI_Request* ,PalgorithmPD ,int);
 //master
-int distribution(PalgorithmPD, int);
-int send_work(const PalgorithmPD,int *, int, int, int);
+int distribution(PalgorithmPD, int, int);
+int send_work(const PalgorithmPD,int *, int, int, int,int);
 int broadcast_best(const double);
 int rcv_resolved();
 int rcv_best(double b, MPI_Request*);

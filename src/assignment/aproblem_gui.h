@@ -40,5 +40,6 @@ MPI_Request request;
 void get_data(GtkWidget *, gpointer);
 void create_aproblem_window(GtkWidget *,int );
 void button_toggled_cb (GtkWidget * ,gpointer );
+void button_toggled_rr (GtkWidget * ,gpointer );
   
 #endif /* INCLUDES_APROBLEM_GUI_H_ */

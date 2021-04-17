@@ -92,7 +92,7 @@ int init_redistribution(MPI_Request * request_work){
 
 	return 0;
 }
-int distribution(PalgorithmPD palg, int prune)
+int distribution(PalgorithmPD palg, int prune, int r_rr)
 {
 	int res=-1;
 	Solution sol;
@@ -106,7 +106,7 @@ int distribution(PalgorithmPD palg, int prune)
     	printf("\n num problems-num slaves: %d-%d",palg->num_problems,num_slaves);
     }
 
-    if(1)//TODO rr
+    if(r_rr)
     {
     	init_rr();
     }
@@ -129,18 +129,21 @@ int distribution(PalgorithmPD palg, int prune)
 	{
 		if(print_all)
 		{
-			printf("\nif");
+			printf("\nproblem_MPI.c		distribution()		if num problems=num slaves");
 		}
 
 
 		for(int i=1; i<(num_slaves+1);i++)
 		{
-			printf("inside for");
+			if(print_all)
+			{
+				printf("\nproblem_MPI.c		distribution()		inside for");
+			}
 			int alternatives[1];
 			alternatives[0]=i-1;
-			printf("\n num problems==num slaves: alternative->%d",alternatives[0]);
-			send_work(palg,&alternatives,1,i,prune);//sending 1 alternative to process i
-			if(1)//TODO rr
+			printf("\nproblem_MPI.c		distribution()		num problems==num slaves: alternative->%d",alternatives[0]);
+			send_work(palg,&alternatives,1,i,prune,r_rr);//sending 1 alternative to process i
+			if(r_rr)
 			{
 				rr.receivers_less[i-1]=i;
 				rr.len_receivers_less++;
@@ -152,7 +155,7 @@ int distribution(PalgorithmPD palg, int prune)
 	{
 		if(print_all)
 		{
-			printf("\n else if");
+			printf("\nproblem_MPI.c		distribution()		else if");
 		}
 
 		int i;
@@ -161,13 +164,13 @@ int distribution(PalgorithmPD palg, int prune)
 			int alternatives[1];
 			alternatives[0]=i-1;
 			printf("\n num problems<num slaves: alternative->%d",alternatives[0]);
-			send_work(palg,&alternatives,1,i,prune);
-			if(1)//TODO rr
+			send_work(palg,&alternatives,1,i,prune,r_rr);
+			if(r_rr)
 			{
 				rr.receivers_less[i-1]=i;
 				rr.len_receivers_less++;
 			}
-			if(1)
+			if(print_all)
 			{
 				printf("\nproblem_MPI		distribution()		rcv_less %d, len %d",rr.receivers_less[i-1],rr.len_receivers_less);
 			}
@@ -176,7 +179,7 @@ int distribution(PalgorithmPD palg, int prune)
 		for(int j=palg->num_problems+1;j<num_slaves+1;j++)
 		{
 			int alternatives[0];
-			send_work(palg,&alternatives,0,j,prune);
+			send_work(palg,&alternatives,0,j,prune,r_rr);
 		}
 	}
 	else//num problems >num processes
@@ -201,11 +204,11 @@ int distribution(PalgorithmPD palg, int prune)
 				}
 
 				int a=(i-1)+(j*num_slaves);
-				printf("\nalternative %d=%d",j,a);
+				printf("\"\nproblem_MPI.c		distribution()		alternative %d=%d",j,a);
 				alternatives[j]=a;//process i, distribution round j
 			}
-			send_work(palg,&alternatives,rounds+1,i,prune);
-			if(1)//TODO rr
+			send_work(palg,&alternatives,rounds+1,i,prune,r_rr);
+			if(r_rr)
 			{
 				rr.receivers_plus[i-1]=i;
 				rr.len_receivers_plus++;
@@ -222,8 +225,8 @@ int distribution(PalgorithmPD palg, int prune)
 			{
 				alternatives[j]=(i-1)+(j*num_slaves);//process i, distribution round j
 			}
-			send_work(palg,alternatives,rounds,i,prune);
-			if(1)//TODO rr
+			send_work(palg,alternatives,rounds,i,prune,r_rr);
+			if(r_rr)
 			{
 				rr.receivers_less[i-1]=i;
 				rr.len_receivers_less++;
@@ -241,7 +244,7 @@ int distribution(PalgorithmPD palg, int prune)
 
 }
 
-int rcv_work(double * buffer,MPI_Request * request_b,int * buffer_w, MPI_Comm * comm)
+int rcv_work(double * buffer,MPI_Request * request_b,int * buffer_w)
 {
 	MPE_Log_event(event2a, 0, "start receive work");
 	int res=0;
@@ -255,10 +258,10 @@ int rcv_work(double * buffer,MPI_Request * request_b,int * buffer_w, MPI_Comm * 
 	//getting work
 
 	MPI_Datatype work_mpi_datatype;
-	int blocklengths[5] = {1,1,1,1,1};
-	MPI_Datatype types[5] = {MPI_INT, MPI_INT,MPI_INT, MPI_INT, MPI_INT};
-	const MPI_Aint offsets[5]= { 0, sizeof(int),sizeof(int)*2,sizeof(int)*3,sizeof(int)*4};
-	MPI_Type_create_struct(5, blocklengths, offsets, types,  &work_mpi_datatype);
+	int blocklengths[6] = {1,1,1,1,1,1};
+	MPI_Datatype types[6] = {MPI_INT, MPI_INT,MPI_INT, MPI_INT, MPI_INT, MPI_INT};
+	const MPI_Aint offsets[6]= { 0, sizeof(int),sizeof(int)*2,sizeof(int)*3,sizeof(int)*4,sizeof(int)*5};
+	MPI_Type_create_struct(6, blocklengths, offsets, types,  &work_mpi_datatype);
 	MPI_Type_commit ( &work_mpi_datatype );
 	MPI_Status status;
 
@@ -327,7 +330,7 @@ int rcv_work(double * buffer,MPI_Request * request_b,int * buffer_w, MPI_Comm * 
 	//printf("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
 	show_aproblem(&a);
 
-    init_work(&a, work.num_alternatives, &alternatives,buffer,request_b,buffer_w,comm);
+    init_work(&a, work.num_alternatives, &alternatives,buffer,request_b,buffer_w);
     if(1)
     {
         int id;
@@ -337,14 +340,9 @@ int rcv_work(double * buffer,MPI_Request * request_b,int * buffer_w, MPI_Comm * 
 
 
 
-////    printf("\n Inside RCV. num alternatives: %d", work.num_alternatives);
-////    for(int a=0;a<work.num_alternatives;a++)
-////    {
-////    	printf("\n alternative %d=%d", a,alternatives[a]);
-////    }
     if(print_all)
     {
-    	printf("+\n++++++++++++++++++++++++++++END RCV_work");
+    	printf("+\nproblem_MPI.c ++++++++++++++++++++++++++++END RCV_work");
 
     }
 
@@ -459,7 +457,7 @@ int rcv_resolved()
 
 }
 
-int init_work(PAproblem pa, int num_alternatives, int * alternatives,double * buffer,MPI_Request * request_b,int * buffer_w, MPI_Comm * comm)
+int init_work(PAproblem pa, int num_alternatives, int * alternatives,double * buffer,MPI_Request * request_b,int * buffer_w)
 {
 	MPI_Request request_work=MPI_REQUEST_NULL;//to listen to masterś order
 	int res=0;
@@ -478,76 +476,91 @@ int init_work(PAproblem pa, int num_alternatives, int * alternatives,double * bu
 	MPI_Irecv(&new_best, 1, MPI_DOUBLE, master, tag_best, MPI_COMM_WORLD, &request_bcast);
 
 	if (num_alternatives==0){
-		ask_work();
-		Node_work node;
-		MPI_Request r=MPI_REQUEST_NULL;
-		MPI_Status s;
-		int ready=0;
-
-		int myid;
-		MPI_Comm_rank(MPI_COMM_WORLD,&myid);
-
-		MPI_Datatype node_mpi_datatype;
-		int blocklengths[3] = {1,1,100};
-		MPI_Datatype types[3] = {MPI_INT, MPI_DOUBLE,MPI_INT};
-		const MPI_Aint offsets[3]= { 0, sizeof(int),sizeof(double)+sizeof(int)};
-		MPI_Type_create_struct(3, blocklengths, offsets, types,  &node_mpi_datatype);
-		MPI_Type_commit ( &node_mpi_datatype);
-
-
-		MPI_Irecv(&node, 1, node_mpi_datatype, MPI_ANY_SOURCE, tag_redistribution+myid, MPI_COMM_WORLD, &r);
-
-		int i=0;
-		while(!ready && i<900000)//TODO
+		if(1)
 		{
-			MPI_Test(&r,&ready,MPI_STATUS_IGNORE);
-			i++;
+			printf("\nproblem_MPI.c		init_work() rr:%d",redistribution_rr);
 		}
-		if (!ready) {
-			MPE_Log_event(event8, 0, "TIMEOUT");
-			if(print_all)
-			{
-				printf("\nproblem_MPI.c		init_work()		TIMEOUT");
-			}
+
+		if(!redistribution_rr)
+		{
 			alg.num_solved=0;
 			send_resolved(&alg);
+
 		}
 		else
 		{
-			printf("\nproblem_MPI.c		init_work()		ready. Index= %d", node.index);
-			alg.ppd.index=node.index;
-			alg.ppd.solution.lengthArrays=node.index;
-			alg.ppd.solution.acum=node.value;
-			for(int i=0;i<node.index;i++)
-			{
-				strcpy(alg.ppd.solution.resources[alg.ppd.solution.lengthArrays].name, pa->resources[node.solution[i]].name);
-				alg.ppd.solution.resources[alg.ppd.solution.lengthArrays].position=node.solution[i];
-			}
-			alg.problems[0]=alg.ppd;
-			exec_algorithm(&alg,buffer,request_b, buffer_w, &request_work);
-			if(print_all)
-			{
-				printf("\nAfter exec algoritm\n");
-			}
-			Solution sol;
-			get_PDsolution(&alg, &sol);
-			for(int i=0;i<alg.ppd.solution.lengthArrays;i++){
-				printf("\nResources: \n*%s\n",alg.ppd.solution.resources[i].name);
-			}
-			if(print_all)
-			{
-				printf("Solution value: %f", alg.ppd.solution.acum);
-			}
+			ask_work();
+			Node_work node;
+			MPI_Request r=MPI_REQUEST_NULL;
+			MPI_Status s;
+			int ready=0;
 
-			send_resolved(&alg);
-			if(print_all)
-			{
-				printf("\nSEND RESOLVED TO MASTER");
-			}
+			int myid;
+			MPI_Comm_rank(MPI_COMM_WORLD,&myid);
 
-			delete_algorithmPD(&alg);
-		}
-	}
+			MPI_Datatype node_mpi_datatype;
+			int blocklengths[3] = {1,1,100};
+			MPI_Datatype types[3] = {MPI_INT, MPI_DOUBLE,MPI_INT};
+			const MPI_Aint offsets[3]= { 0, sizeof(int),sizeof(double)+sizeof(int)};
+			MPI_Type_create_struct(3, blocklengths, offsets, types,  &node_mpi_datatype);
+			MPI_Type_commit ( &node_mpi_datatype);
+
+
+			MPI_Irecv(&node, 1, node_mpi_datatype, MPI_ANY_SOURCE, tag_redistribution+myid, MPI_COMM_WORLD, &r);
+
+			int i=0;
+			while(!ready && i<900000)//TODO
+			{
+				MPI_Test(&r,&ready,MPI_STATUS_IGNORE);
+				i++;
+			}
+			if (!ready) {
+				MPE_Log_event(event8, 0, "TIMEOUT");
+				if(print_all)
+				{
+					printf("\nproblem_MPI.c		init_work()		TIMEOUT");
+				}
+				alg.num_solved=0;
+				send_resolved(&alg);
+			}
+			else
+			{
+				printf("\nproblem_MPI.c		init_work()		ready. Index= %d", node.index);
+				alg.ppd.index=node.index;
+				alg.ppd.solution.lengthArrays=node.index;
+				alg.ppd.solution.acum=node.value;
+				for(int i=0;i<node.index;i++)
+				{
+					strcpy(alg.ppd.solution.resources[alg.ppd.solution.lengthArrays].name, pa->resources[node.solution[i]].name);
+					alg.ppd.solution.resources[alg.ppd.solution.lengthArrays].position=node.solution[i];
+				}
+				alg.problems[0]=alg.ppd;
+				exec_algorithm(&alg,buffer,request_b, buffer_w, &request_work);
+				if(print_all)
+				{
+					printf("\nAfter exec algoritm\n");
+				}
+				Solution sol;
+				get_PDsolution(&alg, &sol);
+				for(int i=0;i<alg.ppd.solution.lengthArrays;i++){
+					printf("\nResources: \n*%s\n",alg.ppd.solution.resources[i].name);
+				}
+				if(print_all)
+				{
+					printf("Solution value: %f", alg.ppd.solution.acum);
+				}
+
+				send_resolved(&alg);
+				if(print_all)
+				{
+					printf("\nSEND RESOLVED TO MASTER");
+				}
+
+				delete_algorithmPD(&alg);
+			}
+		}//end redistribution rr
+
+	}//end num alternatives==0
 	else//more than 0 alternatives
 	{
 
@@ -665,17 +678,17 @@ int init_work(PAproblem pa, int num_alternatives, int * alternatives,double * bu
 	}//end else (alternative>0)
 	if(print_all)
 	{
-		printf("\noutgoing initwork");
+		printf("\nproblem_MPI.c		outgoing initwork");
 	}
 
 	return res;
 }
-int send_work(const PalgorithmPD palg,int *alternatives, int num_alternatives, int num_process,int prune)
+int send_work(const PalgorithmPD palg,int *alternatives, int num_alternatives, int num_process,int prune, int r_rr)
 {
 	MPE_Log_event(event1a, 0, "start send");
 	if(print_all)
 	{
-		printf("\n...................sending  %d  alternatives to process %d\n",num_alternatives,num_process);
+		printf("\nproblem_MPI.c		send_work()		sending  %d  alternatives to process %d\n",num_alternatives,num_process);
 	}
 	show_aproblem(&(palg->ppd.aproblem));
 
@@ -688,13 +701,12 @@ int send_work(const PalgorithmPD palg,int *alternatives, int num_alternatives, i
 
 	if(num_process==0){
 		return 0;
-
 	}
 
 	struct Work work;
-	char serialized_tasks[1000];//TODO
+	char serialized_tasks[MAX_TAM_STRING];
 	int len=serializer_tasks(palg, &serialized_tasks);
-	char serialized_resources[1000];//TODO
+	char serialized_resources[MAX_TAM_STRING];
 
 	int len_resources=serializer_resources(palg, &serialized_resources);
 
@@ -703,6 +715,7 @@ int send_work(const PalgorithmPD palg,int *alternatives, int num_alternatives, i
 	work.num_alternatives=num_alternatives;//TODO
 	work.type=palg->ppd.aproblem.type;
 	work.prune=prune;
+	work.redistribution=r_rr;
 	int num_values=work.num_resources*work.num_tasks;
 	if(print_all)
 	{
@@ -755,10 +768,10 @@ int send_work(const PalgorithmPD palg,int *alternatives, int num_alternatives, i
 
 	//sending
 	MPI_Datatype work_mpi_datatype;
-	int blocklengths[5] = {1,1,1,1,1};
-	MPI_Datatype types[5] = {MPI_INT, MPI_INT,MPI_INT,MPI_INT, MPI_INT};
-    const MPI_Aint offsets[5]= { 0, sizeof(int),sizeof(int)*2, sizeof(int)*3, sizeof(int)*4};
-	MPI_Type_create_struct(5, blocklengths, offsets, types,  &work_mpi_datatype);
+	int blocklengths[6] = {1,1,1,1,1,1};
+	MPI_Datatype types[6] = {MPI_INT, MPI_INT,MPI_INT,MPI_INT, MPI_INT, MPI_INT};
+    const MPI_Aint offsets[6]= { 0, sizeof(int),sizeof(int)*2, sizeof(int)*3, sizeof(int)*4,sizeof(int)*5};
+	MPI_Type_create_struct(6, blocklengths, offsets, types,  &work_mpi_datatype);
 	MPI_Type_commit ( &work_mpi_datatype);
 
 	if(print_all)
@@ -991,13 +1004,13 @@ int sending_my_work(int recved,PalgorithmPD palg,int m)
 int waiting_petition(int * buffer_w, MPI_Request* r_w,PalgorithmPD palg,int m)
 {
 	int res=0;
+	MPI_Status s;
 	if(print_all)
 	{
 		printf("\nproblem_MPI.c		waiting_petition()");
 	}
 	int ready=0;
-	//MPE_Log_event(event7, 0, "waiting petition work");//error MPE
-	MPI_Test(r_w, &ready, MPI_STATUS_IGNORE);
+	MPI_Test(r_w, &ready, &s);
 	if(ready)
 	{
 		MPE_Log_event(event8a, 0, "rcv petition work");
