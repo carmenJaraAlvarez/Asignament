@@ -10,8 +10,9 @@
   int init_transfered(PTransfered_nodes pt)
   {
 	  pt->len_transfered=0;
-	  int memoryArrayValues=sizeof(int)*100;//TODO
+	  int memoryArrayValues=sizeof(int)*MAX_NUM;
 	  pt->transfered=(int*)malloc(memoryArrayValues);
+	  pt->receivers=(int*)malloc(memoryArrayValues);
 	  return 0;
   }
   int delete_transfered(PTransfered_nodes pt)

@@ -8,12 +8,14 @@
 #ifndef ALGORITHM_ALGORITHM_H_
 #define ALGORITHM_ALGORITHM_H_
 
+#define MAX_NUM 100
 
 //Redistribution
 typedef struct
   {
 
 	int *transfered;
+	int *receivers;
 	int len_transfered;
 
   } Transfered_nodes;

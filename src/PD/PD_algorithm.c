@@ -142,17 +142,21 @@
 		  }
 	  }
 	  for(int m=0;m<lengthNewArrayAppd;m++){
+		  ///redistribution
 		  int up=0;
 		  if((lengthNewArrayAppd-m)>1){//to not send the only one
-			  up = waiting_petition(buffer_w,request_w,palg,m);
+			  waiting_confirming(&transfered);
+			  int rcvr=0;
+			  up = waiting_petition(buffer_w,request_w,palg,m,&rcvr);
 			  if(up)
 			  {
 				  transfered.transfered[transfered.len_transfered]=m;
+				  transfered.receivers[transfered.len_transfered]=rcvr;
 				  transfered.len_transfered++;
 			  }
 		  }
-
 		  m=m+up;
+		  ///////////
 		  waiting_best(buffer, request_b);
 		 // double test=get_best(palg);
 		  if((palg->best<final_alg.best && palg->ppd.aproblem.type==MAX) ||

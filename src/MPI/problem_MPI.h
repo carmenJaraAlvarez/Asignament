@@ -125,7 +125,9 @@ int init_waiting_best(double *,MPI_Request*);
 void waiting_best(double *,MPI_Request*);
 int log_prune();
 int sending_my_work(int,PalgorithmPD,int);
-int waiting_petition(int * , MPI_Request* ,PalgorithmPD ,int);
+int waiting_petition(int * , MPI_Request* ,PalgorithmPD ,int, int*);
+int confirming_work(int);
+int waiting_confirming(Transfered_nodes *);
 //master
 int distribution(PalgorithmPD, int, int);
 int send_work(const PalgorithmPD,int *, int, int, int,int);

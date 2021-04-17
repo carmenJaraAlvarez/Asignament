@@ -456,6 +456,25 @@ int rcv_resolved()
     return res;
 
 }
+int confirming_work(int sender)
+{
+	int res=0;
+	int myid;
+	MPI_Comm_rank(MPI_COMM_WORLD,&myid);
+	int n=1;
+	int count = 1;
+//	MPE_Log_event(event3a, 0, "start send best");
+	MPI_Request request_c;
+	if(print_all)
+	{
+		printf("\nproblem_MPI.c		confirming_work()");
+	}
+
+	MPI_Isend(&n, count, MPI_INT, sender, tag_redistribution+myid, MPI_COMM_WORLD, &request_c);
+
+	return res;
+
+}
 
 int init_work(PAproblem pa, int num_alternatives, int * alternatives,double * buffer,MPI_Request * request_b,int * buffer_w)
 {
@@ -511,7 +530,7 @@ int init_work(PAproblem pa, int num_alternatives, int * alternatives,double * bu
 			int i=0;
 			while(!ready && i<900000)//TODO
 			{
-				MPI_Test(&r,&ready,MPI_STATUS_IGNORE);
+				MPI_Test(&r,&ready,&s);
 				i++;
 			}
 			if (!ready) {
@@ -525,6 +544,8 @@ int init_work(PAproblem pa, int num_alternatives, int * alternatives,double * bu
 			}
 			else
 			{
+				int sender=s.MPI_SOURCE;
+				confirming_work(sender);
 				printf("\nproblem_MPI.c		init_work()		ready. Index= %d", node.index);
 				alg.ppd.index=node.index;
 				alg.ppd.solution.lengthArrays=node.index;
@@ -967,14 +988,14 @@ int sending_my_work(int recved,PalgorithmPD palg,int m)
 {
 	Node_work to_send;
 	MPI_Request r;
-	//test/////TODO
+
 	to_send.index=palg->problems[m].index;
 	to_send.value=palg->problems[m].solution.acum;
 	for(int i=0;i<to_send.index;i++)
 	{
 		to_send.solution[i]=palg->problems[m].solution.resources[i].position;
 	}
-	//////////
+
 	MPI_Datatype node_mpi_datatype;
 	int blocklengths[3] = {1,1,100};
 	MPI_Datatype types[3] = {MPI_INT, MPI_DOUBLE,MPI_INT};
@@ -982,7 +1003,7 @@ int sending_my_work(int recved,PalgorithmPD palg,int m)
 	MPI_Type_create_struct(3, blocklengths, offsets, types,  &node_mpi_datatype);
 	MPI_Type_commit ( &node_mpi_datatype);
 
-	if(1)
+	if(print_all)
 	{
 		printf("\nproblem_MPI.c		sending_my_work()		index: %d",to_send.index);
 		for(int i=0;i<to_send.index;i++)
@@ -1001,7 +1022,42 @@ int sending_my_work(int recved,PalgorithmPD palg,int m)
 
 	return 0;
 }
-int waiting_petition(int * buffer_w, MPI_Request* r_w,PalgorithmPD palg,int m)
+int waiting_confirming(Transfered_nodes * transf)
+{
+	int res=0;
+	int ready;
+	MPI_Status s;
+	Transfered_nodes aux;
+	init_transfered(&aux);
+
+	if(1)
+	{
+		printf("\nproblem_MPI.c		waiting_confirming() leng transfered: %d",transf->len_transfered);
+	}
+	for(int i=0;i<transf->len_transfered;i++)
+	{
+		int tag=tag_redistribution+(transf->receivers[i]);
+		int sender=transf->receivers[i];
+		if(1)
+		{
+			printf("\nproblem_MPI.c		waiting_confirming()		sender and tag: %d %d",sender,tag);
+		}
+		MPI_Iprobe(sender,tag,MPI_COMM_WORLD,&ready,&s);
+		if(ready)
+		{
+			if(1)
+			{
+				printf("\nproblem_MPI.c		waiting_confirming()		iprobe ready");
+			}
+			//delete_transfered(transf,i);
+			ready=0;
+		}
+	}
+
+	return res;
+}
+
+int waiting_petition(int * buffer_w, MPI_Request* r_w,PalgorithmPD palg,int m, int * rcvd)
 {
 	int res=0;
 	MPI_Status s;
@@ -1021,6 +1077,7 @@ int waiting_petition(int * buffer_w, MPI_Request* r_w,PalgorithmPD palg,int m)
 
 		}
 		int rcved=buffer_work;
+		*rcvd=rcved;
 		sending_my_work(rcved,palg,m);
 		MPI_Irecv(&buffer_work,1,MPI_INT,master,tag_give_work,MPI_COMM_WORLD, r_w);
 		MPE_Log_event(event8b, 0, "rcv petition work");
