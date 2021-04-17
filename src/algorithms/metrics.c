@@ -44,7 +44,7 @@ int describe_logs(){
     MPE_Describe_event( event4, "Receive best", "green" );
     MPE_Describe_event( event5, "Broadcast", "pink" );
     MPE_Describe_event( event6, "prune", "purple" );
-    MPE_Describe_event( event7, "Waiting petition work", "yellow" );
+    MPE_Describe_event( event7, "confirmed", "yellow" );
     MPE_Describe_event( event8, "Timeout", "red" );
 
     return 0;

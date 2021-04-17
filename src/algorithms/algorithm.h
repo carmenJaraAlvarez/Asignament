@@ -24,7 +24,8 @@ typedef struct
 
 
   int init_transfered(PTransfered_nodes);
-  int delete_transfered(PTransfered_nodes);//free memory
+  int free_transfered(PTransfered_nodes);//free memory
+  int copy_transfered(PTransfered_nodes,const PTransfered_nodes);
 
 
 #endif /* ALGORITHM_ALGORITHM_H_ */

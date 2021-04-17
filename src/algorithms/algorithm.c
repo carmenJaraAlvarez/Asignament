@@ -15,8 +15,18 @@
 	  pt->receivers=(int*)malloc(memoryArrayValues);
 	  return 0;
   }
-  int delete_transfered(PTransfered_nodes pt)
+  int free_transfered(PTransfered_nodes pt)
   {
 	  free(pt->transfered);
+	  return 0;
+  }
+  int copy_transfered(PTransfered_nodes dest,const PTransfered_nodes origin)
+  {
+	  dest->len_transfered=origin->len_transfered;
+	  for(int i=0;i<dest->len_transfered;i++)
+	  {
+		  dest->receivers[i]=origin->receivers[i];
+		  dest->transfered[i]=origin->transfered[i];
+	  }
 	  return 0;
   }

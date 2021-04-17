@@ -128,6 +128,7 @@ int sending_my_work(int,PalgorithmPD,int);
 int waiting_petition(int * , MPI_Request* ,PalgorithmPD ,int, int*);
 int confirming_work(int);
 int waiting_confirming(Transfered_nodes *);
+int delete_transfered(Transfered_nodes *,int);
 //master
 int distribution(PalgorithmPD, int, int);
 int send_work(const PalgorithmPD,int *, int, int, int,int);

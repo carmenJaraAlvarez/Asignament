@@ -585,7 +585,7 @@ int init_work(PAproblem pa, int num_alternatives, int * alternatives,double * bu
 	else//more than 0 alternatives
 	{
 
-		MPE_Log_event(event7, 0, "waiting petition work");
+
 		MPI_Irecv(&buffer_work,1,MPI_INT,master,tag_give_work,MPI_COMM_WORLD, &request_work);
 		if(num_alternatives==1)
 		{
@@ -1025,10 +1025,11 @@ int sending_my_work(int recved,PalgorithmPD palg,int m)
 int waiting_confirming(Transfered_nodes * transf)
 {
 	int res=0;
+	int n;
 	int ready;
 	MPI_Status s;
-	Transfered_nodes aux;
-	init_transfered(&aux);
+	MPI_Request r;
+
 
 	if(1)
 	{
@@ -1045,16 +1046,36 @@ int waiting_confirming(Transfered_nodes * transf)
 		MPI_Iprobe(sender,tag,MPI_COMM_WORLD,&ready,&s);
 		if(ready)
 		{
+			MPI_Irecv(&n,1,MPI_INT,sender,tag,MPI_COMM_WORLD, &r);
 			if(1)
 			{
 				printf("\nproblem_MPI.c		waiting_confirming()		iprobe ready");
 			}
-			//delete_transfered(transf,i);
+			MPE_Log_event(event7, 0, "confirmed");
+			delete_transfered(transf,sender);
 			ready=0;
 		}
 	}
 
 	return res;
+}
+int delete_transfered(Transfered_nodes * transf,int rcvr)
+{
+	Transfered_nodes aux;
+	init_transfered(&aux);
+	int j=0;
+	for(int i=0;i<transf->len_transfered;i++)
+	{
+		if(transf->receivers[i]!=rcvr)
+		{
+			aux.len_transfered++;
+			aux.receivers[j]=transf->receivers[i];
+			aux.transfered[j]=transf->transfered[i];
+			j++;
+		}
+	}
+	copy_transfered(&transf,&aux);
+	return 0;
 }
 
 int waiting_petition(int * buffer_w, MPI_Request* r_w,PalgorithmPD palg,int m, int * rcvd)
