@@ -357,7 +357,6 @@
 					  }
 				  }//end for alternatives
 
-				  palg->num_problems=lengthNewArrayAppd;
 				  if(print_all)
 				  {
 					  printf("\nPD_algorithm.c		pD()		end of not case base solution");
@@ -365,6 +364,13 @@
 
 			  }//end else (not base case)
 		  }//end if num alt>0
+		  lengthNewArrayAppd--;
+		  palg->num_problems=lengthNewArrayAppd;
+		  for(int p=0;p<palg->num_problems;p++)
+		  {
+			  copy_aproblem_PD(&(palg->problems[p]),palg->problems[p+1]);
+		  }
+		  m--;
 	  }//end for size
 	  //redistribution
 	  for(int j=0;j<transfered.len_transfered;j++)//no confirmed

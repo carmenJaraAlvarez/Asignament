@@ -10,7 +10,7 @@ static int send_more_work(int process);
 static MPI_Request request_w[100];//TODO
 static int buffer_work;
 
-static int send_more_work(int process)
+static int send_more_work_to(int process)
 {
 	printf("\nproblem_MPI.c		send_more_work()		to %d",process);
 
@@ -33,45 +33,107 @@ static int send_more_work(int process)
 	{//Boxy master
 		int sender;
 		int n=process;
-		if(rr.len_receivers_plus>=rr.index &&rr.len_receivers_plus>0)
+
+		//if(rr.index>(rr.len_receivers_plus+rr.len_receivers_less))
+		if(rr.index>=(numprocs))
 		{
-			sender=rr.receivers_plus[rr.index];
-			if(1)
-			{
-				printf("\nproblem_MPI.c		send_more_work() to %d.	sender plus %d",process,sender);
-			}
-			MPI_Isend(&n, 1, MPI_INT, sender, tag_give_work, MPI_COMM_WORLD, &request_w[sender]);
-			rr.index++;
+			rr.index=1;//new round
 		}
-		else if((rr.len_receivers_plus+rr.len_receivers_less)>(rr.index))
+		sender=rr.index;
+
+		if(sender==process)//sender has finished
 		{
-			sender=rr.receivers_less[rr.index-rr.len_receivers_plus];
-			if(1)
-			{
-				printf("\nproblem_MPI.c		send_more_work() to %d.	sender less %d",process,sender);
-			}
-			MPI_Isend(&n, 1, MPI_INT, sender, tag_give_work, MPI_COMM_WORLD, &request_w[sender]);
 			rr.index++;
+			send_more_work_to(process);
 		}
 		else
 		{
-			//TODO
+			MPI_Isend(&n, 1, MPI_INT, sender, tag_give_work, MPI_COMM_WORLD, &request_w[sender]);
+			rr.index++;
 			if(1)
 			{
-				printf("\nproblem_MPI.c		send_more_work()		NO more work to %d",process);
+				printf("\nproblem_MPI.c		send_more_work() 	IN else: to %d.	sender  %d",process,sender);
 			}
-
 		}
+//		if(rr.len_receivers_plus>=rr.index &&rr.len_receivers_plus>0)
+//		{
+//
+//			sender=rr.receivers_plus[rr.index];
+//
+//			if(sender==process)//sender has finished
+//			{
+//				int plus=1;
+//				delete_rr(&rr,rr.index,plus);
+//				send_more_work(process);
+//			}
+//			else
+//			{
 
-
+//				MPI_Isend(&n, 1, MPI_INT, sender, tag_give_work, MPI_COMM_WORLD, &request_w[sender]);
+//				rr.index++;
+//			}
+//
+//		}
+//		else if((rr.len_receivers_plus+rr.len_receivers_less)>(rr.index))
+//		{
+//			sender=rr.receivers_less[rr.index-rr.len_receivers_plus];
+//			if(1)
+//			{
+//				printf("\nproblem_MPI.c		send_more_work() to %d.	sender less %d",process,sender);
+//			}
+//			if(sender==process)//sender has finished
+//			{
+//				int less=0;
+//				delete_rr(&rr,rr.index,less);
+//				send_more_work(process);
+//			}
+//			else
+//			{
+//				MPI_Isend(&n, 1, MPI_INT, sender, tag_give_work, MPI_COMM_WORLD, &request_w[sender]);
+//				rr.index++;
+//			}
+//
+//		}
+//		else
+//		{
+//			//TODO
+//			if(1)
+//			{
+//				printf("\nproblem_MPI.c		send_more_work()		NO more work to %d",process);
+//			}
+//
+//		}
+//
+//
 	}
 
 	return 0;
 }
+int delete_rr(Distribution_rr * rr,int index,int plus)
+{
+	if(plus)
+	{
+		rr->len_receivers_plus--;
+		for(int i=index; i<rr->len_receivers_plus;i++)
+		{
+			rr->receivers_plus[i]=rr->receivers_plus[i+1];
 
+		}
+	}
+	else
+	{
+		rr->len_receivers_less--;
+		for(int i=index-rr->len_receivers_plus;i<(rr->len_receivers_less+rr->len_receivers_plus);i++)
+		{
+			rr->receivers_less[i]=rr->receivers_less[i+1];
+		}
+
+	}
+	return 0;
+}
 static int init_rr()
 {
-	rr.index=0;
+	rr.index=1;
 	rr.len_receivers_empty=0;
 	rr.len_receivers_less=0;
 	rr.len_receivers_plus=0;
@@ -471,6 +533,10 @@ int confirming_work(int sender)
 	}
 
 	MPI_Isend(&n, count, MPI_INT, sender, tag_redistribution+myid, MPI_COMM_WORLD, &request_c);
+	if(1)
+	{
+		printf("\nproblem_MPI.c		confirming_work()		sending to %d. My id %d", sender, myid);
+	}
 	int ready=0;
 	return res;
 
@@ -544,6 +610,7 @@ int init_work(PAproblem pa, int num_alternatives, int * alternatives,double * bu
 			}
 			else
 			{
+				MPI_Irecv(&buffer_work,1,MPI_INT,master,tag_give_work,MPI_COMM_WORLD, &request_work);
 				int sender=s.MPI_SOURCE;
 				confirming_work(sender);
 				printf("\nproblem_MPI.c		init_work()		ready. Index= %d", node.index);
@@ -578,6 +645,8 @@ int init_work(PAproblem pa, int num_alternatives, int * alternatives,double * bu
 				}
 
 				delete_algorithmPD(&alg);
+				num_alternatives=0;
+				init_work(pa,num_alternatives,alternatives,buffer,request_b,buffer_w);
 			}
 		}//end redistribution rr
 
@@ -696,6 +765,10 @@ int init_work(PAproblem pa, int num_alternatives, int * alternatives,double * bu
 		}
 
 		delete_algorithmPD(&alg);
+		//finished. try again to ask for work
+		//MPE_Log_event(event2a, 0, "start receive work");
+		num_alternatives=0;
+		init_work(pa,num_alternatives,alternatives,buffer,request_b,buffer_w);
 	}//end else (alternative>0)
 	if(print_all)
 	{
@@ -1031,7 +1104,7 @@ int waiting_confirming(Transfered_nodes * transf)
 	MPI_Request r;
 
 
-	if(print_all)
+	if(1)
 	{
 		printf("\nproblem_MPI.c		waiting_confirming() leng transfered: %d",transf->len_transfered);
 	}
@@ -1039,7 +1112,7 @@ int waiting_confirming(Transfered_nodes * transf)
 	{
 		int tag=tag_redistribution+(transf->receivers[i]);
 		int sender=transf->receivers[i];
-		if(print_all)
+		if(1)
 		{
 			printf("\nproblem_MPI.c		waiting_confirming()		sender and tag: %d %d",sender,tag);
 		}
@@ -1132,7 +1205,7 @@ int scan_petition(MPI_Request *request_ask_work, MPI_Request *request_best, MPI_
 
 		MPE_Log_event(event3, 0, "rcve petition");
 
-		send_more_work(sender);
+		send_more_work_to(sender);
 		MPI_Irecv(&n, 1, MPI_INT, MPI_ANY_SOURCE, tag_ask_work, MPI_COMM_WORLD, request_ask_work);
 
 	}
