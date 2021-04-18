@@ -301,8 +301,17 @@
 					  ismax=is_max(palg);
 
 					  double b_estimated=get_best_estimate(&newArrayAppd[m]);
-					  if((ismin && b_estimated<=final_alg.best)
-										  || (ismax && b_estimated>=final_alg.best))//no prune, go on
+					  if
+					  (
+							  //dummy prune
+							  ((ismin && b_estimated<=final_alg.best)
+										  || (ismax && b_estimated>=final_alg.best))
+
+										  &&
+							  //tuple prune
+										  (1)//TODO
+
+					  )//no prune, go on
 					  {
 						  if(print_all)
 						  {
