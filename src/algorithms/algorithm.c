@@ -88,7 +88,7 @@
   }
   int init_tuple_prune(PTuple_prune ptp){
 	  ptp->num_tuples=0;
-	  int memoryArrayValues=sizeof(int)*MAX_NUM;//TODO
+	  int memoryArrayValues=sizeof(int)*MAX_NUM;//TODO it must depend of tasks number
 	  ptp->solution_values=(int*)malloc(memoryArrayValues);
 	  memoryArrayValues*=2;
 	  ptp->solution_tuples=(int*)malloc(memoryArrayValues);
@@ -120,7 +120,7 @@
   }
   void show_tuple_prune(const PTuple_prune ptp)
   {
-	  printf("\Tuple prune:\n{");
+	  printf("\nTuple prune:\n{");
 	  for(int i=0;i<ptp->num_tuples;i++)
 	  {
 		  printf("{");
@@ -130,6 +130,9 @@
 	  printf("}");
   }
 
+  void check_prune(Logico * tuple_prune,PTuple_prune tuple_prune_data, Alternative * as)
+  {
 
+  }
 
 

@@ -125,6 +125,7 @@
   int pD(PalgorithmPD palg,double * buffer,MPI_Request * request_b,int * buffer_w,MPI_Request * request_w)
   {
 	  init_transfered(&transfered);
+	  init_tuple_prune(&tuple_prune_data);
 	  if(1)
 	  {
 		  printf("\nPD_algorithm.c	 pD()		init transfered nodes");
@@ -279,7 +280,88 @@
 					  //prune control
 					  ismin=is_min(palg);
 					  ismax=is_max(palg);
+					  //for tuple_prune
+					  Logico tuple_prune=FALSE;
 
+					  int round=palg->problems[m].index-palg->ppd.index;
+					  double my_value=palg->ppd.aproblem.values
+							  	  	  	  	  	[
+												(round+1)+as[u].indexResource*palg->ppd.aproblem.numTask
+												];
+					  if(1)
+					  {
+						  printf("\nPD_algorithm.c		pD()		as[u]:%d",as[u].indexResource);
+						  printf("\nPD_algorithm.c		pD()		problems[m].index: %d, ppd.index: %d, round %d:",palg->problems[m].index,palg->ppd.index,round);
+						  printf("\nPD_algorithm.c		pD()		acum:%f, my_value: %f",palg->problems[m].solution.acum,my_value);
+						  for(int i=0;i<palg->problems[m].solution.lengthArrays;i++)
+						  {
+							  printf("\nPD_algorithm.c		pD()		sol %d:%d",i,palg->problems[m].solution.resources[i].position);
+						  }
+
+					  }
+
+					  if(round==1){//si second round and tuple_prune empty, save data sol
+						  if(tuple_prune_data.num_tuples==0)
+						  {
+							  printf("\nPD_algorithm.c		pD()	adding new: %d,%d->%f",palg->problems[m].solution.resources[palg->problems[m].solution.lengthArrays-1].position,as[u].indexResource,palg->problems[m].solution.acum+my_value);
+							  	  add_tuple(
+							  			  &tuple_prune_data,
+										  palg->problems[m].solution.resources[palg->problems[m].solution.lengthArrays-1].position,
+										  as[u].indexResource,
+										  palg->problems[m].solution.acum+my_value);
+							  	  show_tuple_prune(&tuple_prune_data);
+						  }
+						  else //si second round and tuple_prune NOT empty, compare
+						  {
+							  printf("\nPD_algorithm.c		pD()	search");
+							  //search
+							  int sym=-1;
+							  for(int j=0;j<tuple_prune_data.num_tuples;j=j+2)
+							  {
+								  if(tuple_prune_data.solution_tuples[j]==as[u].indexResource
+										  &&
+									 tuple_prune_data.solution_tuples[j+1]==palg->problems[m].solution.resources[palg->problems[m].solution.lengthArrays-1].position  )
+								  {
+									  sym=j/2;
+									  show_tuple_prune(&tuple_prune_data);
+									  printf("\nPD_algorithm.c		pD()	tuple found: %d",sym);
+									  break;
+								  }
+							  }
+							  my_value=my_value+palg->problems[m].solution.acum;
+							  //if exists symmetric and acum is better>>prune
+							  if(
+									  sym>=0
+									  &&
+									  (
+											  (tuple_prune_data.solution_values[sym]>my_value && ismax)
+											  ||
+											  (tuple_prune_data.solution_values[sym]<my_value && ismin)
+											  )
+									  )
+							  {
+								  tuple_prune=TRUE;
+								  MPE_Log_event(event9, 0, "Tuple prune");
+								  printf("\nPD_algorithm.c		pD()	tuple_prune=true");
+							  }
+							  else//save and prune=FALSE to go on
+							  {
+								  add_tuple(
+											  &tuple_prune_data,
+											  palg->problems[m].solution.resources[palg->problems[m].solution.lengthArrays-1].position,
+											  as[u].indexResource,
+											  my_value);
+
+								  show_tuple_prune(&tuple_prune_data);
+
+								  tuple_prune=FALSE;
+							  }
+
+
+						  }
+					  }
+
+					  //for dummy prune
 					  double b_estimated=get_best_estimate(&(palg->problems[m]));
 					  if
 					  (
@@ -289,7 +371,7 @@
 
 										  &&
 							  //tuple prune
-										  (1)//TODO
+										  (!tuple_prune)
 
 					  )//no prune, go on
 					  {
