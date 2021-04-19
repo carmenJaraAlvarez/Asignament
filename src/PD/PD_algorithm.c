@@ -49,7 +49,7 @@
 	  //palg->problems[0]=palg->ppd;
 	  palg->num_solved=0;
 
-	  palg->solvedProblems=(AproblemPD*)malloc(sizeof(AproblemPD)*num);
+	  palg->solvedProblems=(AproblemPD*)malloc(sizeof(AproblemPD)*NUM_MAX_SOLVED);
 	  return res;
   }
 
@@ -224,7 +224,11 @@
 
 				  if(palg->num_solved>0 && palg->problems[m].solution.acum==palg->solvedProblems[0].solution.acum)//more than one solution
 				  {
-					  copy_aproblem_PD( &(palg->solvedProblems[palg->num_solved]),palg->problems[m]);
+					  if(palg->num_solved<NUM_MAX_SOLVED)
+					  {
+						  copy_aproblem_PD( &(palg->solvedProblems[palg->num_solved]),palg->problems[m]);
+					  }
+
 					  palg->num_solved++;
 
 				  }

@@ -508,7 +508,7 @@ int rcv_resolved()
 
 
     MPI_Type_free ( &resolved_mpi_datatype);
-    free(resolved_from_slaves);
+    //free(resolved_from_slaves);
     MPE_Log_event(event6b, 0, "end receive resolved");
     if(print_all)
     {
