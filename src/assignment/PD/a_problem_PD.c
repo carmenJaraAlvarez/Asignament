@@ -218,22 +218,25 @@ Type get_type(PAproblemPD appd)
 	  return res;
   }
 
-  double get_estimate(PAproblemPD appd)//the minimum value my problem will get
+  double get_worst_estimate(PAproblemPD appd)//the minimum value my problem will get
   {
 	  double res;
 	  //dummy prune
 	  double worst_value;
 	  int num_to_end;
 	  //if not pruning
-	  if(appd->aproblem.type==MAX)
-	  {
-		  res=GREAT;
+	  if(!prune)
+		  {
+		  if(appd->aproblem.type==MAX)
+		  {
+			  res=SMALL;
+		  }
+		  else
+		  {
+			  res=GREAT;
+		  }
 	  }
-	  else
-	  {
-		  res=SMALL;
-	  }
-	  if(1)//if pruning//TODO and optimizer worst_value in var
+	  else//if pruning//TODO and optimizer worst_value in var
 	  {
 		  if(print_all)
 		  {
@@ -276,22 +279,93 @@ Type get_type(PAproblemPD appd)
 
 	  return res;
   }
+  double get_best_estimate(PAproblemPD appd)//the maximum value my problem will get
+   {
+ 	  double res;
+ 	  //dummy prune
+ 	  double best_value;
+ 	  int num_to_end;
+ 	  //if not pruning
+ 	  if(!prune)
+ 	  {
+ 		  if(print_all)
+ 		  {
+ 			  printf("\na_problem_PD.c		get_best_estimate()		NO prune");
+ 		  }
+		  if(appd->aproblem.type==MAX)
+		  {
+			  res=GREAT;
+		  }
+		  else
+		  {
+			  res=SMALL;
+		  }
+ 	  }
+ 	  else//if pruning//TODO
+ 	  {
+ 		  if(print_all)
+ 		  {
+ 			  printf("\na_problem_PD.c		get_best_estimate()		prune");
+ 		  }
+
+ 		  num_to_end =appd->aproblem.numTask-appd->solution.lengthArrays;
+ 		  res=appd->solution.acum;
+ 		  if(appd->aproblem.type==MAX)
+ 		  {
+ 			  best_value=appd->aproblem.values[0];
+
+ 			    for ( int c = 1 ; c < appd->aproblem.numResources*appd->aproblem.numTask ; c++ )
+ 			    {
+ 			        if ( appd->aproblem.values[c] >best_value )
+ 			        {
+ 			        	best_value = appd->aproblem.values[c];
+ 			         }
+ 			    }
+ 		  }
+ 		  else
+ 		  {
+ 			  best_value=appd->aproblem.values[0];
+
+ 			    for ( int c = 1 ; c < appd->aproblem.numResources*appd->aproblem.numTask ; c++ )
+ 			    {
+ 			        if ( appd->aproblem.values[c] < best_value )
+ 			        {
+ 			        	best_value = appd->aproblem.values[c];
+ 			         }
+ 			    }
+ 		  }
+
+ 		  res=res+num_to_end*best_value;
+ 		  if(print_all)
+ 		  {
+ 	 		  printf("\nESTIMATED best value->%f\n",best_value);
+ 	 		  printf("\nESTIMATED ->%f\n",res);
+ 		  }
+
+ 	  }
+
+ 	  return res;
+   }
+
 
   double get_target(PAproblemPD appd)//estimated
   {
 	  double res;
-	  //no prune
-//	  if(appd->aproblem.type==MAX)
-//	  {
-//		  res=SMALL;
-//	  }
-//	  else
-//	  {
-//		  res=GREAT;
-//	  }
+	  if(!prune)//no prune
+	  {
+		  if(appd->aproblem.type==MAX)
+		  {
+			  res=SMALL;
+		  }
+		  else
+		  {
+			  res=GREAT;
+		  }
+	  }
+	  else{
 	  //prune
 	  res=appd->solution.acum;
-
+	  }
 	  return res;
   }
   int get_size(const PAproblemPD papd){
@@ -353,12 +427,13 @@ Type get_type(PAproblemPD appd)
 	  rcv->solution=sol;
 	  rcv->solution.acum=origin.solution.acum;
 	  rcv->solution.lengthArrays=origin.solution.lengthArrays;
-	  if(print_all)
-	  {
-		  for(int i=0;i<rcv->solution.lengthArrays;i++){
-			  rcv->solution.resources[i]=origin.solution.resources[i];
-			  printf("\na_problem_PD		copy_aproblem_PD ORIGIN resource %d %s",origin.solution.resources[i].position, origin.solution.resources[i].name);
-			  printf("\na_problem_PD		copy_aproblem_PD OUTPUT resource %d %s",rcv->solution.resources[i].position, rcv->solution.resources[i].name);
+
+	  for(int i=0;i<rcv->solution.lengthArrays;i++){
+		  rcv->solution.resources[i]=origin.solution.resources[i];
+		  if(print_all)
+		  {
+		  printf("\na_problem_PD		copy_aproblem_PD ORIGIN resource %d %s",origin.solution.resources[i].position, origin.solution.resources[i].name);
+		  printf("\na_problem_PD		copy_aproblem_PD OUTPUT resource %d %s",rcv->solution.resources[i].position, rcv->solution.resources[i].name);
 
 		  }
 	  }

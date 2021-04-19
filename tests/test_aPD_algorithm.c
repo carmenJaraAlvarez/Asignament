@@ -29,30 +29,30 @@ void testInit10();
 void testInit9(){
 	printf("\n 9 **********************\n");
 	//mpecc -mpilog -pthread
-	Cadena url="/home/practica/eclipse-workspace/c/files/data3.txt";
+	Cadena url="/home/practica/eclipse-workspace/c/files/data7.txt";
 
-	Aproblem ap;
-	int numTasks=3;
-	int numResources=3;
-	printf("%d , %d\n ",numTasks,numResources);
-	read_aproblem_file(&ap, numTasks, numResources, url);
-	AproblemPD appd;
-	testInitAProblemPD(&appd, ap);
-	AlgorithmPD alg;
-	printf("\n 9 \n");
-	init_algorithmPD(&alg, appd);
-
-	printf("best post init: %f",alg.best);
-	show_aproblem(&(alg.ppd.aproblem));
-	exec_algorithm(&alg);
-	printf("\nAfter exec algoritm\n");
-	Solution sol;
-	get_PDsolution(&alg, &sol);
-	for(int i=0;i<alg.ppd.solution.lengthArrays;i++){
-		printf("\nResources: \n*%s\n",alg.ppd.solution.resources[i].name);
-	}
-	printf("Solution value: %f", alg.ppd.solution.acum);
-	delete_algorithmPD(&alg);
+//	Aproblem ap;
+//	int numTasks=3;
+//	int numResources=3;
+//	printf("%d , %d\n ",numTasks,numResources);
+//	read_aproblem_file(&ap, numTasks, numResources, url);
+//	AproblemPD appd;
+//	testInitAProblemPD(&appd, ap);
+//	AlgorithmPD alg;
+//	printf("\n 9 \n");
+//	init_algorithmPD(&alg, appd);
+//
+//	printf("best post init: %f",alg.best);
+//	show_aproblem(&(alg.ppd.aproblem));
+//	exec_algorithm(&alg);
+//	printf("\nAfter exec algoritm\n");
+//	Solution sol;
+//	get_PDsolution(&alg, &sol);
+//	for(int i=0;i<alg.ppd.solution.lengthArrays;i++){
+//		printf("\nResources: \n*%s\n",alg.ppd.solution.resources[i].name);
+//	}
+//	printf("Solution value: %f", alg.ppd.solution.acum);
+//	delete_algorithmPD(&alg);
 }
 void testInit10(){
 	printf("\n10***********************\n");

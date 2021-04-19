@@ -9,6 +9,8 @@
 #include "../MPI/problem_MPI.h"
 
 static void resolve_aPD(PAproblem, int);
+int prune=1;
+int redistribution_rr=1;
 
 void get_data(GtkWidget *calculate, gpointer data) {
 	init_clock();
@@ -26,11 +28,13 @@ void get_data(GtkWidget *calculate, gpointer data) {
 	Cadena cadena_url;
 	strcpy(cadena_url,text);
 
-    read_aproblem_file(&pap_from_gui, numt, numr, cadena_url);
+    int i=read_aproblem_file(&pap_from_gui, numt, numr, cadena_url);
     if(print_all)
     {
-    	printf("\naproblem_gui.c get_data()-> READED file\n");
+    	printf("\naproblem_gui.c get_data()-> READED file  %d\n",i);
     }
+    g_print ("\naproblem_gui.c 		get_data()		prune->%d",prune);
+    g_print ("\naproblem_gui.c 		get_data()		rr->%d",redistribution_rr);
     resolve_aPD(&pap_from_gui, num_processes);
     //gtk_label_set_text(GTK_LABEL(values), buffer);
     //printf("\n %s", text);
@@ -43,19 +47,32 @@ void resolve_aPD(PAproblem pap, int num_processes)
     AproblemPD appd;
     initAProblemPD(&appd, pap);
 	init_algorithmPD(&final_alg, appd);
-	distribution(&final_alg);
+    {
+    	printf("\naproblem_gui.c resolve_aPD()-> Resolving\n");
+    }
+
+	distribution(&final_alg,prune,redistribution_rr);
 	init_slaves=1;
-	MPI_Bcast(&init_slaves,1,MPI_INT,0,MPI_COMM_WORLD);
-	MPI_Ibarrier(MPI_COMM_WORLD, &request);//the slaves join when they have finished
     if(print_all)
     {
     	printf("\naproblem_gui.c resolve_aPD()-> Resolving\n");
     }
+	MPI_Bcast(&init_slaves,1,MPI_INT,0,MPI_COMM_WORLD);
+    if(print_all)
+    {
+    	printf("\naproblem_gui.c resolve_aPD()-> Resolving\n");
+    }
+	MPI_Ibarrier(MPI_COMM_WORLD, &request);//the slaves join when they have finished
+
 	  init_listening(&request_petition, &request_best);
 	  while(!all_finished)
 	  {
 		  scan_petition(&request_petition, &request_best, &request_bcast);
 		  MPI_Test(&request,&all_finished, MPI_STATUS_IGNORE);//test barrier
+	  }
+	  if(print_all)
+	  {
+		  printf("\naproblem_gui.c		resolve_aPD()	all finished ibarrier");
 	  }
 	  finish_work();
 	  //////////////////////////// Solved window
@@ -74,7 +91,7 @@ void resolve_aPD(PAproblem pap, int num_processes)
 
 
 	  for(int i=0;i<final_alg.ppd.aproblem.numTask;i++){
-		  gchar *str = g_strdup_printf("%s->%d", (final_alg.ppd.aproblem.tasks[i].name),(final_alg.ppd.solution.resources[i].position));
+		  gchar *str = g_strdup_printf("%s->%d", (final_alg.ppd.aproblem.tasks[i].name),(final_sol[i]));
 		  gtk_grid_attach(GTK_GRID(grid_solved), gtk_label_new(str), 0, i+1, 1, 1);
 	  }
 
@@ -85,10 +102,73 @@ void resolve_aPD(PAproblem pap, int num_processes)
 	//delete_algorithmPD(&alg);
 
 }
+void button_toggled_cb (GtkWidget *button, gpointer   user_data)
+{
+  char *b_state;
+  const char *button_label;
+
+  if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (button)))
+  {
+	  b_state = "on";
+  }
+  else
+  {
+          b_state = "off";
+          g_print ("\n");
+  }
+  button_label = gtk_button_get_label (GTK_BUTTON (button));
+  if(strcmp(button_label,"Prune") && strcmp(b_state,"on"))
+  {
+	  prune=1;
+	  g_print ("\naproblem_gui.c		button_toggled_cb()		prune");
+  }
+  else if(strcmp(button_label,"Prune") && strcmp(b_state,"off"))
+  {
+	  prune=0;
+	  g_print ("\naproblem_gui.c		button_toggled_cb()		NO prune");
+  }
+
+   g_print ("\n%s was turned %s\n", button_label, b_state);
+   g_print ("\naproblem_gui.c 		button_toggled_cb ()		prune->%d",prune);
+ }
+void button_toggled_rr (GtkWidget *button, gpointer   user_data)
+{
+  char *b_state;
+  const char *button_label;
+
+  if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (button)))
+  {
+	  b_state = "on";
+  }
+  else
+  {
+          b_state = "off";
+          g_print ("\n");
+  }
+  button_label = gtk_button_get_label (GTK_BUTTON (button));
+  if(strcmp(button_label,"Redistribution Round Robin") && strcmp(b_state,"on"))
+  {
+	  redistribution_rr=1;
+	  g_print ("\naproblem_gui.c		button_toggled_cb()		rr");
+  }
+  else if(strcmp(button_label,"Redistribution Round Robin") && strcmp(b_state,"off"))
+  {
+	  redistribution_rr=0;
+	  g_print ("\naproblem_gui.c		button_toggled_cb()		NO rr");
+  }
+
+   g_print ("\n%s was turned %s\n", button_label, b_state);
+   g_print ("\naproblem_gui.c 		button_toggled_cb ()		rr->%d", redistribution_rr);
+ }
+
 
 void create_aproblem_window(GtkWidget *window,int num_processes)
 {
+	g_print ("\naproblem_gui.c 		create_aproblem_window()		prune->%d",prune);
+	g_print ("\naproblem_gui.c 		create_aproblem_window()		rr->%d",redistribution_rr);
 		GtkWidget *grid, *done;
+		GtkWidget *radio_prune,*radio_no_prune,*radio_rr, *radio_no_rr;
+
 	    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	    g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
@@ -97,6 +177,7 @@ void create_aproblem_window(GtkWidget *window,int num_processes)
 
 	    resources = gtk_label_new("Num Resources");
 	    gtk_grid_attach(GTK_GRID(grid), resources, 1, 0, 1, 1);
+
 	    tasks = gtk_label_new("Num Tasks");
 	    gtk_grid_attach(GTK_GRID(grid), tasks, 0, 0, 1, 1);
 
@@ -112,6 +193,39 @@ void create_aproblem_window(GtkWidget *window,int num_processes)
 	    url = gtk_entry_new();
 	    gtk_grid_attach(GTK_GRID(grid), url, 0, 3, 2, 1);
 
+	    /*Create an initial radio button*/
+	     radio_prune = gtk_radio_button_new_with_label (NULL, "Prune");
+	     /*Create a second radio button, and add it to the same group as Button 1*/
+	     radio_no_prune = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON (radio_prune), "No prune");
+	     gtk_grid_attach (GTK_GRID (grid), radio_prune, 0, 5, 1, 1);
+	     gtk_grid_attach (GTK_GRID (grid), radio_no_prune, 1, 5, 1, 1);
+	     /*set the initial state of each button*/
+	     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio_prune), TRUE);
+	     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio_no_prune), FALSE);
+	     /*Connect the signal handlers (aka Callback functions) to the buttons*/
+	     g_signal_connect (GTK_TOGGLE_BUTTON (radio_prune), "toggled",
+	                       G_CALLBACK (button_toggled_cb), window);
+	     g_signal_connect (GTK_TOGGLE_BUTTON (radio_no_prune), "toggled",
+	                       G_CALLBACK (button_toggled_cb), window);
+
+
+	     /*Create an initial radio button*/
+		 radio_rr = gtk_radio_button_new_with_label (NULL, "Redistribution Round Robin");
+		 /*Create a second radio button, and add it to the same group as Button 1*/
+		 radio_no_rr = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON (radio_rr), "No redistribution Round Robin");
+		 gtk_grid_attach (GTK_GRID (grid), radio_rr, 0, 6, 1, 1);
+		 gtk_grid_attach (GTK_GRID (grid), radio_no_rr, 1, 6, 1, 1);
+		 /*set the initial state of each button*/
+		 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio_rr), TRUE);
+		 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio_no_rr), FALSE);
+		 /*Connect the signal handlers (aka Callback functions) to the buttons*/
+		 g_signal_connect (GTK_TOGGLE_BUTTON (radio_rr), "toggled",
+						   G_CALLBACK (button_toggled_rr), window);
+		 g_signal_connect (GTK_TOGGLE_BUTTON (radio_no_rr), "toggled",
+						   G_CALLBACK (button_toggled_rr), window);
+
+
+
 	    done = gtk_button_new_with_label("Done");
 
 	    int n=num_processes;
@@ -120,7 +234,7 @@ void create_aproblem_window(GtkWidget *window,int num_processes)
 	    	printf("\naproblem_gui.c create_aproblem_window()-> num process: %d\n",n);
 	    }
 	    g_signal_connect(done, "clicked", G_CALLBACK(get_data), n);
-	    gtk_grid_attach(GTK_GRID(grid), done, 0, 4, 1, 1);
+	    gtk_grid_attach(GTK_GRID(grid), done, 0, 7, 1, 1);
 
 	    gtk_widget_show_all(window);
 

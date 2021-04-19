@@ -17,6 +17,7 @@
 #define SMALL -9999999.
 
 extern int print_all;
+extern int prune;
 
 typedef struct
   {
@@ -39,7 +40,8 @@ typedef AproblemPD* PAproblemPD;
   int combine_solutions(AproblemPD, PSolution,PSpPD);
   int get_num_subproblems();//here is 1
   int get_subproblem(const PAproblemPD, PAproblemPD,Alternative, int);
-  double get_estimate(PAproblemPD);
+  double get_best_estimate(PAproblemPD);
+  double get_worst_estimate(PAproblemPD);
   int get_solution(AproblemPD);
   double get_target(PAproblemPD);
   int get_size(const PAproblemPD);

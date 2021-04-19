@@ -53,6 +53,10 @@ static Logico checkInt(const int);
 
 	 }
 	 pa->type=MAX;//default//TODO
+	 if(print_all)
+	 {
+		 show_aproblem(pa);
+	 }
 	 return 0;
  }
 
@@ -120,7 +124,7 @@ static Logico checkInt(const int);
 
 	  if (f == NULL) {
 	    perror("fopen");
-//	    printf("error apertura fichero");
+	    printf("error apertura fichero");
 	    return -1;
 	  }
 
@@ -130,10 +134,19 @@ static Logico checkInt(const int);
 		 //first rows: tasks
 		 for(j=0;j<numTasks;j++)
 		 {
+
+
 			 fgets(c,TAM_MAX_READ,f);
 			 quitaSaltoDeLinea(c);
 			 init_task(&task,c);
 			 arrayT[j]=task;
+			 if(1)
+			 {
+				 printf("\naproblem.c	read_aproblem_file()	row %d",j+1);
+				 printf("\naproblem.c	read_aproblem_file()	read %s", c);
+				 printf("\naproblem.c	read_aproblem_file()	rtaskname %s", arrayT[j].name);
+			 }
+
 		 }
 		 //resources
 		 for(j=0;j<numResources;j++)

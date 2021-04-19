@@ -36,7 +36,7 @@ int describe_logs(){
     MPE_Describe_state(event5a, event5b, "Send resolved",    "white");
     MPE_Describe_state(event6a, event6b, "Receive resolved",      "purple");
     MPE_Describe_state(event7a, event7b, "...",    "yellow");
-    MPE_Describe_state(event8a, event8b, "...",      "pink");
+    MPE_Describe_state(event8a, event8b, "receive work petition",      "red");
 
     MPE_Describe_event( event1, "Ask for work", "white" );
     MPE_Describe_event( event2, "Scan petition", "orange" );
@@ -44,7 +44,8 @@ int describe_logs(){
     MPE_Describe_event( event4, "Receive best", "green" );
     MPE_Describe_event( event5, "Broadcast", "pink" );
     MPE_Describe_event( event6, "prune", "purple" );
-    MPE_Describe_event( event7, "...", "pink" );
+    MPE_Describe_event( event7, "confirmed", "yellow" );
+    MPE_Describe_event( event8, "Timeout", "red" );
 
     return 0;
 }

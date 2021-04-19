@@ -25,17 +25,21 @@ static GtkWidget *value;
 static GtkWidget *url_file;
 //the problem
 PAproblem pap_from_gui;
+extern MPI_Request request_b;
+extern int final_sol[100];
 
 int init_slaves;
 int all_finished;
+extern int print_all;
 
 MPI_Request request_petition;
 MPI_Request request_best;
 MPI_Request request_bcast;
 MPI_Request request;
-extern int print_all;
 
 void get_data(GtkWidget *, gpointer);
 void create_aproblem_window(GtkWidget *,int );
+void button_toggled_cb (GtkWidget * ,gpointer );
+void button_toggled_rr (GtkWidget * ,gpointer );
   
 #endif /* INCLUDES_APROBLEM_GUI_H_ */

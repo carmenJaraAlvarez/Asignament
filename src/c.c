@@ -23,10 +23,11 @@
 #include "../tests/test_aPD_algorithm.c"
 #include "algorithms/metrics.h"
 
-int ierr;
+
 int master=0;
 int numprocs=0;
-int print_all=1;//to help to debug. Simple logs for developer
+int print_all=0;//to help to debug. Simple logs for developer
+
 
 int event1a;
 int event1b;
@@ -45,14 +46,16 @@ int event7b;
 int event8a;
 int event8b;
 
-int event1, event2, event3, event4, event5, event6, event7;
+int event1, event2, event3, event4, event5, event6, event7, event8;
 int startEvent, endEvent;
 
 double startwtime, endwtime;
-
+MPI_Comm world;
 extern int init_slaves;
 extern MPI_Request request;
+MPI_Request request_b=MPI_REQUEST_NULL;
 
+double best;
 int main(int argc, char **argv)
 {
   int myid;
@@ -60,11 +63,10 @@ int main(int argc, char **argv)
   MPI_Init(&argc,&argv);
   MPI_Comm_size(MPI_COMM_WORLD,&numprocs);
   MPI_Comm_rank(MPI_COMM_WORLD,&myid);
+  MPI_Request request_work[numprocs-1];
 
 
-
-  //init_logs();
-
+  MPI_Comm_dup(MPI_COMM_WORLD,&world);
   MPE_Init_log();
 
   /*  Get event ID from MPE, user should NOT assign event ID  */
@@ -84,18 +86,28 @@ int main(int argc, char **argv)
   MPE_Log_get_solo_eventID( &event5 );
   MPE_Log_get_solo_eventID( &event6 );
   MPE_Log_get_solo_eventID( &event7 );
-
+  MPE_Log_get_solo_eventID( &event8 );
   init_slaves=0;
 
   //MPE_Log_sync_clocks();
-
+  double buffer=1.;
+  int buffer_work=0;
   if (myid != 0)  {
+	  ////////////////////
+
+	  //MPI_Ibcast(&buffer,1,MPI_DOUBLE,0,world, &request_b);
+
+	  //init_waiting_best(&buffer,&request_b);
+	  ////////////////////
+
 	  MPI_Bcast(&init_slaves,1,MPI_INT,0,MPI_COMM_WORLD);//waiting master's order
-	  rcv_work();
+	  rcv_work(&buffer,&request_b,&buffer_work);
 	  MPI_Ibarrier(MPI_COMM_WORLD, &request);//to know every process is finished
   }
-  else
+  else//master
   {
+	init_best(&request_b,&world);
+
 	describe_logs();
 	if(print_all)
 	{
