@@ -115,12 +115,12 @@ int main(int argc, char **argv)
 		printf("\nAn MPI program.\n The number of processes is %d \n This is %d\n",numprocs,myid);
 	}
 
-	GtkWidget *window_init;
+
 	gtk_init(&argc, &argv);
 
 	//the particular problem/////////////
     // PAproblem pap;
-	create_aproblem_window(&window_init,numprocs);
+	create_aproblem_window(numprocs);
 	/////////////////////////////////////
 
 	gtk_main();

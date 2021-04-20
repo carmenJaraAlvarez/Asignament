@@ -8,12 +8,16 @@
 #include "../PD/PD_algorithm.h"
 #include "../MPI/problem_MPI.h"
 
-static void resolve_aPD(PAproblem, int);
-static void show_error(GtkWidget *, gpointer );
 static const gchar *myCssFile = "/home/practica/eclipse-workspace/c/src/css/mystyle.css";
+char *message="No error";
+GtkWidget *window;
 int prune=1;
 int redistribution_rr=1;
 int tuple_p=1;
+
+static void resolve_aPD(PAproblem, int);
+static void show_error();
+
 
 
 void get_data(GtkWidget *calculate, gpointer data) {
@@ -36,10 +40,18 @@ void get_data(GtkWidget *calculate, gpointer data) {
     if(print_all)
     {
     	printf("\naproblem_gui.c get_data()-> READED file  %d\n",i);
+		g_print ("\naproblem_gui.c 		get_data()		prune->%d",prune);
+		g_print ("\naproblem_gui.c 		get_data()		rr->%d",redistribution_rr);
     }
-    g_print ("\naproblem_gui.c 		get_data()		prune->%d",prune);
-    g_print ("\naproblem_gui.c 		get_data()		rr->%d",redistribution_rr);
-    resolve_aPD(&pap_from_gui, num_processes);
+    if(i==-1)
+    {
+    	message="Error loading file";
+
+    }
+    else
+    {
+		resolve_aPD(&pap_from_gui, num_processes);
+    }
     //gtk_label_set_text(GTK_LABEL(values), buffer);
     //printf("\n %s", text);
 
@@ -98,19 +110,43 @@ void resolve_aPD(PAproblem pap, int num_processes)
 	  GdkColor color;
 	  gdk_color_parse ("yellow", &color);
 
-	    for(int i=0;i<final_alg.ppd.aproblem.numTask;i++)
+	    for(int i=0;i<final_alg.ppd.aproblem.numResources+1;i++)
 	    {
-		    for(int j=0;j<final_alg.ppd.aproblem.numResources;j++)
+		    for(int j=0;j<final_alg.ppd.aproblem.numTask+1;j++)
 		    {
-		    	 double value_in_table=final_alg.ppd.aproblem.values[j*final_alg.ppd.aproblem.numTask+i];
-		    	 gchar *str = g_strdup_printf("%.2f", value_in_table);
-		    	 value = gtk_label_new(str);
-		         g_object_set (value, "margin", 5, NULL);
-		         if(j==final_sol[i])//TODO
-		         {
-		        	 gtk_widget_modify_bg ( GTK_WIDGET(value), GTK_STATE_NORMAL, &color);
-		         }
-		    	 gtk_grid_attach(GTK_GRID(table), value, i, j, 1, 1);
+		    	if(j==0){
+		    		if(i!=0){
+		    		 gchar *head = g_strdup_printf("%s", final_alg.ppd.aproblem.tasks[i-1].name);
+		    		 value = gtk_label_new(head);
+		    		 g_object_set (value, "margin", 5, NULL);
+		    		 gtk_grid_attach(GTK_GRID(table), value, i+1, j, 1, 1);
+		    		}
+		    	}
+		    	else
+		    	{
+		    		if(i==0)
+		    		{
+			    		 gchar *head = g_strdup_printf("%s", final_alg.ppd.aproblem.resources[j-1].name);
+						 value = gtk_label_new(head);
+						 g_object_set (value, "margin", 5, NULL);
+						 gtk_grid_attach(GTK_GRID(table), value, i, j+1, 1, 1);
+		    		}
+		    		else
+		    		{
+		    			 double value_in_table=final_alg.ppd.aproblem.values[(j-1)*final_alg.ppd.aproblem.numTask+i-1];
+						 gchar *str = g_strdup_printf("%.2f", value_in_table);
+						 value = gtk_label_new(str);
+						 g_object_set (value, "margin", 5, NULL);
+						 if(j-1==final_sol[i-1])//TODO
+						 {
+							 gtk_widget_modify_bg ( GTK_WIDGET(value), GTK_STATE_NORMAL, &color);
+						 }
+						 gtk_grid_attach(GTK_GRID(table), value, i+1, j+1, 1, 1);
+		    		}
+
+		    	}
+
+
 		    }
 	    }
 	  gtk_grid_attach(GTK_GRID(grid_solved), table, 0, 1, 1, 1);
@@ -232,7 +268,7 @@ void button_toggled_tp (GtkWidget *button, gpointer   user_data)
    g_print ("\naproblem_gui.c 		button_toggled_tp ()		tp->%d", tuple_p);
  }
 
-void create_aproblem_window(GtkWidget *window,int num_processes)
+void create_aproblem_window(int num_processes)
 {
 
 	g_print ("\naproblem_gui.c 		create_aproblem_window()		prune->%d",prune);
@@ -248,8 +284,9 @@ void create_aproblem_window(GtkWidget *window,int num_processes)
 	    GtkWidget *error;
 	    error = gtk_button_new_with_label("Error");
 		g_signal_connect(G_OBJECT(error), "clicked",
-		        G_CALLBACK(show_error), (gpointer) window);
-		/////////////////////////////////7777
+		        G_CALLBACK(show_error),message);
+		/////////////////////////////////
+
 	    g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 	    /* Sets the border width of the window. */
 	    gtk_container_set_border_width (GTK_CONTAINER (window), 20);
@@ -333,6 +370,7 @@ void create_aproblem_window(GtkWidget *window,int num_processes)
 	    	printf("\naproblem_gui.c create_aproblem_window()-> num process: %d\n",n);
 	    }
 	    g_signal_connect(done, "clicked", G_CALLBACK(get_data), n);
+	    g_signal_connect(done, "clicked", G_CALLBACK(show_error), message);
 	    gtk_grid_attach(GTK_GRID(grid), done, 0, 8, 1, 1);
 
 	    /////////////////////// CSS
@@ -350,26 +388,43 @@ void create_aproblem_window(GtkWidget *window,int num_processes)
 
 }
 
-void show_error(GtkWidget *widget, gpointer window) {
+void show_error() {
+	if(1)
+	{
+		printf("\naproblem_gui.c		show_error()	init message : %s",message);
+	}
 
-  GtkWidget *dialog;
-  dialog = gtk_message_dialog_new(GTK_WINDOW(window),
-            GTK_DIALOG_DESTROY_WITH_PARENT,
-            GTK_MESSAGE_ERROR,
-            GTK_BUTTONS_OK,
-            "Error loading file");
-  gtk_window_set_title(GTK_WINDOW(dialog), "Error");
-//  const gchar *myCssFile = "/home/practica/eclipse-workspace/c/src/css/mystyle.css";
-  	  	  GtkCssProvider *    cssProvider     = gtk_css_provider_new();
-  		    if( gtk_css_provider_load_from_path(cssProvider, myCssFile, NULL) )
-  	    {
-  	         gtk_style_context_add_provider(gtk_widget_get_style_context(dialog),
-  	                                            GTK_STYLE_PROVIDER(cssProvider),
-  	                                            GTK_STYLE_PROVIDER_PRIORITY_USER);
-  	    }
-  gtk_widget_set_name(dialog, "mydialog");
-  gtk_dialog_run(GTK_DIALOG(dialog));
-  gtk_widget_destroy(dialog);
+	if(1)//TODO if there is error message
+	{
+		if(1)
+		{
+			printf("\naproblem_gui.c		show_error()	there is an error");
+		}
+		 GtkWidget *dialog;
+		 dialog = gtk_message_dialog_new(GTK_WINDOW(window),
+		            GTK_DIALOG_DESTROY_WITH_PARENT,
+		            GTK_MESSAGE_ERROR,
+		            GTK_BUTTONS_OK,
+		            message);
+		  gtk_window_set_title(GTK_WINDOW(dialog), "Error");
+
+		  GtkCssProvider *    cssProvider     = gtk_css_provider_new();
+		  if( gtk_css_provider_load_from_path(cssProvider, myCssFile, NULL) )
+		  	    {
+		  	         gtk_style_context_add_provider(gtk_widget_get_style_context(dialog),
+		  	                                            GTK_STYLE_PROVIDER(cssProvider),
+		  	                                            GTK_STYLE_PROVIDER_PRIORITY_USER);
+		  	    }
+		  gtk_widget_set_name(dialog, "mydialog");
+		  gtk_dialog_run(GTK_DIALOG(dialog));
+		  gtk_widget_destroy(dialog);
+		  message="No error";
+			if(1)
+			{
+				printf("\naproblem_gui.c		show_error()	end");
+			}
+	}
+
 }
 
 
