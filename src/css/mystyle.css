@@ -12,6 +12,13 @@
     border-color: black;
     border-width: 1px;
 } 
+#mydialog {
+    background: white;
+    border-style: solid;
+    border-color: black;
+    border-width: 1px;
+    color:red;
+}
 label {
     color: black;
 }

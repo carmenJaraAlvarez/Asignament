@@ -9,9 +9,12 @@
 #include "../MPI/problem_MPI.h"
 
 static void resolve_aPD(PAproblem, int);
+static void show_error(GtkWidget *, gpointer );
+static const gchar *myCssFile = "/home/practica/eclipse-workspace/c/src/css/mystyle.css";
 int prune=1;
 int redistribution_rr=1;
 int tuple_p=1;
+
 
 void get_data(GtkWidget *calculate, gpointer data) {
 	init_clock();
@@ -124,7 +127,7 @@ void resolve_aPD(PAproblem pap, int num_processes)
 	  }
 
 	  GtkCssProvider *    cssProvider     = gtk_css_provider_new();
-	  const gchar *myCssFile = "/home/practica/eclipse-workspace/c/src/css/mystyle.css";
+
 	  if( gtk_css_provider_load_from_path(cssProvider, myCssFile, NULL) )
 		{
 			 gtk_style_context_add_provider(gtk_widget_get_style_context(grid_solved),
@@ -231,14 +234,22 @@ void button_toggled_tp (GtkWidget *button, gpointer   user_data)
 
 void create_aproblem_window(GtkWidget *window,int num_processes)
 {
-//	GtkCssProvider *provider;
-//	myCSS(provider);
+
 	g_print ("\naproblem_gui.c 		create_aproblem_window()		prune->%d",prune);
 	g_print ("\naproblem_gui.c 		create_aproblem_window()		rr->%d",redistribution_rr);
+
+
+
 		GtkWidget *grid, *done;
 		GtkWidget *radio_prune,*radio_no_prune,*radio_rr, *radio_no_rr, *radio_tp,*radio_no_tp;
 
 	    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	    ////////////////////////////////
+	    GtkWidget *error;
+	    error = gtk_button_new_with_label("Error");
+		g_signal_connect(G_OBJECT(error), "clicked",
+		        G_CALLBACK(show_error), (gpointer) window);
+		/////////////////////////////////7777
 	    g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 	    /* Sets the border width of the window. */
 	    gtk_container_set_border_width (GTK_CONTAINER (window), 20);
@@ -303,6 +314,7 @@ void create_aproblem_window(GtkWidget *window,int num_processes)
 		 radio_no_tp = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON (radio_tp), "No tuple prune");
 		 gtk_grid_attach (GTK_GRID (grid), radio_tp, 0, 7, 1, 1);
 		 gtk_grid_attach (GTK_GRID (grid), radio_no_tp, 1, 7, 1, 1);
+		 gtk_grid_attach (GTK_GRID(grid), error, 1, 9, 1, 1);
 		 /*set the initial state of each button*/
 		 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio_rr), TRUE);
 		 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio_no_rr), FALSE);
@@ -326,7 +338,7 @@ void create_aproblem_window(GtkWidget *window,int num_processes)
 	    /////////////////////// CSS
 
 	    GtkCssProvider *    cssProvider     = gtk_css_provider_new();
-	    const gchar *myCssFile = "/home/practica/eclipse-workspace/c/src/css/mystyle.css";
+//	    const gchar *myCssFile = "/home/practica/eclipse-workspace/c/src/css/mystyle.css";
 		    if( gtk_css_provider_load_from_path(cssProvider, myCssFile, NULL) )
 	    {
 	         gtk_style_context_add_provider(gtk_widget_get_style_context(window),
@@ -338,8 +350,26 @@ void create_aproblem_window(GtkWidget *window,int num_processes)
 
 }
 
+void show_error(GtkWidget *widget, gpointer window) {
 
-
-
+  GtkWidget *dialog;
+  dialog = gtk_message_dialog_new(GTK_WINDOW(window),
+            GTK_DIALOG_DESTROY_WITH_PARENT,
+            GTK_MESSAGE_ERROR,
+            GTK_BUTTONS_OK,
+            "Error loading file");
+  gtk_window_set_title(GTK_WINDOW(dialog), "Error");
+//  const gchar *myCssFile = "/home/practica/eclipse-workspace/c/src/css/mystyle.css";
+  	  	  GtkCssProvider *    cssProvider     = gtk_css_provider_new();
+  		    if( gtk_css_provider_load_from_path(cssProvider, myCssFile, NULL) )
+  	    {
+  	         gtk_style_context_add_provider(gtk_widget_get_style_context(dialog),
+  	                                            GTK_STYLE_PROVIDER(cssProvider),
+  	                                            GTK_STYLE_PROVIDER_PRIORITY_USER);
+  	    }
+  gtk_widget_set_name(dialog, "mydialog");
+  gtk_dialog_run(GTK_DIALOG(dialog));
+  gtk_widget_destroy(dialog);
+}
 
 
