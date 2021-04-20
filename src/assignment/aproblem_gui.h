@@ -23,6 +23,8 @@ static GtkWidget *tasks;
 static GtkWidget *values;
 static GtkWidget *value;
 static GtkWidget *url_file;
+static GtkWidget *table;
+static GtkWidget *button;
 //the problem
 PAproblem pap_from_gui;
 extern MPI_Request request_b;

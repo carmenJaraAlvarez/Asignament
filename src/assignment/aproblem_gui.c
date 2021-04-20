@@ -79,11 +79,41 @@ void resolve_aPD(PAproblem pap, int num_processes)
 	  //////////////////////////// Solved window
 	  GtkWidget  *window_solved, *grid_solved;
 	  window_solved = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-
+	    /* Sets the border width of the window. */
+	  gtk_container_set_border_width (GTK_CONTAINER (window_solved), 20);
 	  grid_solved = gtk_grid_new();
 	  gtk_container_add(GTK_CONTAINER(window_solved), grid_solved);
 	  gtk_window_set_title (GTK_WINDOW (window_solved), "Solved");
 	  gtk_window_set_default_size (GTK_WINDOW (window_solved), 200, 200);
+
+	  /* Create table homogeneous*/
+	  table = gtk_grid_new();
+	  gtk_widget_set_hexpand  (GTK_WIDGET (table),          TRUE);
+	  gtk_container_set_border_width (GTK_CONTAINER (table), 10);
+	  g_object_set (table, "baseline-row", 1, NULL);
+//	  gtk_window_set_title (GTK_WINDOW (table), "Problem");
+//	  gtk_window_set_default_size (GTK_WINDOW (table), 200, 200);
+
+	  GdkColor color;
+	  gdk_color_parse ("yellow", &color);
+
+
+	    for(int i=0;i<final_alg.ppd.aproblem.numTask;i++)
+	    {
+		    for(int j=0;j<final_alg.ppd.aproblem.numResources;j++)
+		    {
+		    	 double value_in_table=final_alg.ppd.aproblem.values[j*final_alg.ppd.aproblem.numTask+i];
+		    	 gchar *str = g_strdup_printf("%.2f", value_in_table);
+		    	 value = gtk_label_new(str);
+		         g_object_set (value, "margin", 5, NULL);
+		         if(i==j)
+		         {
+		        	 gtk_widget_modify_bg ( GTK_WIDGET(value), GTK_STATE_NORMAL, &color);
+		         }
+		    	 gtk_grid_attach(GTK_GRID(table), value, i, j, 1, 1);
+		    }
+	    }
+	  gtk_grid_attach(GTK_GRID(grid_solved), table, 0, 1, 1, 1);
 
 	  double best_final_value=final_alg.best;
 	  gchar *str = g_strdup_printf("\n Solution acum: %f \n", best_final_value);
@@ -93,7 +123,7 @@ void resolve_aPD(PAproblem pap, int num_processes)
 
 	  for(int i=0;i<final_alg.ppd.aproblem.numTask;i++){
 		  gchar *str = g_strdup_printf("%s->%d", (final_alg.ppd.aproblem.tasks[i].name),(final_sol[i]));
-		  gtk_grid_attach(GTK_GRID(grid_solved), gtk_label_new(str), 0, i+1, 1, 1);
+		  gtk_grid_attach(GTK_GRID(grid_solved), gtk_label_new(str), 0, i+2, 1, 1);
 	  }
 
 	  gtk_widget_show_all(window_solved);
@@ -200,9 +230,11 @@ void create_aproblem_window(GtkWidget *window,int num_processes)
 
 	    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	    g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
-
+	    /* Sets the border width of the window. */
+	    gtk_container_set_border_width (GTK_CONTAINER (window), 20);
 	    grid = gtk_grid_new();
 	    gtk_container_add(GTK_CONTAINER(window), grid);
+
 
 	    resources = gtk_label_new("Num Resources");
 	    gtk_grid_attach(GTK_GRID(grid), resources, 1, 0, 1, 1);
