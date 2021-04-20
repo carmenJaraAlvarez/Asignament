@@ -223,6 +223,8 @@ void button_toggled_tp (GtkWidget *button, gpointer   user_data)
 
 void create_aproblem_window(GtkWidget *window,int num_processes)
 {
+//	GtkCssProvider *provider;
+//	myCSS(provider);
 	g_print ("\naproblem_gui.c 		create_aproblem_window()		prune->%d",prune);
 	g_print ("\naproblem_gui.c 		create_aproblem_window()		rr->%d",redistribution_rr);
 		GtkWidget *grid, *done;
@@ -233,6 +235,8 @@ void create_aproblem_window(GtkWidget *window,int num_processes)
 	    /* Sets the border width of the window. */
 	    gtk_container_set_border_width (GTK_CONTAINER (window), 20);
 	    grid = gtk_grid_new();
+	    gchar *str = g_strdup_printf("first_grid" );
+	    gtk_widget_set_name(grid, "first_grid");
 	    gtk_container_add(GTK_CONTAINER(window), grid);
 
 
@@ -310,6 +314,17 @@ void create_aproblem_window(GtkWidget *window,int num_processes)
 	    }
 	    g_signal_connect(done, "clicked", G_CALLBACK(get_data), n);
 	    gtk_grid_attach(GTK_GRID(grid), done, 0, 8, 1, 1);
+
+	    /////////////////////// CSS
+
+	    GtkCssProvider *    cssProvider     = gtk_css_provider_new();
+	    const gchar *myCssFile = "/home/practica/eclipse-workspace/c/src/css/mystyle.css";
+		    if( gtk_css_provider_load_from_path(cssProvider, myCssFile, NULL) )
+	    {
+	         gtk_style_context_add_provider(gtk_widget_get_style_context(resources),
+	                                            GTK_STYLE_PROVIDER(cssProvider),
+	                                            GTK_STYLE_PROVIDER_PRIORITY_USER);
+	    }
 
 	    gtk_widget_show_all(window);
 
