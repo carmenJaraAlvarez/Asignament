@@ -1,17 +1,23 @@
-label {
-    color: green;
-}
-
-/* GtkButton {
-    background-image: none;
-} */
-
-/* #grid {
-    background-color: cyan;
+* {
+    background: #bfa60b;
     border-style: solid;
     border-color: black;
     border-width: 1px;
-} */
+    color:black
+   
+} 
+#mytable {
+    background: white;
+    border-style: solid;
+    border-color: black;
+    border-width: 1px;
+} 
+label {
+    color: black;
+}
+
+
+
 /* 
 #myChildTop {
     background-color: white;

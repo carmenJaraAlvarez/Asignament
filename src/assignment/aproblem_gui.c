@@ -86,17 +86,14 @@ void resolve_aPD(PAproblem pap, int num_processes)
 	  gtk_window_set_title (GTK_WINDOW (window_solved), "Solved");
 	  gtk_window_set_default_size (GTK_WINDOW (window_solved), 200, 200);
 
-	  /* Create table homogeneous*/
 	  table = gtk_grid_new();
 	  gtk_widget_set_hexpand  (GTK_WIDGET (table),          TRUE);
 	  gtk_container_set_border_width (GTK_CONTAINER (table), 10);
 	  g_object_set (table, "baseline-row", 1, NULL);
-//	  gtk_window_set_title (GTK_WINDOW (table), "Problem");
-//	  gtk_window_set_default_size (GTK_WINDOW (table), 200, 200);
+	  gtk_widget_set_name(table, "mytable");
 
 	  GdkColor color;
 	  gdk_color_parse ("yellow", &color);
-
 
 	    for(int i=0;i<final_alg.ppd.aproblem.numTask;i++)
 	    {
@@ -106,7 +103,7 @@ void resolve_aPD(PAproblem pap, int num_processes)
 		    	 gchar *str = g_strdup_printf("%.2f", value_in_table);
 		    	 value = gtk_label_new(str);
 		         g_object_set (value, "margin", 5, NULL);
-		         if(i==j)
+		         if(i==j && j==final_sol[i])//TODO
 		         {
 		        	 gtk_widget_modify_bg ( GTK_WIDGET(value), GTK_STATE_NORMAL, &color);
 		         }
@@ -126,10 +123,21 @@ void resolve_aPD(PAproblem pap, int num_processes)
 		  gtk_grid_attach(GTK_GRID(grid_solved), gtk_label_new(str), 0, i+2, 1, 1);
 	  }
 
+	  GtkCssProvider *    cssProvider     = gtk_css_provider_new();
+	  const gchar *myCssFile = "/home/practica/eclipse-workspace/c/src/css/mystyle.css";
+	  if( gtk_css_provider_load_from_path(cssProvider, myCssFile, NULL) )
+		{
+			 gtk_style_context_add_provider(gtk_widget_get_style_context(grid_solved),
+												GTK_STYLE_PROVIDER(cssProvider),
+												GTK_STYLE_PROVIDER_PRIORITY_USER);
+			 gtk_style_context_add_provider(gtk_widget_get_style_context(table),
+												GTK_STYLE_PROVIDER(cssProvider),
+												GTK_STYLE_PROVIDER_PRIORITY_USER);
+		}
 	  gtk_widget_show_all(window_solved);
-	  //////////////////////////////
+
 	  end_clock();
-	//gtk_main_quit();
+
 	//delete_algorithmPD(&alg);
 
 }
@@ -235,7 +243,7 @@ void create_aproblem_window(GtkWidget *window,int num_processes)
 	    /* Sets the border width of the window. */
 	    gtk_container_set_border_width (GTK_CONTAINER (window), 20);
 	    grid = gtk_grid_new();
-	    gchar *str = g_strdup_printf("first_grid" );
+
 	    gtk_widget_set_name(grid, "first_grid");
 	    gtk_container_add(GTK_CONTAINER(window), grid);
 
@@ -321,7 +329,7 @@ void create_aproblem_window(GtkWidget *window,int num_processes)
 	    const gchar *myCssFile = "/home/practica/eclipse-workspace/c/src/css/mystyle.css";
 		    if( gtk_css_provider_load_from_path(cssProvider, myCssFile, NULL) )
 	    {
-	         gtk_style_context_add_provider(gtk_widget_get_style_context(resources),
+	         gtk_style_context_add_provider(gtk_widget_get_style_context(window),
 	                                            GTK_STYLE_PROVIDER(cssProvider),
 	                                            GTK_STYLE_PROVIDER_PRIORITY_USER);
 	    }
