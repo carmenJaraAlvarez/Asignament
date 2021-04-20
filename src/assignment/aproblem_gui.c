@@ -103,7 +103,7 @@ void resolve_aPD(PAproblem pap, int num_processes)
 		    	 gchar *str = g_strdup_printf("%.2f", value_in_table);
 		    	 value = gtk_label_new(str);
 		         g_object_set (value, "margin", 5, NULL);
-		         if(i==j && j==final_sol[i])//TODO
+		         if(j==final_sol[i])//TODO
 		         {
 		        	 gtk_widget_modify_bg ( GTK_WIDGET(value), GTK_STATE_NORMAL, &color);
 		         }
@@ -113,13 +113,13 @@ void resolve_aPD(PAproblem pap, int num_processes)
 	  gtk_grid_attach(GTK_GRID(grid_solved), table, 0, 1, 1, 1);
 
 	  double best_final_value=final_alg.best;
-	  gchar *str = g_strdup_printf("\n Solution acum: %f \n", best_final_value);
+	  gchar *str = g_strdup_printf("\n Solution acum: %.2f \n", best_final_value);
 	  value = gtk_label_new(str);
 	  gtk_grid_attach(GTK_GRID(grid_solved), value, 0, 0, 1, 1);
 
 
 	  for(int i=0;i<final_alg.ppd.aproblem.numTask;i++){
-		  gchar *str = g_strdup_printf("%s->%d", (final_alg.ppd.aproblem.tasks[i].name),(final_sol[i]));
+		  gchar *str = g_strdup_printf("%s->%s", (final_alg.ppd.aproblem.tasks[i].name),(final_alg.ppd.aproblem.resources[final_sol[i]].name));
 		  gtk_grid_attach(GTK_GRID(grid_solved), gtk_label_new(str), 0, i+2, 1, 1);
 	  }
 
