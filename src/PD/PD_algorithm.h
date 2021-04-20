@@ -19,7 +19,6 @@
 
 extern int numprocs;
 extern int event6;//for MPE log
-extern int event9;//for MPE log
 extern int print_all;
 
 AproblemPD * newArrayAppd;

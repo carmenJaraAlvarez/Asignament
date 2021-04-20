@@ -300,65 +300,17 @@
 
 					  }
 
-					  if(round==1){//si second round and tuple_prune empty, save data sol
-						  if(tuple_prune_data.num_tuples==0)
-						  {
-							  printf("\nPD_algorithm.c		pD()	adding new: %d,%d->%f",palg->problems[m].solution.resources[palg->problems[m].solution.lengthArrays-1].position,as[u].indexResource,palg->problems[m].solution.acum+my_value);
-							  	  add_tuple(
-							  			  &tuple_prune_data,
-										  palg->problems[m].solution.resources[palg->problems[m].solution.lengthArrays-1].position,
-										  as[u].indexResource,
-										  palg->problems[m].solution.acum+my_value);
-							  	  show_tuple_prune(&tuple_prune_data);
-						  }
-						  else //si second round and tuple_prune NOT empty, compare
-						  {
-							  printf("\nPD_algorithm.c		pD()	search");
-							  //search
-							  int sym=-1;
-							  for(int j=0;j<tuple_prune_data.num_tuples;j=j+2)
-							  {
-								  if(tuple_prune_data.solution_tuples[j]==as[u].indexResource
-										  &&
-									 tuple_prune_data.solution_tuples[j+1]==palg->problems[m].solution.resources[palg->problems[m].solution.lengthArrays-1].position  )
-								  {
-									  sym=j/2;
-									  show_tuple_prune(&tuple_prune_data);
-									  printf("\nPD_algorithm.c		pD()	tuple found: %d",sym);
-									  break;
-								  }
-							  }
-							  my_value=my_value+palg->problems[m].solution.acum;
-							  //if exists symmetric and acum is better>>prune
-							  if(
-									  sym>=0
-									  &&
-									  (
-											  (tuple_prune_data.solution_values[sym]>my_value && ismax)
-											  ||
-											  (tuple_prune_data.solution_values[sym]<my_value && ismin)
-											  )
-									  )
-							  {
-								  tuple_prune=TRUE;
-								  MPE_Log_event(event9, 0, "Tuple prune");
-								  printf("\nPD_algorithm.c		pD()	tuple_prune=true");
-							  }
-							  else//save and prune=FALSE to go on
-							  {
-								  add_tuple(
-											  &tuple_prune_data,
-											  palg->problems[m].solution.resources[palg->problems[m].solution.lengthArrays-1].position,
-											  as[u].indexResource,
-											  my_value);
-
-								  show_tuple_prune(&tuple_prune_data);
-
-								  tuple_prune=FALSE;
-							  }
-
-
-						  }
+					  if(round==1)
+					  {
+						  check_prune(
+						  		  &tuple_prune,
+						  		  &tuple_prune_data,
+						  		  &as,
+								  &(palg->problems[m]),
+						  		  my_value,
+						  		  u,
+						  		  ismin,
+						  		  ismax);
 					  }
 
 					  //for dummy prune

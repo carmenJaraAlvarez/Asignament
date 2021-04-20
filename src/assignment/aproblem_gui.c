@@ -11,6 +11,7 @@
 static void resolve_aPD(PAproblem, int);
 int prune=1;
 int redistribution_rr=1;
+int tuple_p=1;
 
 void get_data(GtkWidget *calculate, gpointer data) {
 	init_clock();
@@ -51,7 +52,7 @@ void resolve_aPD(PAproblem pap, int num_processes)
     	printf("\naproblem_gui.c resolve_aPD()-> Resolving\n");
     }
 
-	distribution(&final_alg,prune,redistribution_rr);
+	distribution(&final_alg,prune,redistribution_rr,tuple_p);
 	init_slaves=1;
     if(print_all)
     {
@@ -160,14 +161,42 @@ void button_toggled_rr (GtkWidget *button, gpointer   user_data)
    g_print ("\n%s was turned %s\n", button_label, b_state);
    g_print ("\naproblem_gui.c 		button_toggled_cb ()		rr->%d", redistribution_rr);
  }
+void button_toggled_tp (GtkWidget *button, gpointer   user_data)
+{
+  char *b_state;
+  const char *button_label;
 
+  if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (button)))
+  {
+	  b_state = "on";
+  }
+  else
+  {
+          b_state = "off";
+          g_print ("\n");
+  }
+  button_label = gtk_button_get_label (GTK_BUTTON (button));
+  if(strcmp(button_label,"Tuple prune") && strcmp(b_state,"on"))
+  {
+	  tuple_p=1;
+	  g_print ("\naproblem_gui.c		button_toggled_tp()		tp");
+  }
+  else if(strcmp(button_label,"Tuple prune") && strcmp(b_state,"off"))
+  {
+	  tuple_p=0;
+	  g_print ("\naproblem_gui.c		button_toggled_tp()		NO tp");
+  }
+
+   g_print ("\n%s was turned %s\n", button_label, b_state);
+   g_print ("\naproblem_gui.c 		button_toggled_tp ()		tp->%d", tuple_p);
+ }
 
 void create_aproblem_window(GtkWidget *window,int num_processes)
 {
 	g_print ("\naproblem_gui.c 		create_aproblem_window()		prune->%d",prune);
 	g_print ("\naproblem_gui.c 		create_aproblem_window()		rr->%d",redistribution_rr);
 		GtkWidget *grid, *done;
-		GtkWidget *radio_prune,*radio_no_prune,*radio_rr, *radio_no_rr;
+		GtkWidget *radio_prune,*radio_no_prune,*radio_rr, *radio_no_rr, *radio_tp,*radio_no_tp;
 
 	    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	    g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
@@ -224,6 +253,20 @@ void create_aproblem_window(GtkWidget *window,int num_processes)
 		 g_signal_connect (GTK_TOGGLE_BUTTON (radio_no_rr), "toggled",
 						   G_CALLBACK (button_toggled_rr), window);
 
+	     /*Create an initial radio button*/
+		 radio_tp = gtk_radio_button_new_with_label (NULL, "Tuple prune");
+		 /*Create a second radio button, and add it to the same group as Button 1*/
+		 radio_no_tp = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON (radio_tp), "No tuple prune");
+		 gtk_grid_attach (GTK_GRID (grid), radio_tp, 0, 7, 1, 1);
+		 gtk_grid_attach (GTK_GRID (grid), radio_no_tp, 1, 7, 1, 1);
+		 /*set the initial state of each button*/
+		 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio_rr), TRUE);
+		 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio_no_rr), FALSE);
+		 /*Connect the signal handlers (aka Callback functions) to the buttons*/
+		 g_signal_connect (GTK_TOGGLE_BUTTON (radio_tp), "toggled",
+						   G_CALLBACK (button_toggled_tp), window);
+		 g_signal_connect (GTK_TOGGLE_BUTTON (radio_no_tp), "toggled",
+						   G_CALLBACK (button_toggled_tp), window);
 
 
 	    done = gtk_button_new_with_label("Done");
@@ -234,7 +277,7 @@ void create_aproblem_window(GtkWidget *window,int num_processes)
 	    	printf("\naproblem_gui.c create_aproblem_window()-> num process: %d\n",n);
 	    }
 	    g_signal_connect(done, "clicked", G_CALLBACK(get_data), n);
-	    gtk_grid_attach(GTK_GRID(grid), done, 0, 7, 1, 1);
+	    gtk_grid_attach(GTK_GRID(grid), done, 0, 8, 1, 1);
 
 	    gtk_widget_show_all(window);
 

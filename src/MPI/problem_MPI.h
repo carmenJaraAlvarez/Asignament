@@ -130,8 +130,8 @@ int confirming_work(int);
 int waiting_confirming(Transfered_nodes *);
 
 //master
-int distribution(PalgorithmPD, int, int);
-int send_work(const PalgorithmPD,int *, int, int, int,int);
+int distribution(PalgorithmPD, int, int,int);
+int send_work(const PalgorithmPD,int *, int, int, int,int,int);
 int broadcast_best(const double);
 int rcv_resolved();
 int rcv_best(double b, MPI_Request*);

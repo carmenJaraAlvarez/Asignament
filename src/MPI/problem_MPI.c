@@ -92,7 +92,7 @@ int init_redistribution(MPI_Request * request_work){
 
 	return 0;
 }
-int distribution(PalgorithmPD palg, int prune, int r_rr)
+int distribution(PalgorithmPD palg, int prune, int r_rr, int tuple_p)
 {
 	int res=-1;
 	Solution sol;
@@ -142,7 +142,7 @@ int distribution(PalgorithmPD palg, int prune, int r_rr)
 			int alternatives[1];
 			alternatives[0]=i-1;
 			printf("\nproblem_MPI.c		distribution()		num problems==num slaves: alternative->%d",alternatives[0]);
-			send_work(palg,&alternatives,1,i,prune,r_rr);//sending 1 alternative to process i
+			send_work(palg,&alternatives,1,i,prune,r_rr, tuple_p);//sending 1 alternative to process i
 			if(r_rr)
 			{
 				rr.receivers_less[i-1]=i;
@@ -164,7 +164,7 @@ int distribution(PalgorithmPD palg, int prune, int r_rr)
 			int alternatives[1];
 			alternatives[0]=i-1;
 			printf("\n num problems<num slaves: alternative->%d",alternatives[0]);
-			send_work(palg,&alternatives,1,i,prune,r_rr);
+			send_work(palg,&alternatives,1,i,prune,r_rr, tuple_p);
 			if(r_rr)
 			{
 				rr.receivers_less[i-1]=i;
@@ -179,7 +179,7 @@ int distribution(PalgorithmPD palg, int prune, int r_rr)
 		for(int j=palg->num_problems+1;j<num_slaves+1;j++)
 		{
 			int alternatives[0];
-			send_work(palg,&alternatives,0,j,prune,r_rr);
+			send_work(palg,&alternatives,0,j,prune,r_rr, tuple_p);
 		}
 	}
 	else//num problems >num processes
@@ -207,7 +207,7 @@ int distribution(PalgorithmPD palg, int prune, int r_rr)
 				printf("\"\nproblem_MPI.c		distribution()		alternative %d=%d",j,a);
 				alternatives[j]=a;//process i, distribution round j
 			}
-			send_work(palg,&alternatives,rounds+1,i,prune,r_rr);
+			send_work(palg,&alternatives,rounds+1,i,prune,r_rr, tuple_p);
 			if(r_rr)
 			{
 				rr.receivers_plus[i-1]=i;
@@ -225,7 +225,7 @@ int distribution(PalgorithmPD palg, int prune, int r_rr)
 			{
 				alternatives[j]=(i-1)+(j*num_slaves);//process i, distribution round j
 			}
-			send_work(palg,alternatives,rounds,i,prune,r_rr);
+			send_work(palg,alternatives,rounds,i,prune,r_rr, tuple_p);
 			if(r_rr)
 			{
 				rr.receivers_less[i-1]=i;
@@ -704,7 +704,7 @@ int init_work(PAproblem pa, int num_alternatives, int * alternatives,double * bu
 
 	return res;
 }
-int send_work(const PalgorithmPD palg,int *alternatives, int num_alternatives, int num_process,int prune, int r_rr)
+int send_work(const PalgorithmPD palg,int *alternatives, int num_alternatives, int num_process,int prune, int r_rr, int tuple_prune)
 {
 	MPE_Log_event(event1a, 0, "start send");
 	if(print_all)
