@@ -51,7 +51,7 @@ extern int startEvent, endEvent;
 extern MPI_Request request_bcast;
 extern MPI_Request request_b;
 extern double best;
-
+extern int tuple_p;
 extern int master;
 extern int numprocs;
 AlgorithmPD final_alg;
@@ -72,6 +72,7 @@ AproblemPD *problems;
 		//problem type: min, max, other
 		Type type;
 		int prune;
+		int tuple_prune;
 		int redistribution;
 		//alternative the process will select
 		int num_alternatives;
