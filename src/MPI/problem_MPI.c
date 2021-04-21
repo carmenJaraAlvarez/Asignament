@@ -92,7 +92,7 @@ int init_redistribution(MPI_Request * request_work){
 
 	return 0;
 }
-int distribution(PalgorithmPD palg, int prune, int r_rr)
+int distribution(PalgorithmPD palg, int prune, int r_rr, int tuple_p)
 {
 	int res=-1;
 	Solution sol;
@@ -142,7 +142,7 @@ int distribution(PalgorithmPD palg, int prune, int r_rr)
 			int alternatives[1];
 			alternatives[0]=i-1;
 			printf("\nproblem_MPI.c		distribution()		num problems==num slaves: alternative->%d",alternatives[0]);
-			send_work(palg,&alternatives,1,i,prune,r_rr);//sending 1 alternative to process i
+			send_work(palg,&alternatives,1,i,prune,r_rr, tuple_p);//sending 1 alternative to process i
 			if(r_rr)
 			{
 				rr.receivers_less[i-1]=i;
@@ -164,7 +164,7 @@ int distribution(PalgorithmPD palg, int prune, int r_rr)
 			int alternatives[1];
 			alternatives[0]=i-1;
 			printf("\n num problems<num slaves: alternative->%d",alternatives[0]);
-			send_work(palg,&alternatives,1,i,prune,r_rr);
+			send_work(palg,&alternatives,1,i,prune,r_rr, tuple_p);
 			if(r_rr)
 			{
 				rr.receivers_less[i-1]=i;
@@ -179,7 +179,7 @@ int distribution(PalgorithmPD palg, int prune, int r_rr)
 		for(int j=palg->num_problems+1;j<num_slaves+1;j++)
 		{
 			int alternatives[0];
-			send_work(palg,&alternatives,0,j,prune,r_rr);
+			send_work(palg,&alternatives,0,j,prune,r_rr, tuple_p);
 		}
 	}
 	else//num problems >num processes
@@ -207,7 +207,7 @@ int distribution(PalgorithmPD palg, int prune, int r_rr)
 				printf("\"\nproblem_MPI.c		distribution()		alternative %d=%d",j,a);
 				alternatives[j]=a;//process i, distribution round j
 			}
-			send_work(palg,&alternatives,rounds+1,i,prune,r_rr);
+			send_work(palg,&alternatives,rounds+1,i,prune,r_rr, tuple_p);
 			if(r_rr)
 			{
 				rr.receivers_plus[i-1]=i;
@@ -225,7 +225,7 @@ int distribution(PalgorithmPD palg, int prune, int r_rr)
 			{
 				alternatives[j]=(i-1)+(j*num_slaves);//process i, distribution round j
 			}
-			send_work(palg,alternatives,rounds,i,prune,r_rr);
+			send_work(palg,alternatives,rounds,i,prune,r_rr, tuple_p);
 			if(r_rr)
 			{
 				rr.receivers_less[i-1]=i;
@@ -258,10 +258,10 @@ int rcv_work(double * buffer,MPI_Request * request_b,int * buffer_w)
 	//getting work
 
 	MPI_Datatype work_mpi_datatype;
-	int blocklengths[6] = {1,1,1,1,1,1};
-	MPI_Datatype types[6] = {MPI_INT, MPI_INT,MPI_INT, MPI_INT, MPI_INT, MPI_INT};
-	const MPI_Aint offsets[6]= { 0, sizeof(int),sizeof(int)*2,sizeof(int)*3,sizeof(int)*4,sizeof(int)*5};
-	MPI_Type_create_struct(6, blocklengths, offsets, types,  &work_mpi_datatype);
+	int blocklengths[7] = {1,1,1,1,1,1,1};
+	MPI_Datatype types[7] = {MPI_INT, MPI_INT,MPI_INT, MPI_INT, MPI_INT, MPI_INT, MPI_INT};
+	const MPI_Aint offsets[7]= { 0, sizeof(int),sizeof(int)*2,sizeof(int)*3,sizeof(int)*4,sizeof(int)*5,sizeof(int)*6};
+	MPI_Type_create_struct(7, blocklengths, offsets, types,  &work_mpi_datatype);
 	MPI_Type_commit ( &work_mpi_datatype );
 	MPI_Status status;
 
@@ -274,6 +274,7 @@ int rcv_work(double * buffer,MPI_Request * request_b,int * buffer_w)
     	printf("\n received prune: %d",work.prune);
     }
     prune=work.prune;
+    tuple_p=work.tuple_prune;
 	int size_values=work.num_tasks*work.num_resources;
 
 
@@ -704,7 +705,7 @@ int init_work(PAproblem pa, int num_alternatives, int * alternatives,double * bu
 
 	return res;
 }
-int send_work(const PalgorithmPD palg,int *alternatives, int num_alternatives, int num_process,int prune, int r_rr)
+int send_work(const PalgorithmPD palg,int *alternatives, int num_alternatives, int num_process,int prune, int r_rr, int tuple_prune)
 {
 	MPE_Log_event(event1a, 0, "start send");
 	if(print_all)
@@ -736,6 +737,7 @@ int send_work(const PalgorithmPD palg,int *alternatives, int num_alternatives, i
 	work.num_alternatives=num_alternatives;//TODO
 	work.type=palg->ppd.aproblem.type;
 	work.prune=prune;
+	work.tuple_prune=tuple_prune;
 	work.redistribution=r_rr;
 	int num_values=work.num_resources*work.num_tasks;
 	if(print_all)
@@ -789,10 +791,10 @@ int send_work(const PalgorithmPD palg,int *alternatives, int num_alternatives, i
 
 	//sending
 	MPI_Datatype work_mpi_datatype;
-	int blocklengths[6] = {1,1,1,1,1,1};
-	MPI_Datatype types[6] = {MPI_INT, MPI_INT,MPI_INT,MPI_INT, MPI_INT, MPI_INT};
-    const MPI_Aint offsets[6]= { 0, sizeof(int),sizeof(int)*2, sizeof(int)*3, sizeof(int)*4,sizeof(int)*5};
-	MPI_Type_create_struct(6, blocklengths, offsets, types,  &work_mpi_datatype);
+	int blocklengths[7] = {1,1,1,1,1,1,1};
+	MPI_Datatype types[7] = {MPI_INT, MPI_INT,MPI_INT,MPI_INT, MPI_INT, MPI_INT, MPI_INT};
+    const MPI_Aint offsets[7]= { 0, sizeof(int),sizeof(int)*2, sizeof(int)*3, sizeof(int)*4,sizeof(int)*5,sizeof(int)*6};
+	MPI_Type_create_struct(7, blocklengths, offsets, types,  &work_mpi_datatype);
 	MPI_Type_commit ( &work_mpi_datatype);
 
 	if(print_all)
@@ -801,6 +803,7 @@ int send_work(const PalgorithmPD palg,int *alternatives, int num_alternatives, i
 		printf("\n sending num resources: %d\n",work.num_resources);
 		printf("\n sending type: %d\n",work.type);
 		printf("\n sending prune: %d\n",work.prune);
+		printf("\n sending tuple_prune: %d\n",work.tuple_prune);
 		printf("\n sending alternatives: %d\n",work.num_alternatives);
 	}
 

@@ -8,8 +8,10 @@
 #ifndef ALGORITHM_ALGORITHM_H_
 #define ALGORITHM_ALGORITHM_H_
 #include "../assignment/PD/a_problem_PD.h"
-#define MAX_NUM 100
 
+#define MAX_NUM 100
+extern int event9;//for MPE log
+extern int tuple_p;
 //Redistribution////////////////////////////////////
 typedef struct
   {
@@ -30,6 +32,7 @@ typedef struct
   int add_transfered(Transfered_nodes * ,AproblemPD * ,int );
   void show_transfered(const Transfered_nodes *);
 
+
   //pair prune ////////////////////////////////////
 
   typedef struct
@@ -46,6 +49,7 @@ typedef struct
   int add_tuple(PTuple_prune, int, int, double);
   int free_tuple_prune(PTuple_prune);
   void show_tuple_prune(const PTuple_prune);
+  void check_prune(Logico *,PTuple_prune,Alternative *,AproblemPD *,double,int,Logico, Logico);
 
 
 #endif /* ALGORITHM_ALGORITHM_H_ */

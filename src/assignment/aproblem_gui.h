@@ -23,6 +23,8 @@ static GtkWidget *tasks;
 static GtkWidget *values;
 static GtkWidget *value;
 static GtkWidget *url_file;
+static GtkWidget *table;
+
 //the problem
 PAproblem pap_from_gui;
 extern MPI_Request request_b;
@@ -38,7 +40,7 @@ MPI_Request request_bcast;
 MPI_Request request;
 
 void get_data(GtkWidget *, gpointer);
-void create_aproblem_window(GtkWidget *,int );
+void create_aproblem_window(int );
 void button_toggled_cb (GtkWidget * ,gpointer );
 void button_toggled_rr (GtkWidget * ,gpointer );
   

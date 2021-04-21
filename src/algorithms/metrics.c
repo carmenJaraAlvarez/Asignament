@@ -46,6 +46,7 @@ int describe_logs(){
     MPE_Describe_event( event6, "prune", "purple" );
     MPE_Describe_event( event7, "confirmed", "yellow" );
     MPE_Describe_event( event8, "Timeout", "red" );
+    MPE_Describe_event( event9, "Tuple_prune", "orange" );
 
     return 0;
 }

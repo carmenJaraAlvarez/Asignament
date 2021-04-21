@@ -88,7 +88,7 @@
   }
   int init_tuple_prune(PTuple_prune ptp){
 	  ptp->num_tuples=0;
-	  int memoryArrayValues=sizeof(int)*MAX_NUM;//TODO
+	  int memoryArrayValues=sizeof(int)*MAX_NUM;//TODO it must depend of tasks number
 	  ptp->solution_values=(int*)malloc(memoryArrayValues);
 	  memoryArrayValues*=2;
 	  ptp->solution_tuples=(int*)malloc(memoryArrayValues);
@@ -120,7 +120,7 @@
   }
   void show_tuple_prune(const PTuple_prune ptp)
   {
-	  printf("\Tuple prune:\n{");
+	  printf("\nTuple prune:\n{");
 	  for(int i=0;i<ptp->num_tuples;i++)
 	  {
 		  printf("{");
@@ -130,6 +130,80 @@
 	  printf("}");
   }
 
+  void check_prune(
+		  Logico * tuple_prune,
+		  PTuple_prune tuple_prune_data,
+		  Alternative * as,
+		  AproblemPD * papd,
+		  double my_value,
+		  int u,
+		  Logico ismin,
+		  Logico ismax)
+  {
+	  if(tuple_p)
+	  {
+		  //tuple_prune empty, save data sol
+		  	  if(tuple_prune_data->num_tuples==0)
+		  	  {
+		  		  printf("\nalgorithm.c		check_prune()	adding new: %d,%d->%f",papd->solution.resources[papd->solution.lengthArrays-1].position,as[u].indexResource,papd->solution.acum+my_value);
+		  			  add_tuple(
+		  					  tuple_prune_data,
+		  					  papd->solution.resources[papd->solution.lengthArrays-1].position,
+		  					  as[u].indexResource,
+		  					  papd->solution.acum+my_value);
+		  			  show_tuple_prune(tuple_prune_data);
+		  	  }
+		  	  else //si second round and tuple_prune NOT empty, compare
+		  	  {
+		  		  printf("\nalgorithm.c		check_prune()	search");
+		  		  //search
+		  		  int sym=-1;
+		  		  for(int j=0;j<tuple_prune_data->num_tuples;j=j+2)
+		  		  {
+		  			  if(tuple_prune_data->solution_tuples[j]==as[u].indexResource
+		  					  &&
+		  				 tuple_prune_data->solution_tuples[j+1]==papd->solution.resources[papd->solution.lengthArrays-1].position  )
+		  			  {
+		  				  sym=j/2;
+		  				  show_tuple_prune(tuple_prune_data);
+		  				  printf("\nalgorithm.c		check_prune()	tuple found: %d",sym);
+		  				  break;
+		  			  }
+		  		  }
+		  		  my_value=my_value+papd->solution.acum;
+		  		  //if exists symmetric and acum is better>>prune
+		  		  if(
+		  				  sym>=0
+		  				  &&
+		  				  (
+		  						  (tuple_prune_data->solution_values[sym]>my_value && ismax)
+		  						  ||
+		  						  (tuple_prune_data->solution_values[sym]<my_value && ismin)
+		  						  )
+		  				  )
+		  		  {
+		  			  *tuple_prune=TRUE;
+		  			  MPE_Log_event(event9, 0, "Tuple prune");
+		  			  printf("\nalgorithm.c		check_prune()	tuple_prune=true");
+		  		  }
+		  		  else//save and prune=FALSE to go on
+		  		  {
+		  			  add_tuple(
+		  						  tuple_prune_data,
+		  						  papd->solution.resources[papd->solution.lengthArrays-1].position,
+		  						  as[u].indexResource,
+		  						  my_value);
 
+		  			  show_tuple_prune(tuple_prune_data);
+
+		  			  *tuple_prune=FALSE;
+		  		  }
+
+
+		  	  }
+
+	  }
+
+  }
 
 

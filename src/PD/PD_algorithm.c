@@ -125,6 +125,7 @@
   int pD(PalgorithmPD palg,double * buffer,MPI_Request * request_b,int * buffer_w,MPI_Request * request_w)
   {
 	  init_transfered(&transfered);
+	  init_tuple_prune(&tuple_prune_data);
 	  if(1)
 	  {
 		  printf("\nPD_algorithm.c	 pD()		init transfered nodes");
@@ -279,7 +280,40 @@
 					  //prune control
 					  ismin=is_min(palg);
 					  ismax=is_max(palg);
+					  //for tuple_prune
+					  Logico tuple_prune=FALSE;
 
+					  int round=palg->problems[m].index-palg->ppd.index;
+					  double my_value=palg->ppd.aproblem.values
+							  	  	  	  	  	[
+												(round+1)+as[u].indexResource*palg->ppd.aproblem.numTask
+												];
+					  if(1)
+					  {
+						  printf("\nPD_algorithm.c		pD()		as[u]:%d",as[u].indexResource);
+						  printf("\nPD_algorithm.c		pD()		problems[m].index: %d, ppd.index: %d, round %d:",palg->problems[m].index,palg->ppd.index,round);
+						  printf("\nPD_algorithm.c		pD()		acum:%f, my_value: %f",palg->problems[m].solution.acum,my_value);
+						  for(int i=0;i<palg->problems[m].solution.lengthArrays;i++)
+						  {
+							  printf("\nPD_algorithm.c		pD()		sol %d:%d",i,palg->problems[m].solution.resources[i].position);
+						  }
+
+					  }
+
+					  if(round==1)
+					  {
+						  check_prune(
+						  		  &tuple_prune,
+						  		  &tuple_prune_data,
+						  		  &as,
+								  &(palg->problems[m]),
+						  		  my_value,
+						  		  u,
+						  		  ismin,
+						  		  ismax);
+					  }
+
+					  //for dummy prune
 					  double b_estimated=get_best_estimate(&(palg->problems[m]));
 					  if
 					  (
@@ -289,7 +323,7 @@
 
 										  &&
 							  //tuple prune
-										  (1)//TODO
+										  (!tuple_prune)
 
 					  )//no prune, go on
 					  {

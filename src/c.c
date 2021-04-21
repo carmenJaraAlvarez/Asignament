@@ -46,7 +46,7 @@ int event7b;
 int event8a;
 int event8b;
 
-int event1, event2, event3, event4, event5, event6, event7, event8;
+int event1, event2, event3, event4, event5, event6, event7, event8, event9;
 int startEvent, endEvent;
 
 double startwtime, endwtime;
@@ -87,6 +87,7 @@ int main(int argc, char **argv)
   MPE_Log_get_solo_eventID( &event6 );
   MPE_Log_get_solo_eventID( &event7 );
   MPE_Log_get_solo_eventID( &event8 );
+  MPE_Log_get_solo_eventID( &event9 );
   init_slaves=0;
 
   //MPE_Log_sync_clocks();
@@ -114,12 +115,12 @@ int main(int argc, char **argv)
 		printf("\nAn MPI program.\n The number of processes is %d \n This is %d\n",numprocs,myid);
 	}
 
-	GtkWidget *window_init;
+
 	gtk_init(&argc, &argv);
 
 	//the particular problem/////////////
     // PAproblem pap;
-	create_aproblem_window(&window_init,numprocs);
+	create_aproblem_window(numprocs);
 	/////////////////////////////////////
 
 	gtk_main();

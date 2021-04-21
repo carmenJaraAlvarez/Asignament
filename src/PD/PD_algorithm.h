@@ -23,6 +23,7 @@ extern int print_all;
 
 AproblemPD * newArrayAppd;
 Transfered_nodes transfered;//if redistribution
+Tuple_prune tuple_prune_data;//if tuple prune
 
 typedef struct
   {

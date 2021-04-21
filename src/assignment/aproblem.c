@@ -20,7 +20,6 @@ static Logico checkInt(const int);
 		 printf("Resources error\n");
 		 return -1;
 	 }
-	 //TODO check values
 	 if(!checkInt(numTasks) || !checkInt(numResources)){
 		 printf("Matrix dimension error\n");
 		 return -1;
@@ -104,7 +103,7 @@ static Logico checkInt(const int);
  }
 
  int read_aproblem_file(PAproblem pap, const int numTasks, const int numResources,const Cadena url){
-	 int res=-1;
+	 int res=-3;
 	 int i;
 	 int j;
 	 double aux;
@@ -125,7 +124,7 @@ static Logico checkInt(const int);
 	  if (f == NULL) {
 	    perror("fopen");
 	    printf("error apertura fichero");
-	    return -1;
+	    return -2;
 	  }
 
 
@@ -165,6 +164,10 @@ static Logico checkInt(const int);
 			 values[i]=aux;
 		 }
 		 res=init_aproblem(pap,arrayT,arrayR,numTasks,numResources, values);
+		 if(res!=0)
+		 {
+			 return res;
+		 }
 
 	 }//close->while(!feof(f))
 	 fclose(f);

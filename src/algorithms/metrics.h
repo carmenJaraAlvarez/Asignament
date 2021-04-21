@@ -33,7 +33,7 @@ extern int event7a;
 extern int event7b;
 extern int event8a;
 extern int event8b;
-extern int event1, event2, event3, event4, event5, event6, event7, event8;
+extern int event1, event2, event3, event4, event5, event6, event7, event8, event9;
 extern int startEvent, endEvent;
 
 int init_clock();

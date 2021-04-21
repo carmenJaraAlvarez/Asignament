@@ -51,7 +51,7 @@ extern int startEvent, endEvent;
 extern MPI_Request request_bcast;
 extern MPI_Request request_b;
 extern double best;
-
+extern int tuple_p;
 extern int master;
 extern int numprocs;
 AlgorithmPD final_alg;
@@ -72,6 +72,7 @@ AproblemPD *problems;
 		//problem type: min, max, other
 		Type type;
 		int prune;
+		int tuple_prune;
 		int redistribution;
 		//alternative the process will select
 		int num_alternatives;
@@ -130,8 +131,8 @@ int confirming_work(int);
 int waiting_confirming(Transfered_nodes *);
 
 //master
-int distribution(PalgorithmPD, int, int);
-int send_work(const PalgorithmPD,int *, int, int, int,int);
+int distribution(PalgorithmPD, int, int,int);
+int send_work(const PalgorithmPD,int *, int, int, int,int,int);
 int broadcast_best(const double);
 int rcv_resolved();
 int rcv_best(double b, MPI_Request*);
