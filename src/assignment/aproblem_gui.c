@@ -10,6 +10,7 @@
 
 static const gchar *myCssFile = "/home/practica/eclipse-workspace/c/src/css/mystyle.css";
 char *message="No error";
+int err=0;
 GtkWidget *window;
 int prune=1;
 int redistribution_rr=1;
@@ -36,24 +37,35 @@ void get_data(GtkWidget *calculate, gpointer data) {
 	Cadena cadena_url;
 	strcpy(cadena_url,text);
 
-    int i=read_aproblem_file(&pap_from_gui, numt, numr, cadena_url);
+    int e=read_aproblem_file(&pap_from_gui, numt, numr, cadena_url);
     if(print_all)
     {
-    	printf("\naproblem_gui.c get_data()-> READED file  %d\n",i);
+    	printf("\naproblem_gui.c get_data()-> READED file  %d\n",e);
 		g_print ("\naproblem_gui.c 		get_data()		prune->%d",prune);
 		g_print ("\naproblem_gui.c 		get_data()		rr->%d",redistribution_rr);
     }
-    if(i==-1)
+    if(e==-1)
+    {
+    	message="Error initializing problem, please check input data";
+    	err=1;
+
+    }
+    else if(e==-2)
     {
     	message="Error loading file";
+    	err=1;
+
+    }
+    else if(e==-3)
+    {
+    	message="Unknown error";
+    	err=1;
 
     }
     else
     {
 		resolve_aPD(&pap_from_gui, num_processes);
     }
-    //gtk_label_set_text(GTK_LABEL(values), buffer);
-    //printf("\n %s", text);
 
 }
 
@@ -108,28 +120,38 @@ void resolve_aPD(PAproblem pap, int num_processes)
 	  gtk_widget_set_name(table, "mytable");
 
 	  GdkColor color;
-	  gdk_color_parse ("yellow", &color);
+	  gdk_color_parse ("Gold", &color);
+
+	  GdkColor color_grey;
+	  gdk_color_parse ("LightGray", &color_grey);
 
 	    for(int i=0;i<final_alg.ppd.aproblem.numResources+1;i++)
 	    {
 		    for(int j=0;j<final_alg.ppd.aproblem.numTask+1;j++)
 		    {
 		    	if(j==0){
+
 		    		if(i!=0){
 		    		 gchar *head = g_strdup_printf("%s", final_alg.ppd.aproblem.tasks[i-1].name);
 		    		 value = gtk_label_new(head);
-		    		 g_object_set (value, "margin", 5, NULL);
+		    		 g_object_set (value, "margin", 1, NULL);
+		    		 g_object_set (value, "padding-right", 6, NULL);
+		    		 g_object_set (value, "padding-left", 6, NULL);
 		    		 gtk_grid_attach(GTK_GRID(table), value, i+1, j, 1, 1);
+		    		 gtk_widget_modify_bg ( GTK_WIDGET(value), GTK_STATE_NORMAL, &color_grey);
 		    		}
 		    	}
 		    	else
 		    	{
 		    		if(i==0)
 		    		{
+
 			    		 gchar *head = g_strdup_printf("%s", final_alg.ppd.aproblem.resources[j-1].name);
 						 value = gtk_label_new(head);
-						 g_object_set (value, "margin", 5, NULL);
+						 g_object_set (value, "margin", 1, NULL);
+						 g_object_set (value, "padding", 6, NULL);
 						 gtk_grid_attach(GTK_GRID(table), value, i, j+1, 1, 1);
+						 gtk_widget_modify_bg ( GTK_WIDGET(value), GTK_STATE_NORMAL, &color_grey);
 		    		}
 		    		else
 		    		{
@@ -280,12 +302,11 @@ void create_aproblem_window(int num_processes)
 		GtkWidget *radio_prune,*radio_no_prune,*radio_rr, *radio_no_rr, *radio_tp,*radio_no_tp;
 
 	    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	    ////////////////////////////////
-	    GtkWidget *error;
-	    error = gtk_button_new_with_label("Error");
-		g_signal_connect(G_OBJECT(error), "clicked",
-		        G_CALLBACK(show_error),message);
-		/////////////////////////////////
+	    //to test
+//	    GtkWidget *error;
+//	    error = gtk_button_new_with_label("Error");
+//		g_signal_connect(G_OBJECT(error), "clicked",
+//		        G_CALLBACK(show_error),message);
 
 	    g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 	    /* Sets the border width of the window. */
@@ -351,7 +372,7 @@ void create_aproblem_window(int num_processes)
 		 radio_no_tp = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON (radio_tp), "No tuple prune");
 		 gtk_grid_attach (GTK_GRID (grid), radio_tp, 0, 7, 1, 1);
 		 gtk_grid_attach (GTK_GRID (grid), radio_no_tp, 1, 7, 1, 1);
-		 gtk_grid_attach (GTK_GRID(grid), error, 1, 9, 1, 1);
+		 //gtk_grid_attach (GTK_GRID(grid), error, 1, 9, 1, 1);
 		 /*set the initial state of each button*/
 		 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio_rr), TRUE);
 		 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio_no_rr), FALSE);
@@ -389,14 +410,14 @@ void create_aproblem_window(int num_processes)
 }
 
 void show_error() {
-	if(1)
+	if(print_all)
 	{
 		printf("\naproblem_gui.c		show_error()	init message : %s",message);
 	}
 
-	if(1)//TODO if there is error message
+	if(err)
 	{
-		if(1)
+		if(print_all)
 		{
 			printf("\naproblem_gui.c		show_error()	there is an error");
 		}
@@ -419,7 +440,8 @@ void show_error() {
 		  gtk_dialog_run(GTK_DIALOG(dialog));
 		  gtk_widget_destroy(dialog);
 		  message="No error";
-			if(1)
+		  err=0;
+			if(print_all)
 			{
 				printf("\naproblem_gui.c		show_error()	end");
 			}
