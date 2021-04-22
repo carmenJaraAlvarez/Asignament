@@ -53,8 +53,17 @@
 	  return res;
   }
 
-  int exec_algorithm(PalgorithmPD palg,double * buffer,MPI_Request * request_b,int * buffer_w, MPI_Request * request_w )
+  int exec_algorithm
+  (
+		  PalgorithmPD palg,
+		  double * buffer,
+		  MPI_Request * request_b,
+		  int * buffer_w,
+		  MPI_Request * request_w,
+		  int first_search
+  )
   {
+	  deep=first_search;
 	  int res=0;
 	  Solution sol;
 	  do
@@ -116,7 +125,7 @@
 			  		palg->best=palg->solvedProblems[i].solution.acum;//TODO
 			  	  }
 			  }
-		  printf("Selected one of the best solutions");//TODO
+		  printf("Selected one of the best solutions");//TODO to screen
 	  }
 
 	  return res;;
@@ -124,7 +133,7 @@
 
   int pD(PalgorithmPD palg,double * buffer,MPI_Request * request_b,int * buffer_w,MPI_Request * request_w)
   {
-	  deep=1;//TODO
+
 	  init_transfered(&transfered);
 	  init_tuple_prune(&tuple_prune_data);
 	  if(1)
@@ -148,7 +157,7 @@
 			  show_aproblem_PD(&(palg->problems[m]));
 		  }
 	  }
-	  if(!deep)
+	  if(!deep)//BFS
 	  {
 		  for(int m=0;m<lengthNewArrayAppd;m++){
 			  ///redistribution
@@ -403,10 +412,9 @@
 				  }//end else (not base case)
 			  }//end if num alt>0
 		  }//end for size
-	  }//end not deep
-	  else
+	  }//end BFS
+	  else//DFS
 	  {
-		  //for(int m=lengthNewArrayAppd-1;m>=0;m--){
 		  while(lengthNewArrayAppd>0)
 		  {
 			  int m=lengthNewArrayAppd-1;
@@ -535,6 +543,7 @@
 					  Logico ismin;
 					  Logico ismax;
 					  AproblemPD aux[numAlternatives];//TODO to include more than one problem for each alternative
+					  int len_aux=0;
 					  for(int u=0;u<numAlternatives;u++)
 					  {
 						  //prune control
@@ -557,20 +566,21 @@
 //							  {
 //								  printf("\nPD_algorithm.c		pD()		sol %d:%d",i,palg->problems[m].solution.resources[i].position);
 //							  }
+							}
 //									  //for dummy prune
-//						  double b_estimated=get_best_estimate(&(palg->problems[m]));
-//						  if
-//						  (
-//								  //dummy prune
-//								  ((ismin && b_estimated<=final_alg.best)
-//											  || (ismax && b_estimated>=final_alg.best))
-//
+						 double b_estimated=get_best_estimate(&(palg->problems[m]));
+						  if
+						  (
+								  //dummy prune
+								  ((ismin && b_estimated<=final_alg.best)
+											  || (ismax && b_estimated>=final_alg.best))
+
 //											  &&
-//								  //tuple prune
+								  //tuple prune
 //											  (!tuple_prune)
-//
-//						  )//no prune, go on
-//						  {
+
+						  )//no prune, go on
+						  {
 							  //case no prune,control our worst is better than global to change it
 							  double w_estimated=get_worst_estimate(&(palg->problems[m]));
 							  if((w_estimated>final_alg.best && ismax) ||
@@ -603,7 +613,8 @@
 								  initAProblemPD(&appdNew,&(palg->ppd.aproblem));
 
 								  get_subproblem(&(palg->problems[m]), &appdNew, as[u],numSubproblems);
-								  copy_aproblem_PD( &aux[u],appdNew);
+								  copy_aproblem_PD( &aux[len_aux],appdNew);
+								  len_aux++;
 								  if(1)
 								  {
 									  printf("\nPD_algorithm.c		pD		acum post get subproblem father acum: %f",palg->problems[m].solution.acum);
@@ -611,23 +622,18 @@
 									  printf("\nPD_algorithm.c		pD		is NOT base case: last appdNew sol: %s\n",appdNew.solution.resources[appdNew.solution.lengthArrays-1].name);
 									  printf("\nPD_algorithm.c		pD		i=%d of %d alternatives\n",u, numAlternatives);
 									  printf("\nPD_algorithm.c		pD		show aux problem:");
-									  show_aproblem_PD(&(aux[u]));
+									  show_aproblem_PD(&(aux[len_aux-1]));
 								  }
-								  //we must copy over the father, so we will do at the end of for
-								  // copy_aproblem_PD( &(palg->problems[lengthNewArrayAppd]),appdNew);
-
 								  //lengthNewArrayAppd++;
 							  }//end for num subproblem=1
-//						  }//end if not prune
-//						  else//prune
-//						  {
-//							  MPE_Log_event(event6, 0, "prune in PD");
-//
-//						  }
-						  }//end if 1
+						  }//end if not prune
+						  else//prune
+						  {
+							  MPE_Log_event(event6, 0, "prune in PD");
 
+						  }
 					  }//end for alternatives
-					  for(int v=0;v<numAlternatives;v++)
+					  for(int v=0;v<len_aux;v++)
 					  {
 						  //we must copy over the father,
 						  copy_aproblem_PD( &(palg->problems[lengthNewArrayAppd-1+v]),aux[v]);
@@ -635,7 +641,7 @@
 						  show_aproblem_PD(&(palg->problems[lengthNewArrayAppd-1+v]));
 					  }
 
-					  lengthNewArrayAppd=lengthNewArrayAppd+numAlternatives-1;
+					  lengthNewArrayAppd=lengthNewArrayAppd+len_aux-1;
 					  palg->num_problems=lengthNewArrayAppd;
 					  if(1)
 					  {

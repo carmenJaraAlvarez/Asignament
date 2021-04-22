@@ -15,6 +15,7 @@ GtkWidget *window;
 int prune=1;
 int redistribution_rr=1;
 int tuple_p=1;
+int fs=1;
 
 static void resolve_aPD(PAproblem, int);
 static void show_error();
@@ -79,7 +80,7 @@ void resolve_aPD(PAproblem pap, int num_processes)
     	printf("\naproblem_gui.c resolve_aPD()-> Resolving\n");
     }
 
-	distribution(&final_alg,prune,redistribution_rr,tuple_p);
+	distribution(&final_alg,prune,redistribution_rr,tuple_p,fs);
 	init_slaves=1;
     if(print_all)
     {
@@ -289,6 +290,35 @@ void button_toggled_tp (GtkWidget *button, gpointer   user_data)
    g_print ("\n%s was turned %s\n", button_label, b_state);
    g_print ("\naproblem_gui.c 		button_toggled_tp ()		tp->%d", tuple_p);
  }
+void button_toggled_fs (GtkWidget *button, gpointer   user_data)
+{
+  char *b_state;
+  const char *button_label;
+
+  if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (button)))
+  {
+	  b_state = "on";
+  }
+  else
+  {
+          b_state = "off";
+          g_print ("\n");
+  }
+  button_label = gtk_button_get_label (GTK_BUTTON (button));
+  if(strcmp(button_label,"Depth First Search") && strcmp(b_state,"on"))
+  {
+	  fs=1;
+	  g_print ("\naproblem_gui.c		button_toggled_fs()		dfs");
+  }
+  else if(strcmp(button_label,"Depth First Search") && strcmp(b_state,"off"))
+  {
+	  fs=0;
+	  g_print ("\naproblem_gui.c		button_toggled_fs()		bfs");
+  }
+
+   g_print ("\n%s was turned %s\n", button_label, b_state);
+   g_print ("\naproblem_gui.c 		button_toggled_fs ()		fs->%d", fs);
+ }
 
 void create_aproblem_window(int num_processes)
 {
@@ -299,7 +329,7 @@ void create_aproblem_window(int num_processes)
 
 
 		GtkWidget *grid, *done;
-		GtkWidget *radio_prune,*radio_no_prune,*radio_rr, *radio_no_rr, *radio_tp,*radio_no_tp;
+		GtkWidget *radio_prune,*radio_no_prune,*radio_rr, *radio_no_rr, *radio_tp,*radio_no_tp,*radio_dfs,*radio_bfs;
 
 	    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	    //to test
@@ -374,13 +404,30 @@ void create_aproblem_window(int num_processes)
 		 gtk_grid_attach (GTK_GRID (grid), radio_no_tp, 1, 7, 1, 1);
 		 //gtk_grid_attach (GTK_GRID(grid), error, 1, 9, 1, 1);
 		 /*set the initial state of each button*/
-		 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio_rr), TRUE);
-		 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio_no_rr), FALSE);
+		 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio_tp), TRUE);
+		 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio_no_tp), FALSE);
 		 /*Connect the signal handlers (aka Callback functions) to the buttons*/
 		 g_signal_connect (GTK_TOGGLE_BUTTON (radio_tp), "toggled",
 						   G_CALLBACK (button_toggled_tp), window);
 		 g_signal_connect (GTK_TOGGLE_BUTTON (radio_no_tp), "toggled",
 						   G_CALLBACK (button_toggled_tp), window);
+
+
+	     /*Create an initial radio button*/
+		 radio_dfs = gtk_radio_button_new_with_label (NULL, "Depth First Search");
+		 /*Create a second radio button, and add it to the same group as Button 1*/
+		 radio_bfs = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON (radio_dfs), "Breadth First Search");
+		 gtk_grid_attach (GTK_GRID (grid), radio_dfs, 0, 8, 1, 1);
+		 gtk_grid_attach (GTK_GRID (grid), radio_bfs, 1, 8, 1, 1);
+		 //gtk_grid_attach (GTK_GRID(grid), error, 1, 9, 1, 1);
+		 /*set the initial state of each button*/
+		 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio_dfs), TRUE);
+		 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio_bfs), FALSE);
+		 /*Connect the signal handlers (aka Callback functions) to the buttons*/
+		 g_signal_connect (GTK_TOGGLE_BUTTON (radio_dfs), "toggled",
+						   G_CALLBACK (button_toggled_fs), window);
+		 g_signal_connect (GTK_TOGGLE_BUTTON (radio_bfs), "toggled",
+						   G_CALLBACK (button_toggled_fs), window);
 
 
 	    done = gtk_button_new_with_label("Done");
@@ -392,7 +439,7 @@ void create_aproblem_window(int num_processes)
 	    }
 	    g_signal_connect(done, "clicked", G_CALLBACK(get_data), n);
 	    g_signal_connect(done, "clicked", G_CALLBACK(show_error), message);
-	    gtk_grid_attach(GTK_GRID(grid), done, 0, 8, 1, 1);
+	    gtk_grid_attach(GTK_GRID(grid), done, 0, 9, 1, 1);
 
 	    /////////////////////// CSS
 

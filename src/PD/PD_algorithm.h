@@ -24,8 +24,8 @@ extern int print_all;
 AproblemPD * newArrayAppd;
 Transfered_nodes transfered;//if redistribution
 Tuple_prune tuple_prune_data;//if tuple prune
-//TODO test
 int deep;
+extern int first_search;
 
 typedef struct
   {
@@ -51,7 +51,7 @@ typedef struct
   Logico is_max(const PalgorithmPD);
   int init_algorithmPD(PalgorithmPD, AproblemPD);
   int randomize(PalgorithmPD,PAlternative);
-  int exec_algorithm(PalgorithmPD,double *,MPI_Request *, int *,MPI_Request *  );
+  int exec_algorithm(PalgorithmPD,double *,MPI_Request *, int *,MPI_Request * ,int );
   int update_best(PalgorithmPD,const PAproblemPD);
   int get_PDsolution(PalgorithmPD, PSolution);
   int pD(PalgorithmPD,double *,MPI_Request * ,int *,MPI_Request *);
