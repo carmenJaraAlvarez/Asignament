@@ -139,7 +139,7 @@ static Logico checkInt(const int);
 			 quitaSaltoDeLinea(c);
 			 init_task(&task,c);
 			 arrayT[j]=task;
-			 if(1)
+			 if(print_all)
 			 {
 				 printf("\naproblem.c	read_aproblem_file()	row %d",j+1);
 				 printf("\naproblem.c	read_aproblem_file()	read %s", c);
@@ -186,6 +186,14 @@ static Logico checkInt(const int);
 	 int numTasks=pa->numTask;
 	 for(int i=0;i<pa->numTask-1;i++){
 		 numTasks=numTasks*(pa->numTask-i-1);
+	 }
+	 return numTasks;
+ }
+ int get_max_num_problems_deep(const PAproblem pa){
+
+	 int numTasks=0;
+	 for(int i=pa->numTask;i>0;i--){
+		 numTasks=numTasks+i;
 	 }
 	 return numTasks;
  }

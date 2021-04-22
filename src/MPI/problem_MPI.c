@@ -36,7 +36,7 @@ static int send_more_work(int process)
 		if(rr.len_receivers_plus>=rr.index &&rr.len_receivers_plus>0)
 		{
 			sender=rr.receivers_plus[rr.index];
-			if(1)
+			if(print_all)
 			{
 				printf("\nproblem_MPI.c		send_more_work() to %d.	sender plus %d",process,sender);
 			}
@@ -46,7 +46,7 @@ static int send_more_work(int process)
 		else if((rr.len_receivers_plus+rr.len_receivers_less)>(rr.index))
 		{
 			sender=rr.receivers_less[rr.index-rr.len_receivers_plus];
-			if(1)
+			if(print_all)
 			{
 				printf("\nproblem_MPI.c		send_more_work() to %d.	sender less %d",process,sender);
 			}
@@ -56,7 +56,7 @@ static int send_more_work(int process)
 		else
 		{
 			//TODO
-			if(1)
+			if(print_all)
 			{
 				printf("\nproblem_MPI.c		send_more_work()		NO more work to %d",process);
 			}
@@ -212,7 +212,7 @@ int distribution(PalgorithmPD palg, int prune, int r_rr, int tuple_p)
 			{
 				rr.receivers_plus[i-1]=i;
 				rr.len_receivers_plus++;
-				if(1)
+				if(print_all)
 				{
 					printf("\nproblem_MPI		distribution()		rcv_plus %d, len %d",rr.receivers_plus[i-1],rr.len_receivers_plus);
 				}
@@ -337,14 +337,6 @@ int rcv_work(double * buffer,MPI_Request * request_b,int * buffer_w)
         int id;
         MPI_Comm_rank(MPI_COMM_WORLD,&id);
         printf("\nproblem_MPI.c	rcv_work()	outgoing process %d\n",id);
-    }
-
-
-
-    if(print_all)
-    {
-    	printf("+\nproblem_MPI.c ++++++++++++++++++++++++++++END RCV_work");
-
     }
 
 	return res;
@@ -926,7 +918,7 @@ int send_best(PalgorithmPD palg)
 	return res;
 }
 int broadcast_best(double better){
-	if(1)
+	if(print_all)
 	{
 		printf("\nproblem_MPI.c		broadcast_best()		better IN %f",better);
 	}
@@ -938,7 +930,7 @@ int broadcast_best(double better){
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	if(rank==master){
 		best_to_broadcast=better;
-		if(1){
+		if(print_all){
 			printf("\n I am %d, and the best to broadcast is %f",rank, best_to_broadcast);
 		}
 
@@ -965,7 +957,7 @@ void waiting_best(double * buffer, MPI_Request* request_b)
 	MPI_Test(request_b, &ready, MPI_STATUS_IGNORE);
 	if(ready)
 	{
-		if(1)
+		if(print_all)
 		{
 			printf("\nproblem_MPI.c		waiting_best()		Master has send best result %f", *buffer);
 		}
@@ -976,7 +968,7 @@ void waiting_best(double * buffer, MPI_Request* request_b)
 				if((*buffer>final_alg.best && final_alg.ppd.aproblem.type==MAX) ||
 						(*buffer>final_alg.best && final_alg.ppd.aproblem.type==MIN))
 				{
-					if(1)
+					if(print_all)
 					{
 						printf("\nproblem_MPI.c		waiting_best()		buffer rcv better");
 					}
@@ -1050,14 +1042,14 @@ int waiting_confirming(Transfered_nodes * transf)
 		if(ready)
 		{
 			MPI_Irecv(&n,1,MPI_INT,sender,tag,MPI_COMM_WORLD, &r);
-			if(1)
+			if(print_all)
 			{
 				printf("\nproblem_MPI.c		waiting_confirming()		iprobe ready. Transf previous:");
 				show_transfered(transf);
 			}
 			MPE_Log_event(event7, 0, "confirmed");
 			delete_transfered(transf,sender);
-			if(1)
+			if(print_all)
 			{
 				printf("\nproblem_MPI.c		waiting_confirming()		iprobe ready. Transf POST. Sender %d:",sender);
 				show_transfered(transf);
@@ -1083,7 +1075,7 @@ int waiting_petition(int * buffer_w, MPI_Request* r_w,PalgorithmPD palg,int m, i
 	if(ready && buffer_work!=0)//TODO work around
 	{
 		MPE_Log_event(event8a, 0, "rcv petition work");
-		if(1)
+		if(print_all)
 		{
 
 			printf("\nproblem_MPI.c		waiting_petition()		Ready. Master has send work petition from %d",buffer_work);
@@ -1112,7 +1104,7 @@ int scan_petition(MPI_Request *request_ask_work, MPI_Request *request_best, MPI_
 	if(flag_b)
 	{
 		sender=status_best.MPI_SOURCE;
-		if(1)
+		if(print_all)
 		{
 			printf("\nproblem_MPI.c		scan_petition()			SENDER %d Best %f", sender, b);
 		}
@@ -1150,7 +1142,7 @@ void init_best(MPI_Request * request_b, MPI_Comm * world){
 	  ////////////////////
 	  best=final_alg.best;
 
-	  if(1)
+	  if(print_all)
 	  {
 		  int myid;
 		 MPI_Comm_rank(MPI_COMM_WORLD,&myid);

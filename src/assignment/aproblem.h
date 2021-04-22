@@ -43,6 +43,7 @@ typedef struct
   int read_aproblem_file(PAproblem pap, const int numTasks, const int numResources,const Cadena url);
   Type get_aproblem_type(const PAproblem);
   int get_max_num_problems(const PAproblem);
+  int get_max_num_problems_deep(const PAproblem);
   int get_max_num_alternatives(const PAproblem);
 
 

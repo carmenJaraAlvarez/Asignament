@@ -135,8 +135,8 @@ void resolve_aPD(PAproblem pap, int num_processes)
 		    		 gchar *head = g_strdup_printf("%s", final_alg.ppd.aproblem.tasks[i-1].name);
 		    		 value = gtk_label_new(head);
 		    		 g_object_set (value, "margin", 1, NULL);
-		    		 g_object_set (value, "padding-right", 6, NULL);
-		    		 g_object_set (value, "padding-left", 6, NULL);
+//		    		 g_object_set (value, "padding-right", 6, NULL);
+//		    		 g_object_set (value, "padding-left", 6, NULL);
 		    		 gtk_grid_attach(GTK_GRID(table), value, i+1, j, 1, 1);
 		    		 gtk_widget_modify_bg ( GTK_WIDGET(value), GTK_STATE_NORMAL, &color_grey);
 		    		}
@@ -149,7 +149,7 @@ void resolve_aPD(PAproblem pap, int num_processes)
 			    		 gchar *head = g_strdup_printf("%s", final_alg.ppd.aproblem.resources[j-1].name);
 						 value = gtk_label_new(head);
 						 g_object_set (value, "margin", 1, NULL);
-						 g_object_set (value, "padding", 6, NULL);
+//						 g_object_set (value, "padding", 6, NULL);
 						 gtk_grid_attach(GTK_GRID(table), value, i, j+1, 1, 1);
 						 gtk_widget_modify_bg ( GTK_WIDGET(value), GTK_STATE_NORMAL, &color_grey);
 		    		}
