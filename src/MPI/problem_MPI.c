@@ -546,10 +546,39 @@ int init_work(PAproblem pa, int num_alternatives, int * alternatives,double * bu
 				alg.ppd.solution.acum=node.value;
 				for(int i=0;i<node.index;i++)
 				{
-					strcpy(alg.ppd.solution.resources[alg.ppd.solution.lengthArrays].name, pa->resources[node.solution[i]].name);
-					alg.ppd.solution.resources[alg.ppd.solution.lengthArrays].position=node.solution[i];
+					strcpy(alg.ppd.solution.resources[i].name, pa->resources[node.solution[i]].name);
+					int aux=node.solution[i];
+					Resource aux_r;
+
+					Cadena aux_name;
+					strcpy(&aux_name,pa->resources[aux].name);
+					init_resource(&aux_r,aux_name,aux);
+					alg.ppd.solution.resources[i].position=aux;
+
+
+					if(1)
+					{
+
+						printf("\nproblem_MPI.c		init_work()		rcv sol resource %d: %d",i,aux);
+						printf("\nproblem_MPI.c		init_work()		copied in ppd.solution %d: %d",i,alg.ppd.solution.resources[i].position);
+						printf("\nproblem_MPI.c		init_work()		copied name resource %d: %s",i,aux_name);
+						printf("\nproblem_MPI.c		init_work()		copied name in aux_r %d: %s",i,aux_name);
+
+						printf("\nproblem_MPI.c		init_work()		copied num resource in aux_r %d: %d",i,aux_r.position);
+
+					}
 				}
 				alg.problems[0]=alg.ppd;
+				if(1)
+				{
+					for(int i=0;i<node.index;i++)
+					{
+						printf("\nproblem_MPI.c		init_work()		rcv sol proble[0] %d: %d",i,alg.problems[0].solution.resources[i].position);
+						printf("\nproblem_MPI.c		init_work()		copied in ppd.solution %d: %d",i,alg.ppd.solution.resources[i].position);
+
+					}
+
+				}
 				exec_algorithm(&alg,buffer,request_b, buffer_w, &request_work, fs);
 				if(print_all)
 				{
@@ -594,7 +623,8 @@ int init_work(PAproblem pa, int num_alternatives, int * alternatives,double * bu
 
 			alg.ppd.solution.lengthArrays=alg.ppd.solution.lengthArrays+1;
 			alg.ppd.solution.acum=pa->values[0+alternatives[0]*alg.ppd.aproblem.numTask];
-			alg.problems[0]=alg.ppd;if(print_all)
+			alg.problems[0]=alg.ppd;
+			if(print_all)
 			{
 				printf("Assert index =1 in problems post work:%d ",alg.problems[0].index);
 			}
@@ -838,22 +868,32 @@ int send_resolved(const PalgorithmPD palg)
 
 	Resolved resolved;
 	int num_resolved=palg->num_solved;
+	int numT=palg->ppd.aproblem.numTask;
+	if(1)
+	{
+		printf("\nproblem_MPI.c		send_resolved()	----------NUM SOLVED %d",num_resolved);
+		printf("\nproblem_MPI.c		send_resolved()	----------NUM TASK in palg ppd %d",numT);
+	}
 	if(num_resolved==0)
 	{
-		printf("\n SENDING NO SOLUTION");
+		printf("\nproblem_MPI.c		send_resolved()	 SENDING NO SOLUTION");
 
 	}
 	else
 	{
+		num_resolved=1;//TODO select num resolved to see (in pd limit 10 array but not num resolved)
 		resolved.value=palg->solvedProblems[0].solution.acum;
 		for(int i=0;i<num_resolved;i++){
-
-			for(int j=0;j<palg->problems->aproblem.numTask;j++){
-				resolved.resources[i*palg->problems->aproblem.numTask+j]=palg->solvedProblems[i].solution.resources[j].position;
-				if(print_all)
+			if(1)
+			{
+				printf("\nproblem_MPI.c		send_resolved()	----------RESOLVED %d",i);
+				}
+			for(int j=0;j<numT;j++){
+				resolved.resources[i*numT+j]=palg->solvedProblems[i].solution.resources[j].position;
+				if(1)
 				{
-					printf("\nproblem_MPI.c		send_resolved()		resource%d:%d",i*palg->problems->aproblem.numTask+j,palg->solvedProblems[i].solution.resources[j].position);
-					printf("\nproblem_MPI.c		send_resolved()		send%d:%d",i*palg->problems->aproblem.numTask+j,resolved.resources[i*palg->problems->aproblem.numTask+j]);
+					printf("\nproblem_MPI.c		send_resolved()		resource%d:%d",i*numT+j,palg->solvedProblems[i].solution.resources[j].position);
+					printf("\nproblem_MPI.c		send_resolved()		send%d:%d",i*numT+j,resolved.resources[i*numT+j]);
 
 				}
 			}
@@ -862,10 +902,9 @@ int send_resolved(const PalgorithmPD palg)
 
 	}
 	resolved.num_resolved=num_resolved;
-	//num_resolved=1;//TODO test
 	if(print_all)
 	{
-		printf("\nproblem_MPI.c		send_resolved()			SENDING RESOLVED TO MASTER2");
+		printf("\nproblem_MPI.c		send_resolved()			SEND");
 	}
 
 	MPI_Datatype resolved_mpi_datatype;
