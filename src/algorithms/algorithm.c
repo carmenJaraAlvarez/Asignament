@@ -6,6 +6,9 @@
  */
 
 #include "algorithm.h"
+double best_in_row(const PAproblem,int, int *);
+int is_in_array(int ,int, int *);
+
 
   int init_transfered(PTransfered_nodes pt)
   {
@@ -205,5 +208,116 @@
 	  }
 
   }
+  double best_diagonal(const PAproblem pap)
+  {
+	  double res=0.;
+	  double second=0.;
+	  for(int i=0;i<pap->numTask;i++)
+	  {
+		  res=res+pap->values[(i*pap->numTask)+i];
+		  if(1)
+		  {
+			  printf("\nalgorithm.c		best_diagonal()		loop %d first diagonal: %f",i,res);
+		  }
+	  }
+	  for(int i=0;i<pap->numTask;i++)
+	  {
+		  second=second+pap->values[pap->numTask*(i+1)-1-i];
+		  if(1)
+		  {
+			  printf("\nalgorithm.c		best_diagonal()		loop %d second diagonal: %f",i,second);
+		  }
+	  }
+	  if(((second>res) && (pap->type==MAX))
+			  ||
+			  (second<res && pap->type==MIN))
+	  {
+		  res=second;
+	  }
+	  if(1)
+	  {
+		  printf("\nalgorithm.c		best_diagonal()		%f",res);
+	  }
+	  return res;
+
+  }
+  double greedy(const PAproblem pap)
+  {
+	  double res=0.;
+	  int array_sol[pap->numTask];
+
+	  for(int i=0;i<pap->numResources;i++)
+	  {
+		  res=res+best_in_row(pap,i,&array_sol);
+		  if(1)
+		  {
+			  printf("\nalgorithm.c		greedy()		best acum row %d: %f",i,res);
+		  }
+	  }
+	  if(1)
+	  {
+		  printf("\nalgorithm.c		greedy()		%f",res);
+	  }
+
+	  return res;
+  }
+  int is_in_array(int i,int row, int * array_sol)
+  {
+	  int res=0;//true
+	  for(int j=0;j<row;j++)
+	  {
+		  if(i==array_sol[j])
+		  {
+			  res=1;//false
+
+			  break;
+		  }
+	  }
+	  return res;
+  }
+  double best_in_row(const PAproblem pap,int row, int * array_sol)
+  {
+	  if(1)
+	  {
+		 printf("\nalgorithm.c		best_in_row() %d",row);
+	  }
+	  double res=pap->values[row*pap->numTask];
+	  array_sol[row]=0;
+	  double aux;
+	  for(int i=1;i<pap->numTask;i++)
+	  {
+		  if(1)
+		  {
+			 printf("\nalgorithm.c		best_in_row() Column %d",i);
+			 printf("\nalgorithm.c		best_in_row() is_in_array %d",is_in_array(i,row, array_sol));
+		  }
+
+		  if(!is_in_array(i,row, array_sol))
+		  {
+			  aux=pap->values[row*pap->numTask+i];
+			  if((pap->type==MAX && aux>res )
+					  ||
+					  (pap->type==MIN && aux<res))
+			  {
+				  if(1)
+				  {
+					 printf("\nalgorithm.c		best_in_row() change to res to %f",aux);
+				}
+				  res=aux;
+				  array_sol[row]=i;
+			  }
+
+		  }
+		  if(1)
+		  {
+			  for(int a=0;a<row;a++)
+			  {
+				  printf("\nalgorithm.c		best_in_row()  array[%d]=%d",a,array_sol[a]);
+			  }
+		  }
+	  }
+	  return res;
+  }
+
 
 

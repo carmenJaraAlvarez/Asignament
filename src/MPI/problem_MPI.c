@@ -1425,17 +1425,37 @@ int pD_distribution(PalgorithmPD palg)
 				  randomize(palg,as);//not using
 				  Logico ismin;
 				  Logico ismax;
+				  double w_estimated;
+				  //TODO test
+				  int type_best=3;
+				  /////////looking for the first best
+				  if(type_best==1)//dummy best
+				  {
+					  w_estimated=get_worst_estimate(&problems[0]);
+				  }
+				  else if(type_best==2)//diagonal best
+				  {
+					  w_estimated=best_diagonal(&(problems[0].aproblem));
+				  }
+				  else//greedy
+				  {
+					  w_estimated=greedy(&(problems[0].aproblem));
+				  }
+
 				  for(int u=0;u<numAlternatives;u++)
 				  {
 					  //prune
 					  ismin=is_min(palg);
 					  ismax=is_max(palg);
-					  double b_estimated=get_best_estimate(&problems[0]);
+					  double b_estimated;
+					  b_estimated=get_best_estimate(&problems[0]);
+
 					  if((ismin && b_estimated<=palg->best)
 										  || (ismax && b_estimated>=palg->best))
 					  {
-						  //case no prune,control our worst is better than global to change it
-						  double w_estimated=get_worst_estimate(&problems[0]);
+						  //case no prune,control our worst estimated or secure solution
+						  // is better than global to change it
+
 						  if((w_estimated>final_alg.best && ismax) ||
 								  (w_estimated<final_alg.best && ismin)  )
 						  {
@@ -1451,8 +1471,8 @@ int pD_distribution(PalgorithmPD palg)
 							  get_subproblem(&problems[0], &appdNew, as[u],numSubproblems);
 							  if(print_all)
 							  {
-								  printf("\n     is NOT base case: last appdNew sol: %s\n",appdNew.solution.resources[appdNew.solution.lengthArrays-1].name);
-								  printf("     i=%d of %d alternatives\n",u, numAlternatives);
+								  printf("\nproblem_MPI.c		pD_distribution()     is NOT base case: last appdNew sol: %s\n",appdNew.solution.resources[appdNew.solution.lengthArrays-1].name);
+								  printf("\nproblem_MPI.c		pD_distribution()     i=%d of %d alternatives\n",u, numAlternatives);
 
 							  }
 							   //if problem//TODO
@@ -1475,8 +1495,8 @@ int pD_distribution(PalgorithmPD palg)
 			  palg->problems[w]=newArrayAppd[w];
 			  if(print_all)
 			  {
-				  printf("\nDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD_Distribition_PD");
-				  printf("\nproblem %d of %d problems in alg",w,lengthNewArrayAppd);
+				  printf("\nproblem_MPI.c		pD_distribution()----------------------- ");
+				  printf("\nproblem_MPI.c		pD_distribution() problem %d of %d problems in alg",w,lengthNewArrayAppd);
 			  }
 
 			  show_aproblem_PD(&(palg->problems[w]));
@@ -1484,7 +1504,7 @@ int pD_distribution(PalgorithmPD palg)
 		  palg->num_problems=lengthNewArrayAppd;
 		  if(print_all)
 		  {
-			  printf("\n::finish pd distribution");
+			  printf("\nproblem_MPI.c		pD_distribution() finish ");
 		  }
 
   return res;
