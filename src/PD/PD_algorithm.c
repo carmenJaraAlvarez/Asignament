@@ -637,8 +637,13 @@
 					  {
 						  //we must copy over the father,
 						  copy_aproblem_PD( &(palg->problems[lengthNewArrayAppd-1+v]),aux[v]);
-						  printf("\nPD_algorithm.c		pD		show new %d problem copied in problems in pos:%d",v,lengthNewArrayAppd-1+v);
-						  show_aproblem_PD(&(palg->problems[lengthNewArrayAppd-1+v]));
+						  if(print_all)
+						  {
+							  printf("\nPD_algorithm.c		pD		show new %d problem copied in problems in pos:%d",v,lengthNewArrayAppd-1+v);
+							  show_aproblem_PD(&(palg->problems[lengthNewArrayAppd-1+v]));
+
+						  }
+
 					  }
 
 					  lengthNewArrayAppd=lengthNewArrayAppd+len_aux-1;

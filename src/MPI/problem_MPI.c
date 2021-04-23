@@ -333,7 +333,7 @@ int rcv_work(double * buffer,MPI_Request * request_b,int * buffer_w)
 	show_aproblem(&a);
 
     init_work(&a, work.num_alternatives, &alternatives,buffer,request_b,buffer_w);
-    if(1)
+    if(print_all)
     {
         int id;
         MPI_Comm_rank(MPI_COMM_WORLD,&id);
@@ -489,7 +489,7 @@ int init_work(PAproblem pa, int num_alternatives, int * alternatives,double * bu
 	MPI_Irecv(&new_best, 1, MPI_DOUBLE, master, tag_best, MPI_COMM_WORLD, &request_bcast);
 
 	if (num_alternatives==0){
-		if(1)
+		if(print_all)
 		{
 			printf("\nproblem_MPI.c		init_work() rr:%d",redistribution_rr);
 		}
@@ -556,7 +556,7 @@ int init_work(PAproblem pa, int num_alternatives, int * alternatives,double * bu
 					alg.ppd.solution.resources[i].position=aux;
 
 
-					if(1)
+					if(print_all)
 					{
 
 						printf("\nproblem_MPI.c		init_work()		rcv sol resource %d: %d",i,aux);
@@ -569,7 +569,7 @@ int init_work(PAproblem pa, int num_alternatives, int * alternatives,double * bu
 					}
 				}
 				alg.problems[0]=alg.ppd;
-				if(1)
+				if(print_all)
 				{
 					for(int i=0;i<node.index;i++)
 					{
@@ -869,7 +869,7 @@ int send_resolved(const PalgorithmPD palg)
 	Resolved resolved;
 	int num_resolved=palg->num_solved;
 	int numT=palg->ppd.aproblem.numTask;
-	if(1)
+	if(print_all)
 	{
 		printf("\nproblem_MPI.c		send_resolved()	----------NUM SOLVED %d",num_resolved);
 		printf("\nproblem_MPI.c		send_resolved()	----------NUM TASK in palg ppd %d",numT);
@@ -884,13 +884,13 @@ int send_resolved(const PalgorithmPD palg)
 		num_resolved=1;//TODO select num resolved to see (in pd limit 10 array but not num resolved)
 		resolved.value=palg->solvedProblems[0].solution.acum;
 		for(int i=0;i<num_resolved;i++){
-			if(1)
+			if(print_all)
 			{
 				printf("\nproblem_MPI.c		send_resolved()	----------RESOLVED %d",i);
 				}
 			for(int j=0;j<numT;j++){
 				resolved.resources[i*numT+j]=palg->solvedProblems[i].solution.resources[j].position;
-				if(1)
+				if(print_all)
 				{
 					printf("\nproblem_MPI.c		send_resolved()		resource%d:%d",i*numT+j,palg->solvedProblems[i].solution.resources[j].position);
 					printf("\nproblem_MPI.c		send_resolved()		send%d:%d",i*numT+j,resolved.resources[i*numT+j]);
