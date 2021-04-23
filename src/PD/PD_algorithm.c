@@ -28,6 +28,8 @@
   }
   int init_algorithmPD(PalgorithmPD palg,AproblemPD ap)
   {
+	  init_transfered(&transfered);
+	  init_tuple_prune(&tuple_prune_data);
 	  int res=0;
 	  palg->isRandomize=FALSE;//we are not using
 	  palg->sizeRef=100;//we are not using
@@ -134,11 +136,11 @@
   int pD(PalgorithmPD palg,double * buffer,MPI_Request * request_b,int * buffer_w,MPI_Request * request_w)
   {
 
-	  init_transfered(&transfered);
-	  init_tuple_prune(&tuple_prune_data);
-	  if(print_all)
+//	  init_transfered(&transfered);
+//	  init_tuple_prune(&tuple_prune_data);
+	  if(1)
 	  {
-		  printf("\nPD_algorithm.c	 pD()		init transfered nodes");
+		  printf("\nPD_algorithm.c	 pD()		*******************init ");
 		  show_transfered(&transfered);
 	  }
 	  int res=0;
@@ -659,19 +661,29 @@
 	  }//end deep
 
 	  //redistribution
-	  for(int j=0;j<transfered.len_transfered;j++)//no confirmed
+	  if(1)
 	  {
-		  //TODO
-		  if(print_all)
-		  {
-			  int myid;
-			  MPI_Comm_rank(MPI_COMM_WORLD,&myid);
-			  printf("\nPD_algorithm.c	pD()		transfered no confirmed in process %d:",myid);
-			  show_aproblem_PD(&(transfered.transfered[j]));
-		  }
-
+		  printf("\nPD_algorithm.c	pD()		----------------There are %d transfered not confirmed", transfered.len_transfered);
 	  }
+	  if(transfered.len_transfered>0)
+	  {
+		  for(int j=0;j<transfered.len_transfered;j++)//no confirmed
+		  {
 
+				  palg->problems[j]=transfered.transfered[j];
+				  if(1)
+				  {
+					  int myid;
+					  MPI_Comm_rank(MPI_COMM_WORLD,&myid);
+					  printf("\nPD_algorithm.c	pD()		transfered no confirmed in process %d:",myid);
+					  show_aproblem_PD(&(palg->problems[j]));
+				  }
+
+
+		  }
+		  transfered.len_transfered=0;
+		  pD(palg,buffer,request_b,buffer_w,request_w);
+	  }
 	  return res;
   }
 
