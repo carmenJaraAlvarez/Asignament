@@ -626,6 +626,10 @@ int init_work(
 
 
 		MPI_Irecv(&buffer_work,1,MPI_INT,master,tag_give_work,MPI_COMM_WORLD, &request_work);
+		if(1)
+		{
+			printf("\nproblem_MPI.c		init_work()		more than one alt. send request_work");
+		}
 		if(num_alternatives==1)
 		{
 			if(print_all)
@@ -1136,12 +1140,13 @@ int waiting_petition(int * buffer_w, MPI_Request* r_w,PalgorithmPD palg,int m, i
 {
 	int res=0;
 	MPI_Status s;
+	int ready=0;
+	//sleep(2);
+	MPI_Test(r_w, &ready, &s);
 	if(print_all)
 	{
-		printf("\nproblem_MPI.c		waiting_petition()");
+		printf("\nproblem_MPI.c		waiting_petition() ready=%d",ready);
 	}
-	int ready=0;
-	MPI_Test(r_w, &ready, &s);
 	if(ready && buffer_work!=0)//TODO work around
 	{
 		MPE_Log_event(event8a, 0, "rcv petition work");
@@ -1149,7 +1154,7 @@ int waiting_petition(int * buffer_w, MPI_Request* r_w,PalgorithmPD palg,int m, i
 		{
 
 			printf("\nproblem_MPI.c		waiting_petition()		Ready. Master has send work petition from %d",buffer_work);
-			printf("\nproblem_MPI.c		waiting_petition()		error %d, source %d, tag %d, hi %d, lo %d",s.MPI_ERROR,s.MPI_SOURCE,s.MPI_TAG,s.count_hi_and_cancelled,s.count_lo);
+			//printf("\nproblem_MPI.c		waiting_petition()		error %d, source %d, tag %d, hi %d, lo %d",s.MPI_ERROR,s.MPI_SOURCE,s.MPI_TAG,s.count_hi_and_cancelled,s.count_lo);
 		}
 		int rcved=buffer_work;
 		*rcvd=rcved;

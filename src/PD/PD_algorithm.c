@@ -132,6 +132,29 @@
 
 	  return res;;
   }
+  void update_alg_best(PalgorithmPD palg)
+  {
+	  if((palg->best<final_alg.best && palg->ppd.aproblem.type==MAX) ||
+	  	  					  (palg->best>final_alg.best && palg->ppd.aproblem.type==MIN ) )
+	  	  {
+	  		  palg->best=final_alg.best;
+	  		  if(1)
+	  		  {
+	  			  printf("\nPD_algorithm.c		pD()		-----------new best IN palg%f",palg->best);
+
+	  		  }
+	  	  }
+	  	  if((palg->best>final_alg.best && palg->ppd.aproblem.type==MAX) ||
+	  	  					  (palg->best<final_alg.best && palg->ppd.aproblem.type==MIN ) )
+	  	  {
+	  		  final_alg.best=palg->best;
+	  		  if(1)
+	  		  {
+	  			  printf("\nPD_algorithm.c		pD()		-----------new best IN final alg%f",palg->best);
+
+	  		  }
+	  	  }
+  }
 
   int pD(PalgorithmPD palg,double * buffer,MPI_Request * request_b,int * buffer_w,MPI_Request * request_w)
   {
@@ -146,27 +169,7 @@
 	  int lengthNewArrayAppd=palg->num_problems;
 	  int index;
 	  index=palg->ppd.index;
-
-	  if((palg->best<final_alg.best && palg->ppd.aproblem.type==MAX) ||
-	  					  (palg->best>final_alg.best && palg->ppd.aproblem.type==MIN ) )
-	  {
-		  palg->best=final_alg.best;
-		  if(1)
-		  {
-			  printf("\nPD_algorithm.c		pD()		-----------new best IN palg%f",palg->best);
-
-		  }
-	  }
-	  if((palg->best>final_alg.best && palg->ppd.aproblem.type==MAX) ||
-	  					  (palg->best<final_alg.best && palg->ppd.aproblem.type==MIN ) )
-	  {
-		  final_alg.best=palg->best;
-		  if(1)
-		  {
-			  printf("\nPD_algorithm.c		pD()		-----------new best IN final alg%f",palg->best);
-
-		  }
-	  }
+	  update_alg_best(palg);
 	  if(1)
 	  {
 		  printf("\nPD_algorithm.c		pD		best in palg: %f", palg->best);
@@ -182,7 +185,8 @@
 		  for(int m=0;m<lengthNewArrayAppd;m++){
 			  ///redistribution
 			  int up=0;
-			  if((lengthNewArrayAppd-m)>1){//to not send the only one
+			  if((lengthNewArrayAppd-m)>1)
+			  {//to not send the only one
 				  int rcvr=0;
 				  up = waiting_petition(buffer_w,request_w,palg,m,&rcvr);
 				  if(up)
@@ -199,7 +203,7 @@
 			  waiting_confirming(&transfered);
 			  ///////////
 			  waiting_best(buffer, request_b);
-
+			  update_alg_best(palg);
 			  int max_num_problem=get_max_num_problems(&appd);
 			  int len=max_num_problem+lengthNewArrayAppd;
 
@@ -433,29 +437,40 @@
 	  }//end BFS
 	  else//DFS
 	  {
+		  int down=0;
 		  while(lengthNewArrayAppd>0)
 		  {
 			  int m=lengthNewArrayAppd-1;
-			  if(1)
+			  if(print_all)
 			  {
 				  printf("\nPD_algorithm.c		pD()	------------------------------m=%d",m);
 				  printf("\nPD_algorithm.c		pD()	best final alg=%f",final_alg.best);
 			  }
 
-			  ///redistribution//TODO
+			  ///redistribution
+			  if(lengthNewArrayAppd>1)
+			  {//to not send the only one
+				  int rcvr=0;
+				  down = waiting_petition(buffer_w,request_w,palg,m,&rcvr);
+				  if(print_all)
+				  {
+					  printf("\nPD_algorithm.c	 pD()		DEEP.more than one problem and down=%d", down);
+				  }
+				  if(down)
+				  {
+					  add_transfered(&transfered,(&palg->problems[m]),rcvr);
+					  if(print_all)
+					  {
+						  printf("\nPD_algorithm.c	 pD()		add_trasfered rcvr %d",rcvr);
+						  show_transfered(&transfered);
+					  }
+				  }
+			  }
+			  m=m-down;
 			  ///////////
 			  waiting_best(buffer, request_b);
 
-			  if((palg->best<final_alg.best && palg->ppd.aproblem.type==MAX) ||
-					  (palg->best>final_alg.best && palg->ppd.aproblem.type==MIN ) )
-			  {
-				  palg->best=final_alg.best;
-				  if(1)
-				  {
-					  printf("\nPD_algorithm.c		pD()		-----------new best IN %f",palg->best);
-				  }
-			  }
-
+			  update_alg_best(palg);
 			  int max_num_problem=get_max_num_problems_deep(&appd);
 			  int len=max_num_problem+lengthNewArrayAppd;
 /////////////////////////////OK
@@ -478,7 +493,7 @@
 			  if(numAlternatives==0)
 			  {
 					  //TODO
-					  printf("\nPD_algorithm.c		pD		no alternatives\n");
+					//  printf("\nPD_algorithm.c		pD		no alternatives\n");
 			  }
 			  else
 			  {
@@ -694,13 +709,15 @@
 	  {
 		  for(int j=0;j<transfered.len_transfered;j++)//no confirmed
 		  {
-
-				  palg->problems[j]=transfered.transfered[j];
+			  	  copy_aproblem_PD(&(palg->problems[j]),transfered.transfered[j]);
+				  //palg->problems[j]=transfered.transfered[j];
+				  palg->num_problems=transfered.len_transfered;
 				  if(1)
 				  {
 					  int myid;
 					  MPI_Comm_rank(MPI_COMM_WORLD,&myid);
-					  printf("\nPD_algorithm.c	pD()		transfered no confirmed in process %d:",myid);
+					  printf("\nPD_algorithm.c	pD()		transfered no confirmed in process %d. transfered and palg:",myid);
+					  show_aproblem_PD(&(transfered.transfered[j]));
 					  show_aproblem_PD(&(palg->problems[j]));
 				  }
 
