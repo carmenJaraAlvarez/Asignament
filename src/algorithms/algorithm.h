@@ -44,6 +44,12 @@ typedef struct
   }Tuple_prune;
   typedef Tuple_prune* PTuple_prune;
 
+  ///////////////////greedy algorithm
+  double greedy(const PAproblem);
+  ///////////////////diagonal
+  double best_diagonal(const PAproblem);
+
+
   int init_tuple_prune(PTuple_prune);
   int copy_tuple_prune(PTuple_prune,const PTuple_prune);
   int add_tuple(PTuple_prune, int, int, double);
