@@ -277,45 +277,55 @@ int is_in_array(int ,int, int *);
   }
   double best_in_row(const PAproblem pap,int row, int * array_sol)
   {
-	  if(1)
+	  if(print_all)
 	  {
 		 printf("\nalgorithm.c		best_in_row() %d",row);
 	  }
-	  double res=pap->values[row*pap->numTask];
-	  array_sol[row]=0;
+	  double res;
 	  double aux;
-	  for(int i=1;i<pap->numTask;i++)
+	  int isfirst=1;
+	  for(int i=0;i<pap->numTask;i++)
 	  {
-		  if(1)
+		  if(print_all)
 		  {
 			 printf("\nalgorithm.c		best_in_row() Column %d",i);
-			 printf("\nalgorithm.c		best_in_row() is_in_array %d",is_in_array(i,row, array_sol));
 		  }
 
 		  if(!is_in_array(i,row, array_sol))
 		  {
 			  aux=pap->values[row*pap->numTask+i];
-			  if((pap->type==MAX && aux>res )
-					  ||
-					  (pap->type==MIN && aux<res))
+			  //if is first value, we take it
+			  if(isfirst)
 			  {
-				  if(1)
-				  {
-					 printf("\nalgorithm.c		best_in_row() change to res to %f",aux);
-				}
 				  res=aux;
 				  array_sol[row]=i;
+				  isfirst=0;
 			  }
-
-		  }
-		  if(1)
-		  {
-			  for(int a=0;a<row;a++)
+			  else
 			  {
-				  printf("\nalgorithm.c		best_in_row()  array[%d]=%d",a,array_sol[a]);
-			  }
+				  if((pap->type==MAX && aux>res )
+				  					  ||
+				  					  (pap->type==MIN && aux<res))
+				  {
+					  if(print_all)
+					  {
+						 printf("\nalgorithm.c		best_in_row() change to res to %f",aux);
+					  }
+					  res=aux;
+					  array_sol[row]=i;
+				  }//end if is better
+			  }//end is not first
+		  }	//end is not in array
+	  }//end for
+
+	  if(print_all)
+	  {
+		  for(int a=0;a<row;a++)
+		  {
+			  printf("\nalgorithm.c		best_in_row()  array[%d]=%d",a,array_sol[a]);
 		  }
 	  }
+
 	  return res;
   }
 

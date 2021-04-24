@@ -78,6 +78,7 @@ AproblemPD *problems;
 		int first_search;
 		//alternative the process will select
 		int num_alternatives;
+		double best;
 
 	  }w_mpi;
 
@@ -121,7 +122,7 @@ AproblemPD *problems;
 //slaves
 int rcv_work(double *,MPI_Request * ,int *);
 int ask_work();
-int init_work(PAproblem, int, int*,double *,MPI_Request *,int *);
+int init_work(PAproblem, int, int*,double *,MPI_Request *,int *, double);
 int send_resolved(const PalgorithmPD);
 int send_best(const PalgorithmPD);
 int init_waiting_best(double *,MPI_Request*);
@@ -134,7 +135,7 @@ int waiting_confirming(Transfered_nodes *);
 
 //master
 int distribution(PalgorithmPD, int, int,int,int);
-int send_work(const PalgorithmPD,int *, int, int, int,int,int,int);
+int send_work(const PalgorithmPD,int *, int, int, int,int,int,int,double);
 int broadcast_best(const double);
 int rcv_resolved();
 int rcv_best(double b, MPI_Request*);

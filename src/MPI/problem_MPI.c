@@ -141,8 +141,12 @@ int distribution(PalgorithmPD palg, int prune, int r_rr, int tuple_p, int fs)
 			}
 			int alternatives[1];
 			alternatives[0]=i-1;
+			if(1)
+			{
+				printf("\nproblem_MPI.c		distribution()		sending best=%f",final_alg.best);
+			}
 			printf("\nproblem_MPI.c		distribution()		num problems==num slaves: alternative->%d",alternatives[0]);
-			send_work(palg,&alternatives,1,i,prune,r_rr, tuple_p,fs);//sending 1 alternative to process i
+			send_work(palg,&alternatives,1,i,prune,r_rr, tuple_p,fs,final_alg.best);//sending 1 alternative to process i
 			if(r_rr)
 			{
 				rr.receivers_less[i-1]=i;
@@ -164,7 +168,7 @@ int distribution(PalgorithmPD palg, int prune, int r_rr, int tuple_p, int fs)
 			int alternatives[1];
 			alternatives[0]=i-1;
 			printf("\n num problems<num slaves: alternative->%d",alternatives[0]);
-			send_work(palg,&alternatives,1,i,prune,r_rr, tuple_p,fs);
+			send_work(palg,&alternatives,1,i,prune,r_rr, tuple_p,fs,final_alg.best);
 			if(r_rr)
 			{
 				rr.receivers_less[i-1]=i;
@@ -179,7 +183,7 @@ int distribution(PalgorithmPD palg, int prune, int r_rr, int tuple_p, int fs)
 		for(int j=palg->num_problems+1;j<num_slaves+1;j++)
 		{
 			int alternatives[0];
-			send_work(palg,&alternatives,0,j,prune,r_rr, tuple_p,fs);
+			send_work(palg,&alternatives,0,j,prune,r_rr, tuple_p,fs,final_alg.best);
 		}
 	}
 	else//num problems >num processes
@@ -207,7 +211,7 @@ int distribution(PalgorithmPD palg, int prune, int r_rr, int tuple_p, int fs)
 				printf("\"\nproblem_MPI.c		distribution()		alternative %d=%d",j,a);
 				alternatives[j]=a;//process i, distribution round j
 			}
-			send_work(palg,&alternatives,rounds+1,i,prune,r_rr, tuple_p,fs);
+			send_work(palg,&alternatives,rounds+1,i,prune,r_rr, tuple_p,fs,final_alg.best);
 			if(r_rr)
 			{
 				rr.receivers_plus[i-1]=i;
@@ -225,7 +229,7 @@ int distribution(PalgorithmPD palg, int prune, int r_rr, int tuple_p, int fs)
 			{
 				alternatives[j]=(i-1)+(j*num_slaves);//process i, distribution round j
 			}
-			send_work(palg,alternatives,rounds,i,prune,r_rr, tuple_p,fs);
+			send_work(palg,alternatives,rounds,i,prune,r_rr, tuple_p,fs,final_alg.best);
 			if(r_rr)
 			{
 				rr.receivers_less[i-1]=i;
@@ -258,10 +262,10 @@ int rcv_work(double * buffer,MPI_Request * request_b,int * buffer_w)
 	//getting work
 
 	MPI_Datatype work_mpi_datatype;
-	int blocklengths[8] = {1,1,1,1,1,1,1,1};
-	MPI_Datatype types[8] = {MPI_INT, MPI_INT,MPI_INT, MPI_INT, MPI_INT, MPI_INT, MPI_INT, MPI_INT};
-	const MPI_Aint offsets[8]= { 0, sizeof(int),sizeof(int)*2,sizeof(int)*3,sizeof(int)*4,sizeof(int)*5,sizeof(int)*6,sizeof(int)*7};
-	MPI_Type_create_struct(8, blocklengths, offsets, types,  &work_mpi_datatype);
+	int blocklengths[9] = {1,1,1,1,1,1,1,1,1};
+	MPI_Datatype types[9] = {MPI_INT, MPI_INT,MPI_INT, MPI_INT, MPI_INT, MPI_INT, MPI_INT, MPI_INT,MPI_DOUBLE};
+	const MPI_Aint offsets[9]= { 0, sizeof(int),sizeof(int)*2,sizeof(int)*3,sizeof(int)*4,sizeof(int)*5,sizeof(int)*6,sizeof(int)*7,sizeof(int)*8};
+	MPI_Type_create_struct(9, blocklengths, offsets, types,  &work_mpi_datatype);
 	MPI_Type_commit ( &work_mpi_datatype );
 	MPI_Status status;
 
@@ -269,15 +273,15 @@ int rcv_work(double * buffer,MPI_Request * request_b,int * buffer_w)
 
     if(print_all)
     {
-        printf("\n received num task: %d",work.num_tasks);
-    	printf("\n received num resources: %d\n",work.num_resources);
-    	printf("\n received prune: %d",work.prune);
+        printf("\nproblem_MPI.c		rcv_work()		received num task: %d",work.num_tasks);
+    	printf("\nproblem_MPI.c		rcv_work()		received num resources: %d\n",work.num_resources);
+    	printf("\nproblem_MPI.c		rcv_work()		received prune: %d",work.prune);
+    	printf("\nproblem_MPI.c		rcv_work()		received best: %f",work.best);
     }
     prune=work.prune;
     tuple_p=work.tuple_prune;
     fs=work.first_search;
 	int size_values=work.num_tasks*work.num_resources;
-
 
 	//getting values
 
@@ -291,6 +295,7 @@ int rcv_work(double * buffer,MPI_Request * request_b,int * buffer_w)
 		printf("%d received type\n",work.type);
 		printf("%f received first\n",values[0]);
 		printf("%f received second\n",values[1]);
+
 	}
 
 
@@ -314,7 +319,7 @@ int rcv_work(double * buffer,MPI_Request * request_b,int * buffer_w)
 	deserializer_resources(&serialized_resources,work.num_resources,resources);
 	if(print_all)
 	{
-		printf("*************************POST RCVE RESOURCES name 3º resource\n%s\n",resources[2].name);
+		printf("\nproblem_MPI.c		rcv_work()POST RCVE RESOURCES name 3º resource\n%s\n",resources[2].name);
 
 	}
 
@@ -324,15 +329,18 @@ int rcv_work(double * buffer,MPI_Request * request_b,int * buffer_w)
     	MPI_Recv ( &alternatives, work.num_alternatives, MPI_INT, MPI_ANY_SOURCE, tag_alternatives, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
     }
 
-    MPI_Type_free ( &work_mpi_datatype);
-	//create problem
-    MPE_Log_event(event2b, 0, "end receive work");
+
+	MPE_Log_event(event2b, 0, "end receive work");
 	Aproblem a;
 	init_aproblem(&a,tasks,resources,work.num_tasks, work.num_resources, values);//TODO
-	//printf("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-	show_aproblem(&a);
+	if(print_all)
+	{
+		printf("\nproblem_MPI.c		rcv_work()");
+		show_aproblem(&a);
+	}
 
-    init_work(&a, work.num_alternatives, &alternatives,buffer,request_b,buffer_w);
+	MPI_Type_free ( &work_mpi_datatype);
+    init_work(&a, work.num_alternatives, &alternatives,buffer,request_b,buffer_w,work.best);
     if(print_all)
     {
         int id;
@@ -470,7 +478,14 @@ int confirming_work(int sender)
 
 }
 
-int init_work(PAproblem pa, int num_alternatives, int * alternatives,double * buffer,MPI_Request * request_b,int * buffer_w)
+int init_work(
+		PAproblem pa,
+		int num_alternatives,
+		int * alternatives,
+		double * buffer,
+		MPI_Request * request_b,
+		int * buffer_w,
+		double best)
 {
 	MPI_Request request_work=MPI_REQUEST_NULL;//to listen to masterś order
 	int res=0;
@@ -478,9 +493,10 @@ int init_work(PAproblem pa, int num_alternatives, int * alternatives,double * bu
 	initAProblemPD(&appd, pa);
 	AlgorithmPD alg;
 	init_algorithmPD(&alg, appd);
-	if(print_all)
+	alg.best=best;
+	if(1)
 	{
-		printf("best post init: %f",alg.best);
+		printf("\n problem_MPI.c		init_work()		best post init: %f",alg.best);
 		show_aproblem(&(alg.ppd.aproblem));
 	}
 
@@ -736,7 +752,8 @@ int send_work(
 		int prune,
 		int r_rr,//redistribution round robin
 		int tuple_prune,
-		int first_search
+		int first_search,
+		double best
 		)
 {
 	MPE_Log_event(event1a, 0, "start send");
@@ -772,6 +789,7 @@ int send_work(
 	work.tuple_prune=tuple_prune;
 	work.redistribution=r_rr;
 	work.first_search=first_search;
+	work.best=best;
 	int num_values=work.num_resources*work.num_tasks;
 	if(print_all)
 	{
@@ -824,21 +842,22 @@ int send_work(
 
 	//sending
 	MPI_Datatype work_mpi_datatype;
-	int blocklengths[8] = {1,1,1,1,1,1,1,1};
-	MPI_Datatype types[8] = {MPI_INT, MPI_INT,MPI_INT,MPI_INT, MPI_INT, MPI_INT, MPI_INT, MPI_INT};
-    const MPI_Aint offsets[8]= { 0, sizeof(int),sizeof(int)*2, sizeof(int)*3, sizeof(int)*4,sizeof(int)*5,sizeof(int)*6,sizeof(int)*7};
-	MPI_Type_create_struct(8, blocklengths, offsets, types,  &work_mpi_datatype);
+	int blocklengths[9] = {1,1,1,1,1,1,1,1,1};
+	MPI_Datatype types[9] = {MPI_INT, MPI_INT,MPI_INT,MPI_INT, MPI_INT, MPI_INT, MPI_INT, MPI_INT,MPI_DOUBLE};
+    const MPI_Aint offsets[9]= { 0, sizeof(int),sizeof(int)*2, sizeof(int)*3, sizeof(int)*4,sizeof(int)*5,sizeof(int)*6,sizeof(int)*7,sizeof(int)*8};
+	MPI_Type_create_struct(9, blocklengths, offsets, types,  &work_mpi_datatype);
 	MPI_Type_commit ( &work_mpi_datatype);
 
-	if(print_all)
+	if(1)
 	{
-		printf("\n sending num task: %d",work.num_tasks);
-		printf("\n sending num resources: %d\n",work.num_resources);
-		printf("\n sending type: %d\n",work.type);
-		printf("\n sending prune: %d\n",work.prune);
-		printf("\n sending tuple_prune: %d\n",work.tuple_prune);
-		printf("\n sending first_search: %d\n",work.first_search);
-		printf("\n sending alternatives: %d\n",work.num_alternatives);
+		printf("\nproblem_MPI.c		send_work()		  sending num task: %d",work.num_tasks);
+		printf("\nproblem_MPI.c		send_work()		  sending num resources: %d\n",work.num_resources);
+		printf("\nproblem_MPI.c		send_work()		  sending type: %d\n",work.type);
+		printf("\nproblem_MPI.c		send_work()		  sending prune: %d\n",work.prune);
+		printf("\nproblem_MPI.c		send_work()		  sending tuple_prune: %d\n",work.tuple_prune);
+		printf("\nproblem_MPI.c		send_work()		  sending first_search: %d\n",work.first_search);
+		printf("\nproblem_MPI.c		send_work()		  sending alternatives: %d\n",work.num_alternatives);
+		printf("\nproblem_MPI.c		send_work()		  sending best: %f\n",work.best);
 	}
 
     MPI_Send(&work, 1, work_mpi_datatype, num_process, tag_work, MPI_COMM_WORLD);
@@ -1437,9 +1456,22 @@ int pD_distribution(PalgorithmPD palg)
 				  {
 					  w_estimated=best_diagonal(&(problems[0].aproblem));
 				  }
-				  else//greedy
+				  else if(type_best==3)//greedy
 				  {
 					  w_estimated=greedy(&(problems[0].aproblem));
+					  if(1)
+					  {
+						  printf("\nproblem_MPI.c		pD_distribution()		w estimated=%f",w_estimated);
+					  }
+				  }
+				  if((w_estimated>final_alg.best && ismax) ||
+				 								  (w_estimated<final_alg.best && ismin)  )
+				  {
+					  final_alg.best=w_estimated;
+					  if(1)
+					  {
+						  printf("\nproblem_MPI.c		pD_distribution()		final_alg best is now=%f",final_alg.best);
+					  }
 				  }
 
 				  for(int u=0;u<numAlternatives;u++)
@@ -1453,15 +1485,7 @@ int pD_distribution(PalgorithmPD palg)
 					  if((ismin && b_estimated<=palg->best)
 										  || (ismax && b_estimated>=palg->best))
 					  {
-						  //case no prune,control our worst estimated or secure solution
-						  // is better than global to change it
 
-						  if((w_estimated>final_alg.best && ismax) ||
-								  (w_estimated<final_alg.best && ismin)  )
-						  {
-							  final_alg.best=w_estimated;
-						  }
-						  ////////////////////////////////////////////////////////////////////
 						  int numSubproblems=get_num_subproblems();
 						  AproblemPD appdNew;
 						  for(int j=0;j<numSubproblems;j++)
