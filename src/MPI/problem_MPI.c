@@ -1445,9 +1445,8 @@ int pD_distribution(PalgorithmPD palg)
 				  Logico ismin;
 				  Logico ismax;
 				  double w_estimated;
-				  //TODO test
-				  int type_best=3;
-				  /////////looking for the first best
+
+				   /////////looking for the first best
 				  if(type_best==1)//dummy best
 				  {
 					  w_estimated=get_worst_estimate(&problems[0]);

@@ -53,6 +53,7 @@ extern MPI_Request request_b;
 extern double best;
 extern int tuple_p;
 extern int fs;
+extern int type_best;
 extern int master;
 extern int numprocs;
 AlgorithmPD final_alg;
