@@ -94,20 +94,16 @@ int main(int argc, char **argv)
   double buffer=1.;
   int buffer_work=0;
   if (myid != 0)  {
-	  ////////////////////
-
-	  //MPI_Ibcast(&buffer,1,MPI_DOUBLE,0,world, &request_b);
-
-	  //init_waiting_best(&buffer,&request_b);
-	  ////////////////////
 
 	  MPI_Bcast(&init_slaves,1,MPI_INT,0,MPI_COMM_WORLD);//waiting master's order
-	  rcv_work(&buffer,&request_b,&buffer_work);
-	  MPI_Ibarrier(MPI_COMM_WORLD, &request);//to know every process is finished
+	  rcv_work(&buffer,&request_b,&buffer_work, &request);
+//	  MPE_Log_event(event7a, 0, "start finished");
+//	  MPI_Ibarrier(MPI_COMM_WORLD, &request);//to know every process is finished
+//	  MPE_Log_event(event7b, 0, "end finished");
   }
   else//master
   {
-	init_best(&request_b,&world);
+	//init_best(&request_b,&world);
 
 	describe_logs();
 	if(print_all)

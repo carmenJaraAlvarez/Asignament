@@ -248,7 +248,7 @@ int distribution(PalgorithmPD palg, int prune, int r_rr, int tuple_p, int fs)
 
 }
 
-int rcv_work(double * buffer,MPI_Request * request_b,int * buffer_w)
+int rcv_work(double * buffer,MPI_Request * request_b,int * buffer_w,MPI_Request * request_finished)
 {
 	MPE_Log_event(event2a, 0, "start receive work");
 	int res=0;
@@ -340,7 +340,7 @@ int rcv_work(double * buffer,MPI_Request * request_b,int * buffer_w)
 	}
 
 	MPI_Type_free ( &work_mpi_datatype);
-    init_work(&a, work.num_alternatives, &alternatives,buffer,request_b,buffer_w,work.best);
+    init_work(&a, work.num_alternatives, &alternatives,buffer,request_b,buffer_w,work.best,request_finished);
     if(print_all)
     {
         int id;
@@ -485,7 +485,8 @@ int init_work(
 		double * buffer,
 		MPI_Request * request_b,
 		int * buffer_w,
-		double best)
+		double best,
+		MPI_Request * request)//finished
 {
 	MPI_Request request_work=MPI_REQUEST_NULL;//to listen to masterś order
 	int res=0;
@@ -513,6 +514,9 @@ int init_work(
 		if(!redistribution_rr)
 		{
 			alg.num_solved=0;
+			  MPE_Log_event(event7a, 0, "start finished");
+			  MPI_Ibarrier(MPI_COMM_WORLD, &request);//to know every process is finished
+			  MPE_Log_event(event7b, 0, "end finished");
 			send_resolved(&alg);
 
 		}
@@ -550,6 +554,9 @@ int init_work(
 					printf("\nproblem_MPI.c		init_work()		TIMEOUT");
 				}
 				alg.num_solved=0;
+				  MPE_Log_event(event7a, 0, "start finished");
+				  MPI_Ibarrier(MPI_COMM_WORLD, &request);//to know every process is finished
+				  MPE_Log_event(event7b, 0, "end finished");
 				send_resolved(&alg);
 			}
 			else
@@ -609,7 +616,9 @@ int init_work(
 				{
 					printf("Solution value: %f", alg.ppd.solution.acum);
 				}
-
+				  MPE_Log_event(event7a, 0, "start finished");
+				  MPI_Ibarrier(MPI_COMM_WORLD, &request);//to know every process is finished
+				  MPE_Log_event(event7b, 0, "end finished");
 				send_resolved(&alg);
 				if(print_all)
 				{
@@ -732,6 +741,9 @@ int init_work(
 		{
 			printf("Solution value: %f", alg.ppd.solution.acum);
 		}
+		  MPE_Log_event(event7a, 0, "start finished");
+		  MPI_Ibarrier(MPI_COMM_WORLD, &request);//to know every process is finished
+		  MPE_Log_event(event7b, 0, "end finished");
 
 		send_resolved(&alg);
 		if(print_all)
@@ -1247,6 +1259,7 @@ int finish_work()
 
 	return 0;
 }
+
 
 int serializer_tasks(PalgorithmPD palg, char* all)
 {
