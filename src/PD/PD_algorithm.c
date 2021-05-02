@@ -452,7 +452,7 @@
 			  {//to not send the only one
 				  int rcvr=0;
 				  down = waiting_petition(buffer_w,request_w,palg,m,&rcvr);
-				  if(print_all)
+				  if(1)
 				  {
 					  printf("\nPD_algorithm.c	 pD()		DEEP.more than one problem and down=%d", down);
 				  }
@@ -467,6 +467,8 @@
 				  }
 			  }
 			  m=m-down;
+			  waiting_confirming(&transfered);
+			  lengthNewArrayAppd=lengthNewArrayAppd-down;
 			  ///////////
 			  waiting_best(buffer, request_b);
 
