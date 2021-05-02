@@ -100,7 +100,7 @@ void resolve_aPD(PAproblem pap, int num_processes)
 		  scan_petition(&request_petition, &request_best, &request_bcast);
 		  MPI_Test(&request,&all_finished, MPI_STATUS_IGNORE);//test barrier
 	  }
-	  if(print_all)
+	  if(1)
 	  {
 		  printf("\naproblem_gui.c		resolve_aPD()	all finished ibarrier");
 	  }

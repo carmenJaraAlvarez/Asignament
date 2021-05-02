@@ -883,9 +883,11 @@ int send_resolved(const PalgorithmPD palg)
 {
 	MPE_Log_event(event5a, 0, "start send resolved");
 	int master=0;//to master
-	if(print_all)
+	int myid;
+	MPI_Comm_rank(MPI_COMM_WORLD,&myid);
+	if(1)
 	{
-		printf("\nSENDING RESOLVED TO MASTER");
+		printf("\nPROCESS %d SENDING RESOLVED TO MASTER",myid);
 	}
 
 

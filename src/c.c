@@ -103,7 +103,15 @@ int main(int argc, char **argv)
 
 	  MPI_Bcast(&init_slaves,1,MPI_INT,0,MPI_COMM_WORLD);//waiting master's order
 	  rcv_work(&buffer,&request_b,&buffer_work);
+		if(1)
+		{
+			printf("\nThis is %d previous ibarrier\n",myid);
+		}
 	  MPI_Ibarrier(MPI_COMM_WORLD, &request);//to know every process is finished
+		if(1)
+		{
+			printf("\nThis is %d post ibarrier\n",myid);
+		}
   }
   else//master
   {
