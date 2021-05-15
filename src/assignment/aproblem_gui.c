@@ -77,35 +77,53 @@ void resolve_aPD(PAproblem pap, int num_processes)
     AproblemPD appd;
     initAProblemPD(&appd, pap);
 	init_algorithmPD(&final_alg, appd);
+	if(1)
     {
     	printf("\naproblem_gui.c resolve_aPD()-> Resolving\n");
     }
+   if(num_processes==1)//serial
+   {
+	   MPE_Log_event(event9a, 0, "start serial");
+	   init_serial(&final_alg,prune,redistribution_rr,tuple_p,fs);
+	   if(1)
+	   {
+		   printf("\naproblem_gui.c resolve_aPD()		out init_serial call");
+	   }
+   }
+   else//parallel
+   {
+		distribution(&final_alg,prune,redistribution_rr,tuple_p,fs);
+		init_slaves=1;
+		if(print_all)
+		{
+			printf("\naproblem_gui.c resolve_aPD()-> Resolving\n");
+		}
+		MPI_Bcast(&init_slaves,1,MPI_INT,0,MPI_COMM_WORLD);
+		if(print_all)
+		{
+			printf("\naproblem_gui.c resolve_aPD()-> Resolving\n");
+		}
+		MPI_Ibarrier(MPI_COMM_WORLD, &request);//the slaves join when they have finished
 
-	distribution(&final_alg,prune,redistribution_rr,tuple_p,fs);
-	init_slaves=1;
-    if(print_all)
-    {
-    	printf("\naproblem_gui.c resolve_aPD()-> Resolving\n");
-    }
-	MPI_Bcast(&init_slaves,1,MPI_INT,0,MPI_COMM_WORLD);
-    if(print_all)
-    {
-    	printf("\naproblem_gui.c resolve_aPD()-> Resolving\n");
-    }
-	MPI_Ibarrier(MPI_COMM_WORLD, &request);//the slaves join when they have finished
+		  init_listening(&request_petition, &request_best);
+		  while(!all_finished)
+		  {
+			  scan_petition(&request_petition, &request_best, &request_bcast);
+			  MPI_Test(&request,&all_finished, MPI_STATUS_IGNORE);//test barrier
+		  }
+		  if(1)
+		  {
+			  printf("\naproblem_gui.c		resolve_aPD()	all finished ibarrier");
+		  }
 
-	  init_listening(&request_petition, &request_best);
-	  while(!all_finished)
-	  {
-		  scan_petition(&request_petition, &request_best, &request_bcast);
-		  MPI_Test(&request,&all_finished, MPI_STATUS_IGNORE);//test barrier
-	  }
-	  if(1)
-	  {
-		  printf("\naproblem_gui.c		resolve_aPD()	all finished ibarrier");
-	  }
-	  finish_work();
+		  finish_work();
+   }
+   if(1)
+   {
+	   printf("\naproblem_gui.c resolve_aPD()		out serial");
+   }
 	  //////////////////////////// Solved window
+
 	  GtkWidget  *window_solved, *grid_solved;
 	  window_solved = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	    /* Sets the border width of the window. */
@@ -120,7 +138,10 @@ void resolve_aPD(PAproblem pap, int num_processes)
 	  gtk_container_set_border_width (GTK_CONTAINER (table), 10);
 	  g_object_set (table, "baseline-row", 1, NULL);
 	  gtk_widget_set_name(table, "mytable");
-
+	   if(1)
+	   {
+		   printf("\naproblem_gui.c resolve_aPD()		****");
+	   }
 	  GdkColor color;
 	  gdk_color_parse ("Gold", &color);
 
@@ -137,8 +158,6 @@ void resolve_aPD(PAproblem pap, int num_processes)
 		    		 gchar *head = g_strdup_printf("%s", final_alg.ppd.aproblem.tasks[i-1].name);
 		    		 value = gtk_label_new(head);
 		    		 g_object_set (value, "margin", 1, NULL);
-//		    		 g_object_set (value, "padding-right", 6, NULL);
-//		    		 g_object_set (value, "padding-left", 6, NULL);
 		    		 gtk_grid_attach(GTK_GRID(table), value, i+1, j, 1, 1);
 		    		 gtk_widget_modify_bg ( GTK_WIDGET(value), GTK_STATE_NORMAL, &color_grey);
 		    		}
@@ -198,6 +217,10 @@ void resolve_aPD(PAproblem pap, int num_processes)
 												GTK_STYLE_PROVIDER_PRIORITY_USER);
 		}
 	  gtk_widget_show_all(window_solved);
+	   if(num_processes==1)//serial
+	   {
+		   MPE_Log_event(event9b, 0, "end serial");
+	   }
 
 	  end_clock();
 

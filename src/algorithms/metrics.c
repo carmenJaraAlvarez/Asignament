@@ -37,6 +37,7 @@ int describe_logs(){
     MPE_Describe_state(event6a, event6b, "Receive resolved",      "purple");
     MPE_Describe_state(event7a, event7b, "...",    "yellow");
     MPE_Describe_state(event8a, event8b, "receive work petition",      "red");
+    MPE_Describe_state(event9a, event9b, "serial",      "blue");
 
     MPE_Describe_event( event1, "Ask for work", "white" );
     MPE_Describe_event( event2, "Scan petition", "orange" );

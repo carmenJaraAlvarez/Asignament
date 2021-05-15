@@ -45,6 +45,8 @@ int event7a;
 int event7b;
 int event8a;
 int event8b;
+int event9a;
+int event9b;
 
 int event1, event2, event3, event4, event5, event6, event7, event8, event9;
 int startEvent, endEvent;
@@ -78,6 +80,7 @@ int main(int argc, char **argv)
   MPE_Log_get_state_eventIDs( &event6a, &event6b );
   MPE_Log_get_state_eventIDs( &event7a, &event7b );
   MPE_Log_get_state_eventIDs( &event8a, &event8b );
+  MPE_Log_get_state_eventIDs( &event9a, &event9b );
 
   MPE_Log_get_solo_eventID( &event1 );
   MPE_Log_get_solo_eventID( &event2 );
@@ -115,7 +118,8 @@ int main(int argc, char **argv)
   }
   else//master
   {
-	init_best(&request_b,&world);
+
+	init_best(&request_b,&world,numprocs);
 
 	describe_logs();
 	if(print_all)

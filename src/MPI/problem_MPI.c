@@ -477,7 +477,37 @@ int confirming_work(int sender)
 	return res;
 
 }
+int init_serial(
+		PalgorithmPD final_alg,
+		int prune,
+		int redistribution_rr,
+		int tuple_p,
+		int fs)
+{
 
+	double buffer=0.0;//not using in serial
+	MPI_Request request_work=MPI_REQUEST_NULL;//not using in serial
+	int buffer_w=1;//not using in serial
+	AlgorithmPD alg;
+	init_algorithmPD(&alg, final_alg->ppd);
+	exec_algorithm(&alg,&buffer,request_b, &buffer_w, &request_work, fs);
+
+	for(int j=0;j<final_alg->ppd.aproblem.numTask;j++)
+	{
+
+		//final_sol[j]=resolved_from_slaves[p].resources[j];//TODO create resolved problem
+		final_sol[j]=alg.solvedProblems[0].solution.resources[j].position;
+		if(1)
+			{
+			printf("\nproblem_MPI.c		init_serial()		task %d", j);
+
+			}
+	}
+	final_alg->best=alg.solvedProblems[0].solution.acum;
+
+return 0;
+
+}
 int init_work(
 		PAproblem pa,
 		int num_alternatives,
@@ -975,22 +1005,27 @@ int rcv_best(double rcvd_best, MPI_Request *request_bcast)
 int send_best(PalgorithmPD palg)
 {
 	int res=0;
-	double best=palg->best;
-	int count = 1;
-	MPE_Log_event(event3a, 0, "start send best");
-	MPI_Request request_b;
-	if(print_all)
+	if(numprocs>1)
 	{
-		printf("\n sending best: %f to %d",best,master);
+
+		double best=palg->best;
+		int count = 1;
+		MPE_Log_event(event3a, 0, "start send best");
+		MPI_Request request_b;
+		if(print_all)
+		{
+			printf("\n sending best: %f to %d",best,master);
+		}
+
+		MPI_Isend(&best, count, MPI_DOUBLE, master, tag_best, MPI_COMM_WORLD, &request_b);
+		if(print_all)
+		{
+			printf("\n send best: %f to %d",best,master);
+		}
+
+		MPE_Log_event(event3b, 0, "end send best");
 	}
 
-	MPI_Isend(&best, count, MPI_DOUBLE, master, tag_best, MPI_COMM_WORLD, &request_b);
-	if(print_all)
-	{
-		printf("\n send best: %f to %d",best,master);
-	}
-
-	MPE_Log_event(event3b, 0, "end send best");
 	return res;
 }
 int broadcast_best(double better){
@@ -1215,7 +1250,7 @@ int scan_petition(MPI_Request *request_ask_work, MPI_Request *request_best, MPI_
 }
 
 
-void init_best(MPI_Request * request_b, MPI_Comm * world){
+void init_best(MPI_Request * request_b, MPI_Comm * world, int np){
 	  ////////////////////
 	  best=final_alg.best;
 
@@ -1226,7 +1261,10 @@ void init_best(MPI_Request * request_b, MPI_Comm * world){
 		 printf("\n problem_MPI.c		init best()-------------------%f",best);
 	 	 printf( "\nproblem_MPI.c		init best()		Message from process %d : best %f\n", myid, best);
 	  }
-	 MPI_Ibcast(&best,1,MPI_DOUBLE,0,*world, request_b);
+	  if(np>1){//no serial
+		  MPI_Ibcast(&best,1,MPI_DOUBLE,0,*world, request_b);
+	  }
+
 }
 
 int init_listening(MPI_Request *request_petition,MPI_Request *request_best )

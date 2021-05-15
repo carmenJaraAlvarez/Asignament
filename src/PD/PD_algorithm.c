@@ -41,7 +41,7 @@
 		  palg->best=SMALL;
 	  }
 	  int num=get_max_num_problems(&(ap));
-	  palg->problems=(AproblemPD*)malloc(sizeof(AproblemPD)*num);
+	  palg->problems=(AproblemPD*)malloc(sizeof(AproblemPD)*num*2);
 
 	  palg->ppd=ap;
 	  copy_aproblem_PD(&(palg->problems[0]),ap);
@@ -75,6 +75,10 @@
 			  pD(palg,buffer, request_b, buffer_w, request_w);
 		  }
 	  }while(palg->isRandomize && get_PDsolution(palg,&sol)!=0);
+	  if(1)
+	  {
+		  printf("\nPD_algorithm.c		exec_algorithm()		outgoing");
+	  }
 	  return res;
   }
 
@@ -95,7 +99,7 @@
 	  if(is_min(palg) && target<palg->best)
 	  {
 		  palg->best=target;
-		  send_best(palg);//TODO if severals
+		  send_best(palg);
 	  }
 	  else if(is_max(palg) && target>palg->best)
 	  {
@@ -164,6 +168,11 @@
 		  show_transfered(&transfered);
 	  }
 	  int res=0;
+	  int serial=0;
+	  if(numprocs==1){
+		  printf("\nPD_algorithm.c	 pD()		*******************SERIAL");
+		  serial=1;
+	  }
 	  AproblemPD appd=palg->ppd;
 	  int len_problems=palg->num_problems;
 	  int lengthNewArrayAppd=palg->num_problems;
@@ -179,13 +188,18 @@
 		  for(int m=0;m<len_problems;m++){
 			  show_aproblem_PD(&(palg->problems[m]));
 		  }
+		  printf("\nPD_algorithm.c		pD		deep: %d", deep);
 	  }
 	  if(!deep)//BFS
 	  {
+		  if(1)
+		  {
+			  printf("\n lengthNewArrayAppd %d",lengthNewArrayAppd);
+		  }
 		  for(int m=0;m<lengthNewArrayAppd;m++){
 			  ///redistribution
 			  int up=0;
-			  if((lengthNewArrayAppd-m)>1)
+			  if((lengthNewArrayAppd-m)>1 && !serial)
 			  {//to not send the only one
 				  int rcvr=0;
 				  up = waiting_petition(buffer_w,request_w,palg,m,&rcvr);
@@ -200,16 +214,24 @@
 				  }
 			  }
 			  m=m+up;
-			  waiting_confirming(&transfered);
-			  ///////////
-			  waiting_best(buffer, request_b);
+			  if(1)
+			  {
+				  printf("\nPD_algorithm.c	 pD()		m:%d",m);
+			  }
+			  if(!serial)
+			  {
+				  waiting_confirming(&transfered);
+				  waiting_best(buffer, request_b);
+			  }
+
 			  update_alg_best(palg);
 			  int max_num_problem=get_max_num_problems(&appd);
 			  int len=max_num_problem+lengthNewArrayAppd;
 
-			  if(print_all)
+			  if(1)
 			  {
 				  printf("\nPD_algorithm.c		pD		first len array problem in PD = %d", lengthNewArrayAppd);
+				  printf("\nPD_algorithm.c		pD		len=max+lengnew->%d+%d=%d", max_num_problem,lengthNewArrayAppd,len);
 
 			  }
 
@@ -257,22 +279,26 @@
 					  {
 						  copy_aproblem_PD( &(palg->solvedProblems[palg->num_solved]),palg->problems[m]);
 						  palg->num_solved++;
-
+						  update_best(palg,&(palg->solvedProblems[0]) );
+						  if(1)
+						  {
+							  printf("\nPD_algorithm.c		pD		more than one solution");
+						  }
 					  }
 					  else if(palg->num_solved==0 ||
 							  (palg->num_solved>0 && palg->problems[m].solution.acum>palg->solvedProblems[0].solution.acum))//now this is the only one best solution
 					  {
 						  copy_aproblem_PD( &(palg->solvedProblems[0]),palg->problems[m]);
 						  palg->num_solved=1;
-						  if(print_all)
+						  if(1)
 						  {
 							  printf("\nPD_algorithm.c		pD		This solution is the best now. acum: %f",palg->problems[m].solution.acum);
-							  show_aproblem_PD(&(palg->problems[m]));
+							  //show_aproblem_PD(&(palg->problems[m]));
 							  printf("\nPD_algorithm.c		pD		pre update best palg: %f",palg->best);
 							  printf("\nPD_algorithm.c		pD		pre update best final_alg: %f", final_alg.best);
 						  }
-						  update_best(palg,&(palg->solvedProblems[m]) );
-						  if(print_all)
+						  update_best(palg,&(palg->solvedProblems[0]) );
+						  if(1)
 						  {
 							  printf("\nPD_algorithm.c		pD		post update best");
 							  //show_aproblem_PD(&(palg->problems[39]));//TODO check
@@ -283,7 +309,7 @@
 						  }
 
 					  }
-
+					  update_alg_best(palg);
 					  if(print_all)
 					  {
 						  printf("\nPD_algorithm.c		pD		is base case and takes alternative: %d\n", sp.alternative.indexResource);
@@ -379,7 +405,11 @@
 								  }
 
 								  final_alg.best=w_estimated;
-								  send_best(&final_alg);
+								  if(!serial)
+								  {
+									  send_best(&final_alg);
+								  }
+
 							  }
 							  if((w_estimated>palg->best && ismax) ||
 									  (w_estimated<palg->best && ismin)  )
@@ -438,17 +468,21 @@
 	  else//DFS
 	  {
 		  int down=0;
+		  if(1)
+		  {
+			  printf("\nPD_algorithm.c		pD()	lengthNewArrayAppd: %d",lengthNewArrayAppd);
+		  }
 		  while(lengthNewArrayAppd>0)
 		  {
 			  int m=lengthNewArrayAppd-1;
-			  if(print_all)
+			  if(1)
 			  {
 				  printf("\nPD_algorithm.c		pD()	------------------------------m=%d",m);
 				  printf("\nPD_algorithm.c		pD()	best final alg=%f",final_alg.best);
 			  }
 
 			  ///redistribution
-			  if(lengthNewArrayAppd>1)
+			  if(lengthNewArrayAppd>1 && !serial)
 			  {//to not send the only one
 				  int rcvr=0;
 				  down = waiting_petition(buffer_w,request_w,palg,m,&rcvr);
@@ -467,11 +501,17 @@
 				  }
 			  }
 			  m=m-down;
-			  waiting_confirming(&transfered);
+			  if(!serial)
+			  {
+				  waiting_confirming(&transfered);
+			  }
+
 			  lengthNewArrayAppd=lengthNewArrayAppd-down;
 			  ///////////
-			  waiting_best(buffer, request_b);
-
+			  if(!serial)
+			  {
+				  waiting_best(buffer, request_b);
+			  }
 			  update_alg_best(palg);
 			  int max_num_problem=get_max_num_problems_deep(&appd);
 			  int len=max_num_problem+lengthNewArrayAppd;
@@ -481,7 +521,7 @@
 			  Alternative as[max_num_alternatives];
 			  init_alternative_array(&as,max_num_alternatives);
 			  int numAlternatives=get_alternatives(&(palg->problems[m]), as);
-			  if(print_all)
+			  if(1)
 			  {
 				  printf("\nPD_algorithm.c		pD()	max num sub=%d",max_num_problem);
 				  printf("\nPD_algorithm.c		pD()	first len array=%d",lengthNewArrayAppd);
@@ -502,10 +542,10 @@
 
 				  if(is_base_case(&(palg->problems[m])))
 				  {
-					  if(print_all)
+					  if(1)
 					  {
 						  printf("\nPD_algorithm.c		pD		before get solution case base");
-						  show_aproblem_PD(&(palg->problems[m]));
+						  //show_aproblem_PD(&(palg->problems[m]));
 						  printf("\nPD_algorithm.c		pD		before get solution case base.best in palg: %f", palg->best);
 						  printf("\nPD_algorithm.c		pD		before get solution case base.best in final_alg: %f", final_alg.best);
 					  }
@@ -531,7 +571,7 @@
 					  {
 						  copy_aproblem_PD( &(palg->solvedProblems[0]),palg->problems[m]);
 						  palg->num_solved=1;
-						  if(print_all)
+						  if(1)
 						  {
 							  printf("\nPD_algorithm.c		pD		This solution is the best now. acum: %f",palg->problems[m].solution.acum);
 							  show_aproblem_PD(&(palg->problems[m]));
@@ -539,7 +579,7 @@
 							  printf("\nPD_algorithm.c		pD		pre update best final_alg: %f", final_alg.best);
 						  }
 						  update_best(palg,&(palg->solvedProblems[m]) );
-						  if(print_all)
+						  if(1)
 						  {
 							  printf("\nPD_algorithm.c		pD		post update best");
 							  //show_aproblem_PD(&(palg->problems[39]));//TODO check
@@ -553,7 +593,7 @@
 
 					  lengthNewArrayAppd--;
 					  //(palg->num_problems)--;
-
+					  update_alg_best(palg);
 					  if(print_all)
 					  {
 						  printf("\nPD_algorithm.c		pD		is base case and takes alternative: %d\n", sp.alternative.indexResource);
@@ -566,7 +606,7 @@
 				  {
 					  ////////////////////////////////////////////////DEEP not case base
 					  //get new problems
-					  if(print_all)
+					  if(1)
 					  {
 						  printf("\nPD_algorithm.c		pD		Not case base. Problem: ");
 						  show_aproblem_PD(&(palg->problems[m]));
@@ -636,7 +676,10 @@
 								  }
 
 								  final_alg.best=w_estimated;
-								  send_best(&final_alg);
+								  if(!serial)
+								  {
+									  send_best(&final_alg);
+								  }
 							  }
 							  if((w_estimated>palg->best && ismax) ||
 									  (w_estimated<palg->best && ismin)  )
@@ -703,31 +746,35 @@
 	  }//end deep
 
 	  //redistribution
-	  if(1)
-	  {
-		  printf("\nPD_algorithm.c	pD()		----------------There are %d transfered not confirmed", transfered.len_transfered);
-	  }
-	  if(transfered.len_transfered>0)
-	  {
-		  for(int j=0;j<transfered.len_transfered;j++)//no confirmed
+	  if(!serial){
+		  if(1)
 		  {
-			  	  copy_aproblem_PD(&(palg->problems[j]),transfered.transfered[j]);
-				  //palg->problems[j]=transfered.transfered[j];
-				  palg->num_problems=transfered.len_transfered;
-				  if(1)
-				  {
-					  int myid;
-					  MPI_Comm_rank(MPI_COMM_WORLD,&myid);
-					  printf("\nPD_algorithm.c	pD()		transfered no confirmed in process %d. transfered and palg:",myid);
-					  show_aproblem_PD(&(transfered.transfered[j]));
-					  show_aproblem_PD(&(palg->problems[j]));
-				  }
-
-
+			  printf("\nPD_algorithm.c	pD()		----------------There are %d transfered not confirmed", transfered.len_transfered);
 		  }
-		  transfered.len_transfered=0;
-		  pD(palg,buffer,request_b,buffer_w,request_w);
+		  if(transfered.len_transfered>0)
+		  {
+			  for(int j=0;j<transfered.len_transfered;j++)//no confirmed
+			  {
+				  	  copy_aproblem_PD(&(palg->problems[j]),transfered.transfered[j]);
+					  //palg->problems[j]=transfered.transfered[j];
+					  palg->num_problems=transfered.len_transfered;
+					  if(1)
+					  {
+						  int myid;
+						  MPI_Comm_rank(MPI_COMM_WORLD,&myid);
+						  printf("\nPD_algorithm.c	pD()		transfered no confirmed in process %d. transfered and palg:",myid);
+						  show_aproblem_PD(&(transfered.transfered[j]));
+						  show_aproblem_PD(&(palg->problems[j]));
+					  }
+
+
+			  }
+			  transfered.len_transfered=0;
+			  pD(palg,buffer,request_b,buffer_w,request_w);
+		  }
 	  }
+
+
 	  return res;
   }
 

@@ -135,6 +135,7 @@ int confirming_work(int);
 int waiting_confirming(Transfered_nodes *);
 
 //master
+int init_serial(PalgorithmPD ,int,int,int,int);
 int distribution(PalgorithmPD, int, int,int,int);
 int send_work(const PalgorithmPD,int *, int, int, int,int,int,int,double);
 int broadcast_best(const double);
@@ -145,7 +146,7 @@ int init_listening(MPI_Request*, MPI_Request*);
 int finish_work();
 int give_me_work(int process);
 int resolved();
-void init_best(MPI_Request *, MPI_Comm *);
+void init_best(MPI_Request *, MPI_Comm *, int);
 int init_redistribution(MPI_Request * );
 
 //aux
