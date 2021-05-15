@@ -21,12 +21,15 @@
 #include "../tests/test_aproblem.c"
 #include "../tests/test_aproblemPD.c"
 #include "../tests/test_aPD_algorithm.c"
+#include "../tests/test_application.c"
 #include "algorithms/metrics.h"
 
 
 int master=0;
 int numprocs=0;
 int print_all=0;//to help to debug. Simple logs for developer
+int tests=0;//to launch tests
+Cadena test;
 
 
 int event1a;
@@ -60,6 +63,26 @@ MPI_Request request_b=MPI_REQUEST_NULL;
 double best;
 int main(int argc, char **argv)
 {
+	if(print_all)
+	{
+		for(int i=0;i<argc;i++)
+		{
+			printf("\nARG %d->%s",i, argv[i]);
+		}
+	}
+
+
+	if(argc>2 && strcmp(argv[1],"test")==0)
+	{
+		tests=1;
+		strcpy(test,argv[2]);
+		if(1)
+		{
+			printf("\n test %s",test);
+		}
+	}
+
+
   int myid;
 
   MPI_Init(&argc,&argv);
@@ -134,8 +157,11 @@ int main(int argc, char **argv)
     // PAproblem pap;
 	create_aproblem_window(numprocs);
 	/////////////////////////////////////
+	if(!tests)
+	{
+		gtk_main();
+	}
 
-	gtk_main();
 
   }
 
