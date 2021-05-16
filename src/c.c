@@ -28,8 +28,11 @@
 int master=0;
 int numprocs=0;
 int print_all=0;//to help to debug. Simple logs for developer
-int tests=0;//to launch tests
+//to launch tests///////
+int tests=0;
 Cadena test;
+int var_test[5];
+///////////////////////
 
 
 int event1a;
@@ -72,13 +75,17 @@ int main(int argc, char **argv)
 	}
 
 
-	if(argc>2 && strcmp(argv[1],"test")==0)
+	if(argc>7 && strcmp(argv[1],"test")==0)
 	{
 		tests=1;
 		strcpy(test,argv[2]);
 		if(1)
 		{
 			printf("\n test %s",test);
+		}
+		for(int i=0;i<5;i++)
+		{
+			var_test[i]=atoi(argv[i+2]);
 		}
 	}
 

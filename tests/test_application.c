@@ -8,9 +8,18 @@
 #include "../src/assignment/PD/a_problem_PD.h"
 #include "../src/assignment/solution.h"
 #include "../src/assignment/aproblem_gui.h"
+
 extern int redistribution_rr;
 extern GtkWidget *window;
 extern Cadena test;
+extern int var_test[5];
+extern int fs;
+extern int type_best;
+
+
+
+double expected[9]={2.,38.,51.,5.,1025.,46.,7.,7.,8.};//matrix size >=2	<=10
+
 
 int test_set(int np);
 
@@ -19,7 +28,6 @@ int test_set(int np);
 int test_set(int np){
 	printf("\n*** test_set ***\n");
 	test_set_data(test,np);
-	//test_set_data(4,np);
 	return 0;
 }
 int test_set_data(Cadena t, int np){
@@ -40,6 +48,13 @@ int test_set_data(Cadena t, int np){
 	strcat(cadena_url_init,cadena_url_end);
 	printf("\n%s",cadena_url_init);
 	int e=read_aproblem_file(&pap_from_gui, numt, numr, cadena_url_init);
+
+	prune=var_test[0];
+	redistribution_rr=var_test[1];
+	tuple_p=var_test[2];
+	fs=var_test[3];
+	type_best=var_test[4];
+
 	if(1)
 	{
 		printf("\ntest_application.c		test_set_data()-> READED file  %d\n",e);
@@ -47,11 +62,17 @@ int test_set_data(Cadena t, int np){
 		g_print ("\ntest_application.c		test_set_data()	rr->%d",redistribution_rr);
 	}
 
-		resolve_aPD(&pap_from_gui, np);
-		printf("\n*******************************************"
-				"\ntest_application.c		test_set_data(%d)-> acum %f\n",i,final_alg.best);
-		//gtk_window_close (&window);
-		return 0;
+	resolve_aPD(&pap_from_gui, np);
+	while(final_alg.best!=expected[i-2])//matrix size <=2
+	{
+
+	}
+
+	printf("\n*******************************************"
+				"\ntest_application.c		test_set_data(%d)-> OK: acum %f\n",i,final_alg.best);
+
+
+	return 0;
 
 }
 
