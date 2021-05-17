@@ -659,7 +659,7 @@ int init_work(
 					printf("\nSEND RESOLVED TO MASTER");
 				}
 
-				delete_algorithmPD(&alg);
+
 			}
 		}//end redistribution rr
 
@@ -787,13 +787,13 @@ int init_work(
 			printf("\nSEND RESOLVED TO MASTER");
 		}
 
-		delete_algorithmPD(&alg);
+
 	}//end else (alternative>0)
 	if(print_all)
 	{
 		printf("\nproblem_MPI.c		outgoing initwork");
 	}
-
+	delete_algorithmPD(&alg);
 	return res;
 }
 int send_work(
@@ -1594,6 +1594,8 @@ int pD_distribution(PalgorithmPD palg)
 		  {
 			  printf("\nproblem_MPI.c		pD_distribution() finish ");
 		  }
+		  free(newArrayAppd);
+		  free(problems);
 
   return res;
 }
