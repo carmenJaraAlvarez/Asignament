@@ -12,7 +12,11 @@ static int buffer_work;
 
 static int send_more_work(int process)
 {
-	printf("\nproblem_MPI.c		send_more_work()		to %d",process);
+	if(print_all)
+	{
+		printf("\nproblem_MPI.c		send_more_work()		to %d",process);
+	}
+
 
 	if(0)//TODO batch
 	{
@@ -141,11 +145,12 @@ int distribution(PalgorithmPD palg, int prune, int r_rr, int tuple_p, int fs)
 			}
 			int alternatives[1];
 			alternatives[0]=i-1;
-			if(1)
+			if(print_all)
 			{
 				printf("\nproblem_MPI.c		distribution()		sending best=%f",final_alg.best);
+				printf("\nproblem_MPI.c		distribution()		num problems==num slaves: alternative->%d",alternatives[0]);
 			}
-			printf("\nproblem_MPI.c		distribution()		num problems==num slaves: alternative->%d",alternatives[0]);
+
 			send_work(palg,&alternatives,1,i,prune,r_rr, tuple_p,fs,final_alg.best);//sending 1 alternative to process i
 			if(r_rr)
 			{
@@ -167,7 +172,11 @@ int distribution(PalgorithmPD palg, int prune, int r_rr, int tuple_p, int fs)
 		{
 			int alternatives[1];
 			alternatives[0]=i-1;
-			printf("\n num problems<num slaves: alternative->%d",alternatives[0]);
+			if(print_all)
+			{
+				printf("\n num problems<num slaves: alternative->%d",alternatives[0]);
+			}
+
 			send_work(palg,&alternatives,1,i,prune,r_rr, tuple_p,fs,final_alg.best);
 			if(r_rr)
 			{
@@ -208,7 +217,11 @@ int distribution(PalgorithmPD palg, int prune, int r_rr, int tuple_p, int fs)
 				}
 
 				int a=(i-1)+(j*num_slaves);
-				printf("\"\nproblem_MPI.c		distribution()		alternative %d=%d",j,a);
+				if(print_all)
+				{
+					printf("\"\nproblem_MPI.c		distribution()		alternative %d=%d",j,a);
+				}
+
 				alternatives[j]=a;//process i, distribution round j
 			}
 			send_work(palg,&alternatives,rounds+1,i,prune,r_rr, tuple_p,fs,final_alg.best);
@@ -497,7 +510,7 @@ int init_serial(
 
 		//final_sol[j]=resolved_from_slaves[p].resources[j];//TODO create resolved problem
 		final_sol[j]=alg.solvedProblems[0].solution.resources[j].position;
-		if(1)
+		if(print_all)
 			{
 			printf("\nproblem_MPI.c		init_serial()		task %d", j);
 
@@ -524,7 +537,7 @@ int init_work(
 	AlgorithmPD alg;
 	init_algorithmPD(&alg, appd);
 	alg.best=best;
-	if(1)
+	if(print_all)
 	{
 		printf("\n problem_MPI.c		init_work()		best post init: %f",alg.best);
 		show_aproblem(&(alg.ppd.aproblem));
@@ -656,7 +669,7 @@ int init_work(
 
 
 		MPI_Irecv(&buffer_work,1,MPI_INT,master,tag_give_work,MPI_COMM_WORLD, &request_work);
-		if(1)
+		if(print_all)
 		{
 			printf("\nproblem_MPI.c		init_work()		more than one alt. send request_work");
 		}
@@ -722,8 +735,12 @@ int init_work(
 
 				if(i>0)
 				{
-					printf("\nProblem i-1:\n");
-					show_aproblem_PD(&(alg.problems[i-1]));
+					if(print_all)
+					{
+						printf("\nProblem i-1:\n");
+						show_aproblem_PD(&(alg.problems[i-1]));
+					}
+
 				}
 
 				strcpy(alg.problems[i].solution.resources[alg.problems[i].solution.lengthArrays].name, pa->resources[alternatives[i]].name);
@@ -740,11 +757,11 @@ int init_work(
 			alg.ppd.index=1;
 			alg.num_problems=num_alternatives;//TODO
 		}
-		for(int i=0;i<alg.num_problems;i++){
-			show_aproblem_PD(&(alg.problems[i]));
-		}
 		if(print_all)
 		{
+			for(int i=0;i<alg.num_problems;i++){
+				show_aproblem_PD(&(alg.problems[i]));
+			}
 			printf("\nBefore exec algoritm\n");
 		}
 
@@ -755,11 +772,12 @@ int init_work(
 		}
 		Solution sol;
 		get_PDsolution(&alg, &sol);
-		for(int i=0;i<alg.ppd.solution.lengthArrays;i++){
-			printf("\nResources: \n*%s\n",alg.ppd.solution.resources[i].name);
-		}
+
 		if(print_all)
 		{
+			for(int i=0;i<alg.ppd.solution.lengthArrays;i++){
+				printf("\nResources: \n*%s\n",alg.ppd.solution.resources[i].name);
+			}
 			printf("Solution value: %f", alg.ppd.solution.acum);
 		}
 
@@ -794,8 +812,9 @@ int send_work(
 	if(print_all)
 	{
 		printf("\nproblem_MPI.c		send_work()		sending  %d  alternatives to process %d\n",num_alternatives,num_process);
+		show_aproblem(&(palg->ppd.aproblem));
 	}
-	show_aproblem(&(palg->ppd.aproblem));
+
 
 	int res=0;
 
@@ -882,7 +901,7 @@ int send_work(
 	MPI_Type_create_struct(9, blocklengths, offsets, types,  &work_mpi_datatype);
 	MPI_Type_commit ( &work_mpi_datatype);
 
-	if(1)
+	if(print_all)
 	{
 		printf("\nproblem_MPI.c		send_work()		  sending num task: %d",work.num_tasks);
 		printf("\nproblem_MPI.c		send_work()		  sending num resources: %d\n",work.num_resources);
@@ -915,7 +934,7 @@ int send_resolved(const PalgorithmPD palg)
 	int master=0;//to master
 	int myid;
 	MPI_Comm_rank(MPI_COMM_WORLD,&myid);
-	if(1)
+	if(print_all)
 	{
 		printf("\nPROCESS %d SENDING RESOLVED TO MASTER",myid);
 	}
@@ -1503,7 +1522,7 @@ int pD_distribution(PalgorithmPD palg)
 				  else if(type_best==3)//greedy
 				  {
 					  w_estimated=greedy(&(problems[0].aproblem));
-					  if(1)
+					  if(print_all)
 					  {
 						  printf("\nproblem_MPI.c		pD_distribution()		w estimated=%f",w_estimated);
 					  }
@@ -1512,7 +1531,7 @@ int pD_distribution(PalgorithmPD palg)
 				 								  (w_estimated<final_alg.best && ismin)  )
 				  {
 					  final_alg.best=w_estimated;
-					  if(1)
+					  if(print_all)
 					  {
 						  printf("\nproblem_MPI.c		pD_distribution()		final_alg best is now=%f",final_alg.best);
 					  }
@@ -1565,9 +1584,10 @@ int pD_distribution(PalgorithmPD palg)
 			  {
 				  printf("\nproblem_MPI.c		pD_distribution()----------------------- ");
 				  printf("\nproblem_MPI.c		pD_distribution() problem %d of %d problems in alg",w,lengthNewArrayAppd);
+				  show_aproblem_PD(&(palg->problems[w]));
 			  }
 
-			  show_aproblem_PD(&(palg->problems[w]));
+
 		  }
 		  palg->num_problems=lengthNewArrayAppd;
 		  if(print_all)

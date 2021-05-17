@@ -77,7 +77,7 @@ void resolve_aPD(PAproblem pap, int num_processes)
     AproblemPD appd;
     initAProblemPD(&appd, pap);
 	init_algorithmPD(&final_alg, appd);
-	if(1)
+	if(print_all)
     {
     	printf("\naproblem_gui.c resolve_aPD()-> Resolving\n");
     }
@@ -85,7 +85,7 @@ void resolve_aPD(PAproblem pap, int num_processes)
    {
 	   MPE_Log_event(event9a, 0, "start serial");
 	   init_serial(&final_alg,prune,redistribution_rr,tuple_p,fs);
-	   if(1)
+	   if(print_all)
 	   {
 		   printf("\naproblem_gui.c resolve_aPD()		out init_serial call");
 	   }
@@ -111,14 +111,14 @@ void resolve_aPD(PAproblem pap, int num_processes)
 			  scan_petition(&request_petition, &request_best, &request_bcast);
 			  MPI_Test(&request,&all_finished, MPI_STATUS_IGNORE);//test barrier
 		  }
-		  if(1)
+		  if(print_all)
 		  {
 			  printf("\naproblem_gui.c		resolve_aPD()	all finished ibarrier");
 		  }
 
 		  finish_work();
    }
-   if(1)
+   if(print_all)
    {
 	   printf("\naproblem_gui.c resolve_aPD()		out serial");
    }
@@ -138,7 +138,7 @@ void resolve_aPD(PAproblem pap, int num_processes)
 	  gtk_container_set_border_width (GTK_CONTAINER (table), 10);
 	  g_object_set (table, "baseline-row", 1, NULL);
 	  gtk_widget_set_name(table, "mytable");
-	   if(1)
+	   if(print_all)
 	   {
 		   printf("\naproblem_gui.c resolve_aPD()		****");
 	   }
@@ -377,9 +377,12 @@ on_changed (GtkComboBox *widget,
 }
 void create_aproblem_window(int num_processes)
 {
+	if(print_all)
+	{
+		g_print ("\naproblem_gui.c 		create_aproblem_window()		prune->%d",prune);
+		g_print ("\naproblem_gui.c 		create_aproblem_window()		rr->%d",redistribution_rr);
+	}
 
-	g_print ("\naproblem_gui.c 		create_aproblem_window()		prune->%d",prune);
-	g_print ("\naproblem_gui.c 		create_aproblem_window()		rr->%d",redistribution_rr);
 
 
 
@@ -390,7 +393,7 @@ void create_aproblem_window(int num_processes)
 		if(tests)
 		{
 				test_set(num_processes);
-				if(1)
+				if(print_all)
 				{
 					printf("\naproblem_gui.c 		create_aproblem_window() 		post test_set");
 				}

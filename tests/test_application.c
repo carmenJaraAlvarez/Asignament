@@ -26,12 +26,20 @@ int test_set(int np);
 
 
 int test_set(int np){
-	printf("\n*** test_set ***\n");
+	if(print_all)
+	{
+		printf("\n*** test_set ***\n");
+	}
+
 	test_set_data(test,np);
 	return 0;
 }
 int test_set_data(Cadena t, int np){
-	printf("\n*** test_set_data***\n");
+	if(print_all)
+	{
+		printf("\n*** test_set_data***\n");
+	}
+
 	init_clock();
     int numt;
     int numr;
@@ -55,7 +63,7 @@ int test_set_data(Cadena t, int np){
 	fs=var_test[3];
 	type_best=var_test[4];
 
-	if(1)
+	if(print_all)
 	{
 		printf("\ntest_application.c		test_set_data()-> READED file  %d\n",e);
 		g_print ("\ntest_application.c		test_set_data()		prune->%d",prune);

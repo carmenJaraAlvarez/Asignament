@@ -8,17 +8,28 @@ slave=192.168.2.115
 
 echo "testing"
 
-	mpirun -np 3 -hosts master,$slave $origin test 3 1 1 1 0 0 &
-	wait $!
-	echo "finished np3 3 1 1 1 0 0"
-	mpirun -np 3 -hosts master,$slave $origin test 3 1 1 1 0 1 &
-	wait $!
-	echo "finished np3 3 1 1 1 0 1"
-	mpirun -np 3 -hosts master,$slave $origin test 3 1 1 1 0 2 &
-	wait $!
-	echo "finished np3 3 1 1 1 0 2"
-	mpirun -np 3 -hosts master,$slave $origin test 4 1 1 1 0 0 &
-	wait $!
-	echo "finished np3 4 1 1 1 0 0"
-
+for NP in 2 5 10
+do
+	for PRUNE in 0 1
+	do
+		for SEARCH in 0 1
+		do
+			for TUPLE in 0 1
+			do
+				for RR in 0 1
+				do
+					for ALG in 0 1 2
+					do
+						for SIZE in 3 4 5 6 7 8 9
+						do
+							mpirun -np $NP -hosts master,$slave $origin test $SIZE $PRUNE $RR $TUPLE $SEARCH $ALG &
+							wait $!
+							echo "finished np $NP data $SIZE prune $PRUNE round robin $RR ... $TUPLE $SEARCH $ALG"
+						done
+					done
+				done
+			done
+		done
+	done
+done
 exit 0
