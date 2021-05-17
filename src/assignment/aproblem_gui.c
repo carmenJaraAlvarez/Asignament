@@ -18,7 +18,7 @@ int tuple_p=1;
 int fs=1;
 int type_best=1;//dummy
 
-static void resolve_aPD(PAproblem, int);
+
 static void show_error();
 
 
@@ -77,35 +77,53 @@ void resolve_aPD(PAproblem pap, int num_processes)
     AproblemPD appd;
     initAProblemPD(&appd, pap);
 	init_algorithmPD(&final_alg, appd);
+	if(print_all)
     {
     	printf("\naproblem_gui.c resolve_aPD()-> Resolving\n");
     }
+   if(num_processes==1)//serial
+   {
+	   MPE_Log_event(event9a, 0, "start serial");
+	   init_serial(&final_alg,prune,redistribution_rr,tuple_p,fs);
+	   if(print_all)
+	   {
+		   printf("\naproblem_gui.c resolve_aPD()		out init_serial call");
+	   }
+   }
+   else//parallel
+   {
+		distribution(&final_alg,prune,redistribution_rr,tuple_p,fs);
+		init_slaves=1;
+		if(print_all)
+		{
+			printf("\naproblem_gui.c resolve_aPD()-> Resolving\n");
+		}
+		MPI_Bcast(&init_slaves,1,MPI_INT,0,MPI_COMM_WORLD);
+		if(print_all)
+		{
+			printf("\naproblem_gui.c resolve_aPD()-> Resolving\n");
+		}
+		MPI_Ibarrier(MPI_COMM_WORLD, &request);//the slaves join when they have finished
 
-	distribution(&final_alg,prune,redistribution_rr,tuple_p,fs);
-	init_slaves=1;
-    if(print_all)
-    {
-    	printf("\naproblem_gui.c resolve_aPD()-> Resolving\n");
-    }
-	MPI_Bcast(&init_slaves,1,MPI_INT,0,MPI_COMM_WORLD);
-    if(print_all)
-    {
-    	printf("\naproblem_gui.c resolve_aPD()-> Resolving\n");
-    }
-	MPI_Ibarrier(MPI_COMM_WORLD, &request);//the slaves join when they have finished
+		  init_listening(&request_petition, &request_best);
+		  while(!all_finished)
+		  {
+			  scan_petition(&request_petition, &request_best, &request_bcast);
+			  MPI_Test(&request,&all_finished, MPI_STATUS_IGNORE);//test barrier
+		  }
+		  if(print_all)
+		  {
+			  printf("\naproblem_gui.c		resolve_aPD()	all finished ibarrier");
+		  }
 
-	  init_listening(&request_petition, &request_best);
-	  while(!all_finished)
-	  {
-		  scan_petition(&request_petition, &request_best, &request_bcast);
-		  MPI_Test(&request,&all_finished, MPI_STATUS_IGNORE);//test barrier
-	  }
-	  if(1)
-	  {
-		  printf("\naproblem_gui.c		resolve_aPD()	all finished ibarrier");
-	  }
-	  finish_work();
+		  finish_work();
+   }
+   if(print_all)
+   {
+	   printf("\naproblem_gui.c resolve_aPD()		out serial");
+   }
 	  //////////////////////////// Solved window
+
 	  GtkWidget  *window_solved, *grid_solved;
 	  window_solved = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	    /* Sets the border width of the window. */
@@ -120,7 +138,10 @@ void resolve_aPD(PAproblem pap, int num_processes)
 	  gtk_container_set_border_width (GTK_CONTAINER (table), 10);
 	  g_object_set (table, "baseline-row", 1, NULL);
 	  gtk_widget_set_name(table, "mytable");
-
+	   if(print_all)
+	   {
+		   printf("\naproblem_gui.c resolve_aPD()		****");
+	   }
 	  GdkColor color;
 	  gdk_color_parse ("Gold", &color);
 
@@ -194,7 +215,15 @@ void resolve_aPD(PAproblem pap, int num_processes)
 												GTK_STYLE_PROVIDER(cssProvider),
 												GTK_STYLE_PROVIDER_PRIORITY_USER);
 		}
-	  gtk_widget_show_all(window_solved);
+	  if(!tests)
+	  {
+		  gtk_widget_show_all(window_solved);
+	  }
+
+	   if(num_processes==1)//serial
+	   {
+		   MPE_Log_event(event9b, 0, "end serial");
+	   }
 
 	  end_clock();
 
@@ -347,161 +376,191 @@ on_changed (GtkComboBox *widget,
 }
 void create_aproblem_window(int num_processes)
 {
+	if(print_all)
+	{
+		g_print ("\naproblem_gui.c 		create_aproblem_window()		prune->%d",prune);
+		g_print ("\naproblem_gui.c 		create_aproblem_window()		rr->%d",redistribution_rr);
+	}
 
-	g_print ("\naproblem_gui.c 		create_aproblem_window()		prune->%d",prune);
-	g_print ("\naproblem_gui.c 		create_aproblem_window()		rr->%d",redistribution_rr);
 
 
 
 		GtkWidget *grid, *done;
 		GtkWidget *radio_prune,*radio_no_prune,*radio_rr, *radio_no_rr, *radio_tp,*radio_no_tp,*radio_dfs,*radio_bfs;
 		GtkWidget *combo_box;
-	    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	    //to test
-//	    GtkWidget *error;
-//	    error = gtk_button_new_with_label("Error");
-//		g_signal_connect(G_OBJECT(error), "clicked",
-//		        G_CALLBACK(show_error),message);
 
-	    g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
-	    /* Sets the border width of the window. */
-	    gtk_container_set_border_width (GTK_CONTAINER (window), 20);
-	    grid = gtk_grid_new();
+		if(tests)
+		{
+				test_set(num_processes);
+				if(print_all)
+				{
+					printf("\naproblem_gui.c 		create_aproblem_window() 		post test_set");
+				}
 
-	    gtk_widget_set_name(grid, "first_grid");
-	    gtk_container_add(GTK_CONTAINER(window), grid);
-
-
-	    resources = gtk_label_new("Num Resources");
-	    gtk_grid_attach(GTK_GRID(grid), resources, 1, 0, 1, 1);
-
-	    tasks = gtk_label_new("Num Tasks");
-	    gtk_grid_attach(GTK_GRID(grid), tasks, 0, 0, 1, 1);
-
-	    tasks_number = gtk_entry_new();
-	    gtk_grid_attach(GTK_GRID(grid), tasks_number, 0, 1, 1, 1);
-
-	    resources_number = gtk_entry_new();
-	    gtk_grid_attach(GTK_GRID(grid), resources_number, 1, 1, 1, 1);
-
-	    url_file = gtk_label_new("URL");
-	    gtk_grid_attach(GTK_GRID(grid), url_file, 0, 2, 1, 1);
-
-	    url = gtk_entry_new();
-	    gtk_grid_attach(GTK_GRID(grid), url, 0, 3, 2, 1);
-
-	    /*Create an initial radio button*/
-	     radio_prune = gtk_radio_button_new_with_label (NULL, "Prune");
-	     /*Create a second radio button, and add it to the same group as Button 1*/
-	     radio_no_prune = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON (radio_prune), "No prune");
-	     gtk_grid_attach (GTK_GRID (grid), radio_prune, 0, 5, 1, 1);
-	     gtk_grid_attach (GTK_GRID (grid), radio_no_prune, 1, 5, 1, 1);
-	     /*set the initial state of each button*/
-	     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio_prune), TRUE);
-	     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio_no_prune), FALSE);
-	     /*Connect the signal handlers (aka Callback functions) to the buttons*/
-	     g_signal_connect (GTK_TOGGLE_BUTTON (radio_prune), "toggled",
-	                       G_CALLBACK (button_toggled_cb), window);
-	     g_signal_connect (GTK_TOGGLE_BUTTON (radio_no_prune), "toggled",
-	                       G_CALLBACK (button_toggled_cb), window);
+		}
+		else
+		{
+			  window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 
 
-	     /*Create an initial radio button*/
-		 radio_rr = gtk_radio_button_new_with_label (NULL, "Redistribution Round Robin");
-		 /*Create a second radio button, and add it to the same group as Button 1*/
-		 radio_no_rr = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON (radio_rr), "No redistribution Round Robin");
-		 gtk_grid_attach (GTK_GRID (grid), radio_rr, 0, 6, 1, 1);
-		 gtk_grid_attach (GTK_GRID (grid), radio_no_rr, 1, 6, 1, 1);
-		 /*set the initial state of each button*/
-		 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio_rr), TRUE);
-		 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio_no_rr), FALSE);
-		 /*Connect the signal handlers (aka Callback functions) to the buttons*/
-		 g_signal_connect (GTK_TOGGLE_BUTTON (radio_rr), "toggled",
-						   G_CALLBACK (button_toggled_rr), window);
-		 g_signal_connect (GTK_TOGGLE_BUTTON (radio_no_rr), "toggled",
-						   G_CALLBACK (button_toggled_rr), window);
+				    g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
+				    /* Sets the border width of the window. */
+				    gtk_container_set_border_width (GTK_CONTAINER (window), 20);
+				    grid = gtk_grid_new();
 
-	     /*Create an initial radio button*/
-		 radio_tp = gtk_radio_button_new_with_label (NULL, "Tuple prune");
-		 /*Create a second radio button, and add it to the same group as Button 1*/
-		 radio_no_tp = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON (radio_tp), "No tuple prune");
-		 gtk_grid_attach (GTK_GRID (grid), radio_tp, 0, 7, 1, 1);
-		 gtk_grid_attach (GTK_GRID (grid), radio_no_tp, 1, 7, 1, 1);
-		 //gtk_grid_attach (GTK_GRID(grid), error, 1, 9, 1, 1);
-		 /*set the initial state of each button*/
-		 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio_tp), TRUE);
-		 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio_no_tp), FALSE);
-		 /*Connect the signal handlers (aka Callback functions) to the buttons*/
-		 g_signal_connect (GTK_TOGGLE_BUTTON (radio_tp), "toggled",
-						   G_CALLBACK (button_toggled_tp), window);
-		 g_signal_connect (GTK_TOGGLE_BUTTON (radio_no_tp), "toggled",
-						   G_CALLBACK (button_toggled_tp), window);
+				    gtk_widget_set_name(grid, "first_grid");
+				    gtk_container_add(GTK_CONTAINER(window), grid);
 
 
-	     /*Create an initial radio button*/
-		 radio_dfs = gtk_radio_button_new_with_label (NULL, "Depth First Search");
-		 /*Create a second radio button, and add it to the same group as Button 1*/
-		 radio_bfs = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON (radio_dfs), "Breadth First Search");
-		 gtk_grid_attach (GTK_GRID (grid), radio_dfs, 0, 8, 1, 1);
-		 gtk_grid_attach (GTK_GRID (grid), radio_bfs, 1, 8, 1, 1);
-		 //gtk_grid_attach (GTK_GRID(grid), error, 1, 9, 1, 1);
-		 /*set the initial state of each button*/
-		 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio_dfs), TRUE);
-		 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio_bfs), FALSE);
-		 /*Connect the signal handlers (aka Callback functions) to the buttons*/
-		 g_signal_connect (GTK_TOGGLE_BUTTON (radio_dfs), "toggled",
-						   G_CALLBACK (button_toggled_fs), window);
-		 g_signal_connect (GTK_TOGGLE_BUTTON (radio_bfs), "toggled",
-						   G_CALLBACK (button_toggled_fs), window);
+				    resources = gtk_label_new("Num Resources");
+				    gtk_grid_attach(GTK_GRID(grid), resources, 1, 0, 1, 1);
+
+				    tasks = gtk_label_new("Num Tasks");
+				    gtk_grid_attach(GTK_GRID(grid), tasks, 0, 0, 1, 1);
+
+				    tasks_number = gtk_entry_new();
+				    gtk_grid_attach(GTK_GRID(grid), tasks_number, 0, 1, 1, 1);
+
+				    resources_number = gtk_entry_new();
+				    gtk_grid_attach(GTK_GRID(grid), resources_number, 1, 1, 1, 1);
+
+				    url_file = gtk_label_new("URL");
+				    gtk_grid_attach(GTK_GRID(grid), url_file, 0, 2, 1, 1);
+
+				    url = gtk_entry_new();
+				    gtk_grid_attach(GTK_GRID(grid), url, 0, 3, 2, 1);
+
+				    /*Create an initial radio button*/
+				     radio_prune = gtk_radio_button_new_with_label (NULL, "Prune");
+				     /*Create a second radio button, and add it to the same group as Button 1*/
+				     radio_no_prune = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON (radio_prune), "No prune");
+				     gtk_grid_attach (GTK_GRID (grid), radio_prune, 0, 5, 1, 1);
+				     gtk_grid_attach (GTK_GRID (grid), radio_no_prune, 1, 5, 1, 1);
+				     /*set the initial state of each button*/
+				     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio_prune), TRUE);
+				     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio_no_prune), FALSE);
+				     /*Connect the signal handlers (aka Callback functions) to the buttons*/
+
+					     g_signal_connect (GTK_TOGGLE_BUTTON (radio_prune), "toggled",
+					                       G_CALLBACK (button_toggled_cb), window);
+					     g_signal_connect (GTK_TOGGLE_BUTTON (radio_no_prune), "toggled",
+					                       G_CALLBACK (button_toggled_cb), window);
 
 
-		 /* Create the combo box and append your string values to it. */
-		   combo_box = gtk_combo_box_text_new ();
-		   const char *t_best[] = {"First best algorithm", "Dummy", "Diagonal", "Greedy"};
-
-		   /* G_N_ELEMENTS is a macro which determines the number of elements in an array.*/
-		   for (int i = 0; i < G_N_ELEMENTS (t_best); i++){
-		   	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo_box), t_best[i]);
-		   }
-
-		   /* Choose to set the first row as the active one by default, from the beginning */
-		   gtk_combo_box_set_active (GTK_COMBO_BOX (combo_box), 0);
-
-		   /* Connect the signal emitted when a row is selected to the appropriate
-		    * callback function.
-		    */
-		   g_signal_connect (combo_box,
-		                     "changed",
-		                     G_CALLBACK (on_changed),
-		                     NULL);
-
-		   /* Add it to the window */
-		   gtk_grid_attach (GTK_GRID (grid), combo_box, 0, 9, 1, 1);
 
 
-		 done = gtk_button_new_with_label("Done");
+				     /*Create an initial radio button*/
+					 radio_rr = gtk_radio_button_new_with_label (NULL, "Redistribution Round Robin");
+					 /*Create a second radio button, and add it to the same group as Button 1*/
+					 radio_no_rr = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON (radio_rr), "No redistribution Round Robin");
+					 gtk_grid_attach (GTK_GRID (grid), radio_rr, 0, 6, 1, 1);
+					 gtk_grid_attach (GTK_GRID (grid), radio_no_rr, 1, 6, 1, 1);
+					 /*set the initial state of each button*/
+					 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio_rr), TRUE);
+					 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio_no_rr), FALSE);
+					 /*Connect the signal handlers (aka Callback functions) to the buttons*/
 
-	    int n=num_processes;
-	    if(print_all)
-	    {
-	    	printf("\naproblem_gui.c create_aproblem_window()-> num process: %d\n",n);
-	    }
-	    g_signal_connect(done, "clicked", G_CALLBACK(get_data), n);
-	    g_signal_connect(done, "clicked", G_CALLBACK(show_error), message);
-	    gtk_grid_attach(GTK_GRID(grid), done, 0, 10, 1, 1);
+						 g_signal_connect (GTK_TOGGLE_BUTTON (radio_rr), "toggled",
+										   G_CALLBACK (button_toggled_rr), window);
+						 g_signal_connect (GTK_TOGGLE_BUTTON (radio_no_rr), "toggled",
+										   G_CALLBACK (button_toggled_rr), window);
 
-	    /////////////////////// CSS
 
-	    GtkCssProvider *    cssProvider     = gtk_css_provider_new();
-//	    const gchar *myCssFile = "/home/practica/eclipse-workspace/c/src/css/mystyle.css";
-		    if( gtk_css_provider_load_from_path(cssProvider, myCssFile, NULL) )
-	    {
-	         gtk_style_context_add_provider(gtk_widget_get_style_context(window),
-	                                            GTK_STYLE_PROVIDER(cssProvider),
-	                                            GTK_STYLE_PROVIDER_PRIORITY_USER);
-	    }
 
-	    gtk_widget_show_all(window);
+				     /*Create an initial radio button*/
+					 radio_tp = gtk_radio_button_new_with_label (NULL, "Tuple prune");
+					 /*Create a second radio button, and add it to the same group as Button 1*/
+					 radio_no_tp = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON (radio_tp), "No tuple prune");
+					 gtk_grid_attach (GTK_GRID (grid), radio_tp, 0, 7, 1, 1);
+					 gtk_grid_attach (GTK_GRID (grid), radio_no_tp, 1, 7, 1, 1);
+					 //gtk_grid_attach (GTK_GRID(grid), error, 1, 9, 1, 1);
+					 /*set the initial state of each button*/
+					 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio_tp), TRUE);
+					 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio_no_tp), FALSE);
+					 /*Connect the signal handlers (aka Callback functions) to the buttons*/
+
+						 g_signal_connect (GTK_TOGGLE_BUTTON (radio_tp), "toggled",
+										   G_CALLBACK (button_toggled_tp), window);
+						 g_signal_connect (GTK_TOGGLE_BUTTON (radio_no_tp), "toggled",
+										   G_CALLBACK (button_toggled_tp), window);
+
+
+				     /*Create an initial radio button*/
+					 radio_dfs = gtk_radio_button_new_with_label (NULL, "Depth First Search");
+					 /*Create a second radio button, and add it to the same group as Button 1*/
+					 radio_bfs = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON (radio_dfs), "Breadth First Search");
+					 gtk_grid_attach (GTK_GRID (grid), radio_dfs, 0, 8, 1, 1);
+					 gtk_grid_attach (GTK_GRID (grid), radio_bfs, 1, 8, 1, 1);
+					 //gtk_grid_attach (GTK_GRID(grid), error, 1, 9, 1, 1);
+					 /*set the initial state of each button*/
+					 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio_dfs), TRUE);
+					 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio_bfs), FALSE);
+					 /*Connect the signal handlers (aka Callback functions) to the buttons*/
+
+						 g_signal_connect (GTK_TOGGLE_BUTTON (radio_dfs), "toggled",
+										   G_CALLBACK (button_toggled_fs), window);
+						 g_signal_connect (GTK_TOGGLE_BUTTON (radio_bfs), "toggled",
+										   G_CALLBACK (button_toggled_fs), window);
+
+
+
+
+					 /* Create the combo box and append your string values to it. */
+					   combo_box = gtk_combo_box_text_new ();
+					   const char *t_best[] = {"First best algorithm", "Dummy", "Diagonal", "Greedy"};
+
+					   /* G_N_ELEMENTS is a macro which determines the number of elements in an array.*/
+					   for (int i = 0; i < G_N_ELEMENTS (t_best); i++){
+					   	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo_box), t_best[i]);
+					   }
+
+					   /* Choose to set the first row as the active one by default, from the beginning */
+					   gtk_combo_box_set_active (GTK_COMBO_BOX (combo_box), 0);
+
+					   /* Connect the signal emitted when a row is selected to the appropriate
+					    * callback function.
+					    */
+
+						   g_signal_connect (combo_box,
+						                     "changed",
+						                     G_CALLBACK (on_changed),
+						                     NULL);
+
+
+
+					   /* Add it to the window */
+					   gtk_grid_attach (GTK_GRID (grid), combo_box, 0, 9, 1, 1);
+
+
+					 done = gtk_button_new_with_label("Done");
+
+				    int n=num_processes;
+				    if(print_all)
+				    {
+				    	printf("\naproblem_gui.c create_aproblem_window()-> num process: %d\n",n);
+				    }
+
+						g_signal_connect(done, "clicked", G_CALLBACK(get_data), n);
+						g_signal_connect(done, "clicked", G_CALLBACK(show_error), message);
+
+				    gtk_grid_attach(GTK_GRID(grid), done, 0, 10, 1, 1);
+
+				    /////////////////////// CSS
+
+				    GtkCssProvider *    cssProvider     = gtk_css_provider_new();
+			//	    const gchar *myCssFile = "/home/practica/eclipse-workspace/c/src/css/mystyle.css";
+					    if( gtk_css_provider_load_from_path(cssProvider, myCssFile, NULL) )
+				    {
+				         gtk_style_context_add_provider(gtk_widget_get_style_context(window),
+				                                            GTK_STYLE_PROVIDER(cssProvider),
+				                                            GTK_STYLE_PROVIDER_PRIORITY_USER);
+				    }
+
+
+						gtk_widget_show_all(window);
+
+		}
+
 
 }
 

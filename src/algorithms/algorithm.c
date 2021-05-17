@@ -26,7 +26,7 @@ int is_in_array(int ,int, int *);
   }
   int copy_transfered(Transfered_nodes * dest,const Transfered_nodes * origin)
   {
-	  if(1)
+	  if(print_all)
 	  {
 		  printf("\nalgorithm.c		copy_transfered  origin and dest");
 		  show_transfered(origin);
@@ -39,7 +39,7 @@ int is_in_array(int ,int, int *);
 		  copy_aproblem_PD(&(dest->transfered[i]),origin->transfered[i]);
 
 	  }
-	  if(1)
+	  if(print_all)
 	  {
 		  printf("\nalgorithm.c		copy_transfered  origin and dest END");
 		  show_transfered(origin);
@@ -62,7 +62,7 @@ int is_in_array(int ,int, int *);
   			j++;
   		}
   	}
-  	if(1)
+  	if(print_all)
   	{
   		printf("\nalgorithm.c		delete_transfered %d",rcvr);
   		show_transfered(&aux);
@@ -158,7 +158,11 @@ int is_in_array(int ,int, int *);
 		  	  }
 		  	  else //si second round and tuple_prune NOT empty, compare
 		  	  {
-		  		  printf("\nalgorithm.c		check_prune()	search");
+		  		  if(print_all)
+		  		  {
+		  			printf("\nalgorithm.c		check_prune()	search");
+		  		  }
+
 		  		  //search
 		  		  int sym=-1;
 		  		  for(int j=0;j<tuple_prune_data->num_tuples;j=j+2)
@@ -169,7 +173,10 @@ int is_in_array(int ,int, int *);
 		  			  {
 		  				  sym=j/2;
 		  				  show_tuple_prune(tuple_prune_data);
-		  				  printf("\nalgorithm.c		check_prune()	tuple found: %d",sym);
+		  				  if(print_all)
+		  				  {
+		  					printf("\nalgorithm.c		check_prune()	tuple found: %d",sym);
+		  				  }
 		  				  break;
 		  			  }
 		  		  }
@@ -187,7 +194,11 @@ int is_in_array(int ,int, int *);
 		  		  {
 		  			  *tuple_prune=TRUE;
 		  			  MPE_Log_event(event9, 0, "Tuple prune");
-		  			  printf("\nalgorithm.c		check_prune()	tuple_prune=true");
+		  			  if(print_all)
+		  			  {
+		  				 printf("\nalgorithm.c		check_prune()	tuple_prune=true");
+		  			  }
+
 		  		  }
 		  		  else//save and prune=FALSE to go on
 		  		  {
@@ -196,8 +207,10 @@ int is_in_array(int ,int, int *);
 		  						  papd->solution.resources[papd->solution.lengthArrays-1].position,
 		  						  as[u].indexResource,
 		  						  my_value);
-
-		  			  show_tuple_prune(tuple_prune_data);
+		  			  if(print_all)
+		  			  {
+		  				show_tuple_prune(tuple_prune_data);
+		  			  }
 
 		  			  *tuple_prune=FALSE;
 		  		  }
@@ -215,7 +228,7 @@ int is_in_array(int ,int, int *);
 	  for(int i=0;i<pap->numTask;i++)
 	  {
 		  res=res+pap->values[(i*pap->numTask)+i];
-		  if(1)
+		  if(print_all)
 		  {
 			  printf("\nalgorithm.c		best_diagonal()		loop %d first diagonal: %f",i,res);
 		  }
@@ -223,7 +236,7 @@ int is_in_array(int ,int, int *);
 	  for(int i=0;i<pap->numTask;i++)
 	  {
 		  second=second+pap->values[pap->numTask*(i+1)-1-i];
-		  if(1)
+		  if(print_all)
 		  {
 			  printf("\nalgorithm.c		best_diagonal()		loop %d second diagonal: %f",i,second);
 		  }
@@ -234,7 +247,7 @@ int is_in_array(int ,int, int *);
 	  {
 		  res=second;
 	  }
-	  if(1)
+	  if(print_all)
 	  {
 		  printf("\nalgorithm.c		best_diagonal()		%f",res);
 	  }
@@ -249,12 +262,12 @@ int is_in_array(int ,int, int *);
 	  for(int i=0;i<pap->numResources;i++)
 	  {
 		  res=res+best_in_row(pap,i,&array_sol);
-		  if(1)
+		  if(print_all)
 		  {
 			  printf("\nalgorithm.c		greedy()		best acum row %d: %f",i,res);
 		  }
 	  }
-	  if(1)
+	  if(print_all)
 	  {
 		  printf("\nalgorithm.c		greedy()		%f",res);
 	  }

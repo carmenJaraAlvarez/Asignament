@@ -21,12 +21,18 @@
 #include "../tests/test_aproblem.c"
 #include "../tests/test_aproblemPD.c"
 #include "../tests/test_aPD_algorithm.c"
+#include "../tests/test_application.c"
 #include "algorithms/metrics.h"
 
 
 int master=0;
 int numprocs=0;
 int print_all=0;//to help to debug. Simple logs for developer
+//to launch tests///////
+int tests=0;
+Cadena test;
+int var_test[5];
+///////////////////////
 
 
 int event1a;
@@ -45,6 +51,8 @@ int event7a;
 int event7b;
 int event8a;
 int event8b;
+int event9a;
+int event9b;
 
 int event1, event2, event3, event4, event5, event6, event7, event8, event9;
 int startEvent, endEvent;
@@ -58,6 +66,30 @@ MPI_Request request_b=MPI_REQUEST_NULL;
 double best;
 int main(int argc, char **argv)
 {
+	if(print_all)
+	{
+		for(int i=0;i<argc;i++)
+		{
+			printf("\nARG %d->%s",i, argv[i]);
+		}
+	}
+
+
+	if(argc>7 && strcmp(argv[1],"test")==0)
+	{
+		tests=1;
+		strcpy(test,argv[2]);
+		if(print_all)
+		{
+			printf("\n test %s",test);
+		}
+		for(int i=0;i<5;i++)
+		{
+			var_test[i]=atoi(argv[i+2]);
+		}
+	}
+
+
   int myid;
 
   MPI_Init(&argc,&argv);
@@ -78,6 +110,7 @@ int main(int argc, char **argv)
   MPE_Log_get_state_eventIDs( &event6a, &event6b );
   MPE_Log_get_state_eventIDs( &event7a, &event7b );
   MPE_Log_get_state_eventIDs( &event8a, &event8b );
+  MPE_Log_get_state_eventIDs( &event9a, &event9b );
 
   MPE_Log_get_solo_eventID( &event1 );
   MPE_Log_get_solo_eventID( &event2 );
@@ -103,19 +136,20 @@ int main(int argc, char **argv)
 
 	  MPI_Bcast(&init_slaves,1,MPI_INT,0,MPI_COMM_WORLD);//waiting master's order
 	  rcv_work(&buffer,&request_b,&buffer_work);
-		if(1)
+		if(print_all)
 		{
 			printf("\nThis is %d previous ibarrier\n",myid);
 		}
 	  MPI_Ibarrier(MPI_COMM_WORLD, &request);//to know every process is finished
-		if(1)
+		if(print_all)
 		{
 			printf("\nThis is %d post ibarrier\n",myid);
 		}
   }
   else//master
   {
-	init_best(&request_b,&world);
+
+	init_best(&request_b,&world,numprocs);
 
 	describe_logs();
 	if(print_all)
@@ -130,8 +164,11 @@ int main(int argc, char **argv)
     // PAproblem pap;
 	create_aproblem_window(numprocs);
 	/////////////////////////////////////
+	if(!tests)
+	{
+		gtk_main();
+	}
 
-	gtk_main();
 
   }
 

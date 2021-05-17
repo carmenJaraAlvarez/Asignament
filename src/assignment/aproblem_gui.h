@@ -29,7 +29,9 @@ static GtkWidget *table;
 PAproblem pap_from_gui;
 extern MPI_Request request_b;
 extern int final_sol[100];
-
+extern int event9a;
+extern int event9b;
+extern int tests;
 int init_slaves;
 int all_finished;
 extern int print_all;
@@ -43,5 +45,6 @@ void get_data(GtkWidget *, gpointer);
 void create_aproblem_window(int );
 void button_toggled_cb (GtkWidget * ,gpointer );
 void button_toggled_rr (GtkWidget * ,gpointer );
+void resolve_aPD(PAproblem , int );
   
 #endif /* INCLUDES_APROBLEM_GUI_H_ */

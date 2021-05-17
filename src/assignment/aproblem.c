@@ -69,8 +69,11 @@ static Logico checkInt(const int);
  }
  void show_aproblem(const PAproblem pap)
  {
+	 if(print_all)
+	 {
+		 printf("\naproblem.c show_aproblem()\n");
+	 }
 
-	 printf("\naproblem.c show_aproblem()\n");
 
 
 	 int m=pap->numTask;
