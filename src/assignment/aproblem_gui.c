@@ -24,7 +24,7 @@ static void show_error();
 
 
 void get_data(GtkWidget *calculate, gpointer data) {
-	init_clock();
+
     int numt = atoi((char *)gtk_entry_get_text(GTK_ENTRY(tasks_number)));
     int numr = atoi((char *)gtk_entry_get_text(GTK_ENTRY(resources_number)));
     const gchar *text;
@@ -73,6 +73,7 @@ void get_data(GtkWidget *calculate, gpointer data) {
 
 void resolve_aPD(PAproblem pap, int num_processes)
 {
+	init_clock();
 	all_finished=0;
     AproblemPD appd;
     initAProblemPD(&appd, pap);
@@ -224,8 +225,8 @@ void resolve_aPD(PAproblem pap, int num_processes)
 	   {
 		   MPE_Log_event(event9b, 0, "end serial");
 	   }
+	   end_clock();
 
-	  end_clock();
 
 	//delete_algorithmPD(&alg);
 

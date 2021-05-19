@@ -174,7 +174,10 @@
 	  int res=0;
 	  int serial=0;
 	  if(numprocs==1){
-		  printf("\nPD_algorithm.c	 pD()		*******************SERIAL");
+		  if(print_all)
+		  {
+			  printf("\nPD_algorithm.c	 pD()		*******************SERIAL");
+		  }
 		  serial=1;
 	  }
 	  AproblemPD appd=palg->ppd;
