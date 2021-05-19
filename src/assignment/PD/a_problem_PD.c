@@ -6,6 +6,9 @@
  */
 #include "a_problem_PD.h"
 
+static  double best_value;
+static int best_value_defined=0;
+
 int initAProblemPD(PAproblemPD papd,PAproblem pa)
 {
 	  int res=0;
@@ -283,7 +286,7 @@ Type get_type(PAproblemPD appd)
    {
  	  double res;
  	  //dummy prune
- 	  double best_value;
+
  	  int num_to_end;
  	  //if not pruning
  	  if(!prune)
@@ -310,29 +313,57 @@ Type get_type(PAproblemPD appd)
 
  		  num_to_end =appd->aproblem.numTask-appd->solution.lengthArrays;
  		  res=appd->solution.acum;
- 		  if(appd->aproblem.type==MAX)
+ 		  if(appd->aproblem.type==MAX && !best_value_defined)
  		  {
- 			  best_value=appd->aproblem.values[0];
-
- 			    for ( int c = 1 ; c < appd->aproblem.numResources*appd->aproblem.numTask ; c++ )
+// 			  best_value=appd->aproblem.values[0];
+//
+// 			    for ( int c = 1 ; c < appd->aproblem.numResources*appd->aproblem.numTask ; c++ )
+// 			    {
+// 			        if ( appd->aproblem.values[c] >best_value )
+// 			        {
+// 			        	best_value = appd->aproblem.values[c];
+// 			         }
+// 			    }
+ 			  //order
+ 			 int len=appd->aproblem.numTask*appd->aproblem.numResources;
+ 			 double copied_values[len];
+ 			 for(int i=0;i<len;i++)
+ 			 {
+ 				 copied_values[i]=appd->aproblem.values[i];
+ 			 }
+ 			 order(&copied_values,len);
+ 			  //select
+ 			    best_value=copied_values[len-1];
+ 			    best_value_defined=1;
+ 			    if(print_all)
  			    {
- 			        if ( appd->aproblem.values[c] >best_value )
- 			        {
- 			        	best_value = appd->aproblem.values[c];
- 			         }
+ 			    	printf("\na_problem_PD		get_best_estimated()  	best value=%f",best_value);
  			    }
  		  }
- 		  else
+ 		  else if(appd->aproblem.type==MIN && !best_value_defined)
  		  {
- 			  best_value=appd->aproblem.values[0];
-
- 			    for ( int c = 1 ; c < appd->aproblem.numResources*appd->aproblem.numTask ; c++ )
- 			    {
- 			        if ( appd->aproblem.values[c] < best_value )
- 			        {
- 			        	best_value = appd->aproblem.values[c];
- 			         }
- 			    }
+// 			  best_value=appd->aproblem.values[0];
+//
+// 			    for ( int c = 1 ; c < appd->aproblem.numResources*appd->aproblem.numTask ; c++ )
+// 			    {
+// 			        if ( appd->aproblem.values[c] < best_value )
+// 			        {
+// 			        	best_value = appd->aproblem.values[c];
+// 			         }
+// 			    }
+ 			  //order
+ 			  //select
+ 			  //order
+ 			 int len=appd->aproblem.numTask*appd->aproblem.numResources;
+ 			 double copied_values[len];
+ 			 for(int i=0;i<len;i++)
+ 			 {
+ 				 copied_values[i]=appd->aproblem.values[i];
+ 			 }
+ 			 order(&copied_values,len);
+ 			  //select
+ 			    best_value=copied_values[0];
+ 			    best_value_defined=1;
  		  }
 
  		  res=res+num_to_end*best_value;

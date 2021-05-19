@@ -20,9 +20,9 @@ do
 				do
 					for ALG in 0 1 2
 					do
-						for SIZE in 4 5 6 7 8 9
+						for SIZE in 3 4 5
 						do
-							mpirun -np $NP -hosts master,$slave,slave1,slave2,slave3,slave4 $origin test $SIZE $PRUNE $RR $TUPLE $SEARCH $ALG &
+							mpirun -np $NP -hosts master,$slave,slave1,slave2 $origin test $SIZE $PRUNE $RR $TUPLE $SEARCH $ALG &
 							wait $!
 							echo "End np $NP data $SIZE prune $PRUNE distrib $RR tuple $TUPLE bd $SEARCH alg $ALG"
 						done
