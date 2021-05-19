@@ -39,7 +39,7 @@ int test_set_data(Cadena t, int np){
 	{
 		printf("\n*** test_set_data***\n");
 	}
-
+	printf("\n*******************************************\n");
 	init_clock();
     int numt;
     int numr;
@@ -73,11 +73,10 @@ int test_set_data(Cadena t, int np){
 	resolve_aPD(&pap_from_gui, np);
 	while(final_alg.best!=expected[i-2])//matrix size <=2
 	{
-
+		//TODO timeout ?
 	}
 
-	printf("\n*******************************************"
-				"\ntest_application.c		test_set_data(%d)-> OK: acum %f\n",i,final_alg.best);
+	printf("\ntest_application.c		test_set_data(%d)-> OK: acum %f\n",i,final_alg.best);
 
 
 	return 0;

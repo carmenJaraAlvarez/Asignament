@@ -599,7 +599,11 @@ int init_work(
 			{
 				int sender=s.MPI_SOURCE;
 				confirming_work(sender);
-				printf("\nproblem_MPI.c		init_work()		ready. Index= %d", node.index);
+				if(print_all)
+				{
+					printf("\nproblem_MPI.c		init_work()		ready. Index= %d", node.index);
+				}
+
 				alg.ppd.index=node.index;
 				alg.ppd.solution.lengthArrays=node.index;
 				alg.ppd.solution.acum=node.value;
@@ -645,11 +649,11 @@ int init_work(
 				}
 				Solution sol;
 				get_PDsolution(&alg, &sol);
-				for(int i=0;i<alg.ppd.solution.lengthArrays;i++){
-					printf("\nResources: \n*%s\n",alg.ppd.solution.resources[i].name);
-				}
 				if(print_all)
 				{
+					for(int i=0;i<alg.ppd.solution.lengthArrays;i++){
+						printf("\nResources: \n*%s\n",alg.ppd.solution.resources[i].name);
+					}
 					printf("Solution value: %f", alg.ppd.solution.acum);
 				}
 
@@ -950,7 +954,10 @@ int send_resolved(const PalgorithmPD palg)
 	}
 	if(num_resolved==0)
 	{
-		printf("\nproblem_MPI.c		send_resolved()	 SENDING NO SOLUTION");
+		if(print_all)
+		{
+			printf("\nproblem_MPI.c		send_resolved()	 SENDING NO SOLUTION");
+		}
 
 	}
 	else

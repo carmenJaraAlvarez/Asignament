@@ -10,16 +10,24 @@
 int init_clock()
 {
 	startwtime = MPI_Wtime();
+	if(print_all)
+	{
+		printf("\nmetrics.c		init_clock()		%f",startwtime);
+	}
 	return 0;
 }
 
 double end_clock()
 {
 	  endwtime = MPI_Wtime();
+		if(print_all)
+		{
+			printf("\nmetrics.c		end_clock()		%f", endwtime);
+		}
 	  double res=endwtime-startwtime;
-	  if(print_all)
+	  if(1)
 	  {
-		  printf("\n metrics.c end_clock()->clock time = %f\n", res);
+		  printf("\nmetrics.c end_clock()->TIME = %f\n", res);
 	  }
 
 	  return res;

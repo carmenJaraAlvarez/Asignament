@@ -148,13 +148,21 @@ int is_in_array(int ,int, int *);
 		  //tuple_prune empty, save data sol
 		  	  if(tuple_prune_data->num_tuples==0)
 		  	  {
-		  		  printf("\nalgorithm.c		check_prune()	adding new: %d,%d->%f",papd->solution.resources[papd->solution.lengthArrays-1].position,as[u].indexResource,papd->solution.acum+my_value);
+		  		  if(print_all)
+		  		  {
+		  			 printf("\nalgorithm.c		check_prune()	adding new: %d,%d->%f",papd->solution.resources[papd->solution.lengthArrays-1].position,as[u].indexResource,papd->solution.acum+my_value);
+		  		  }
+
 		  			  add_tuple(
 		  					  tuple_prune_data,
 		  					  papd->solution.resources[papd->solution.lengthArrays-1].position,
 		  					  as[u].indexResource,
 		  					  papd->solution.acum+my_value);
-		  			  show_tuple_prune(tuple_prune_data);
+		  			  if(print_all)
+		  			  {
+		  				show_tuple_prune(tuple_prune_data);
+		  			  }
+
 		  	  }
 		  	  else //si second round and tuple_prune NOT empty, compare
 		  	  {
@@ -172,10 +180,10 @@ int is_in_array(int ,int, int *);
 		  				 tuple_prune_data->solution_tuples[j+1]==papd->solution.resources[papd->solution.lengthArrays-1].position  )
 		  			  {
 		  				  sym=j/2;
-		  				  show_tuple_prune(tuple_prune_data);
 		  				  if(print_all)
 		  				  {
-		  					printf("\nalgorithm.c		check_prune()	tuple found: %d",sym);
+		  					show_tuple_prune(tuple_prune_data);
+		  				  	printf("\nalgorithm.c		check_prune()	tuple found: %d",sym);
 		  				  }
 		  				  break;
 		  			  }
