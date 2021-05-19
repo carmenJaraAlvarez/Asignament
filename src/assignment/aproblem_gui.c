@@ -64,6 +64,11 @@ void get_data(GtkWidget *calculate, gpointer data) {
     	err=1;
 
     }
+    else if(e==-4)
+    {
+    	message="Problem size error";
+    	err=1;
+    }
     else
     {
 		resolve_aPD(&pap_from_gui, num_processes);
