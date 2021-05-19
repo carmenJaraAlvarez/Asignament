@@ -114,7 +114,10 @@
 	  int res=0;
 
 	  if(palg->num_solved==0){
-		  printf("there is not solution");
+		  if(print_all)
+		  {
+			  printf("there is not solution");
+		  }
 	  }
 	  else if(palg->num_solved==1){
 		  palg->ppd=palg->solvedProblems[0];//TODO needed??

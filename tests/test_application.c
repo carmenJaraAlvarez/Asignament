@@ -10,6 +10,7 @@
 #include "../src/assignment/aproblem_gui.h"
 
 extern int redistribution_rr;
+extern int redistribution_rr_all;
 extern GtkWidget *window;
 extern Cadena test;
 extern int var_test[5];
@@ -62,7 +63,7 @@ int test_set_data(Cadena t, int np){
 	tuple_p=var_test[2];
 	fs=var_test[3];
 	type_best=var_test[4];
-
+	redistribution_rr_all=var_test[5];
 	if(print_all)
 	{
 		printf("\ntest_application.c		test_set_data()-> READED file  %d\n",e);

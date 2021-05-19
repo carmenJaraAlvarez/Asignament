@@ -14,6 +14,7 @@ int err=0;
 GtkWidget *window;
 int prune=1;
 int redistribution_rr=1;
+int redistribution_rr_all=1;
 int tuple_p=1;
 int fs=1;
 int type_best=1;//dummy
@@ -294,6 +295,36 @@ void button_toggled_rr (GtkWidget *button, gpointer   user_data)
    g_print ("\n%s was turned %s\n", button_label, b_state);
    g_print ("\naproblem_gui.c 		button_toggled_cb ()		rr->%d", redistribution_rr);
  }
+
+void button_toggled_rr_all (GtkWidget *button, gpointer   user_data)
+{
+  char *b_state;
+  const char *button_label;
+
+  if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (button)))
+  {
+	  b_state = "on";
+  }
+  else
+  {
+          b_state = "off";
+          g_print ("\n");
+  }
+  button_label = gtk_button_get_label (GTK_BUTTON (button));
+  if(strcmp(button_label,"Always Round Robin") && strcmp(b_state,"on"))
+  {
+	  redistribution_rr_all=1;
+	  g_print ("\naproblem_gui.c		button_toggled_cb()		rr_all");
+  }
+  else if(strcmp(button_label,"Always Round Robin") && strcmp(b_state,"off"))
+  {
+	  redistribution_rr_all=0;
+	  g_print ("\naproblem_gui.c		button_toggled_cb()		NO rr_all");
+  }
+
+   g_print ("\n%s was turned %s\n", button_label, b_state);
+   g_print ("\naproblem_gui.c 		button_toggled_cb ()		rr_all->%d", redistribution_rr_all);
+ }
 void button_toggled_tp (GtkWidget *button, gpointer   user_data)
 {
   char *b_state;
@@ -392,6 +423,7 @@ void create_aproblem_window(int num_processes)
 
 
 		GtkWidget *grid, *done;
+		GtkWidget *radio_rr_all, *radio_no_rr_all;
 		GtkWidget *radio_prune,*radio_no_prune,*radio_rr, *radio_no_rr, *radio_tp,*radio_no_tp,*radio_dfs,*radio_bfs;
 		GtkWidget *combo_box;
 
@@ -470,6 +502,22 @@ void create_aproblem_window(int num_processes)
 										   G_CALLBACK (button_toggled_rr), window);
 						 g_signal_connect (GTK_TOGGLE_BUTTON (radio_no_rr), "toggled",
 										   G_CALLBACK (button_toggled_rr), window);
+
+						  /*Create an initial radio button*/
+											 radio_rr_all = gtk_radio_button_new_with_label (NULL, "Always Round Robin");
+											 /*Create a second radio button, and add it to the same group as Button 1*/
+											 radio_no_rr_all = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON (radio_rr_all), "No Always Round Robin");
+											 gtk_grid_attach (GTK_GRID (grid), radio_rr_all, 0, 12, 1, 1);
+											 gtk_grid_attach (GTK_GRID (grid), radio_no_rr_all, 1, 12, 1, 1);
+											 /*set the initial state of each button*/
+											 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio_rr_all), TRUE);
+											 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio_no_rr_all), FALSE);
+											 /*Connect the signal handlers (aka Callback functions) to the buttons*/
+
+												 g_signal_connect (GTK_TOGGLE_BUTTON (radio_rr_all), "toggled",
+																   G_CALLBACK (button_toggled_rr_all), window);
+												 g_signal_connect (GTK_TOGGLE_BUTTON (radio_no_rr_all), "toggled",
+																   G_CALLBACK (button_toggled_rr_all), window);
 
 
 
