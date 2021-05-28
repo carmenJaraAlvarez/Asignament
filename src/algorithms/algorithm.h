@@ -56,6 +56,7 @@ typedef struct
   int free_tuple_prune(PTuple_prune);
   void show_tuple_prune(const PTuple_prune);
   void check_prune(Logico *,PTuple_prune,Alternative *,AproblemPD *,double,int,Logico, Logico);
+  void order(double * values, int len_values);
 
 
 #endif /* ALGORITHM_ALGORITHM_H_ */

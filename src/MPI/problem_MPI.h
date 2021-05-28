@@ -28,6 +28,7 @@
 #define tag_resolved 100
 
 extern int redistribution_rr;
+extern int redistribution_rr_all;
 extern int print_all;
 extern int numprocs;
 
@@ -123,8 +124,9 @@ AproblemPD *problems;
 //slaves
 int rcv_work(double *,MPI_Request * ,int *);
 int ask_work();
-int init_work(PAproblem, int, int*,double *,MPI_Request *,int *, double);
+int init_work(PAproblem, int, int*,double *,MPI_Request *,int *, double, Resolved *);
 int send_resolved(const PalgorithmPD);
+int send_resolved_data(int , double ,int , int *);
 int send_best(const PalgorithmPD);
 int init_waiting_best(double *,MPI_Request*);
 void waiting_best(double *,MPI_Request*);

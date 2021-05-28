@@ -352,3 +352,28 @@ int is_in_array(int ,int, int *);
 
 
 
+void order(double * values, int len_values)
+{
+	 for (int i = 0; i < (len_values - 1); i++)
+	  {
+		for (int j = i + 1; j < len_values; j++)
+		{
+		  if (values[j] < values[i])
+		  {
+			double temp = values[j];
+			values[j] = values[i];
+			values[i] = temp;
+		  }
+		}
+	  }
+	 if(print_all)
+	 {
+		 for(int k=0;k<len_values;k++)
+		 {
+			 printf("\naproblem.c		order()	 %f",values[k]);
+		 }
+	 }
+
+}
+
+

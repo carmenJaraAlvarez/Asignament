@@ -119,6 +119,10 @@ static Logico checkInt(const int);
 	 double values[numValues];
 	 Aproblem ap;
 	 FILE* f;
+	 if(numTasks<2 || numTasks!=numResources)
+	 {
+		 return -4;
+	 }
 
 	 ap.numResources=numResources;
 	 ap.numTask=numTasks;

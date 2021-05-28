@@ -10,6 +10,7 @@
 #include "../src/assignment/aproblem_gui.h"
 
 extern int redistribution_rr;
+extern int redistribution_rr_all;
 extern GtkWidget *window;
 extern Cadena test;
 extern int var_test[5];
@@ -62,7 +63,7 @@ int test_set_data(Cadena t, int np){
 	tuple_p=var_test[2];
 	fs=var_test[3];
 	type_best=var_test[4];
-
+	redistribution_rr_all=var_test[5];
 	if(print_all)
 	{
 		printf("\ntest_application.c		test_set_data()-> READED file  %d\n",e);
@@ -71,13 +72,20 @@ int test_set_data(Cadena t, int np){
 	}
 
 	resolve_aPD(&pap_from_gui, np);
+	int count=0;
 	while(final_alg.best!=expected[i-2])//matrix size <=2
 	{
-		//TODO timeout ?
+		if(count>=9000000)//Timeout
+		{
+			printf("\ntest_application.c		test_set_data(%d)-> TIMEOUT",i);
+			break;
+		}
+		count++;
 	}
-
-	printf("\ntest_application.c		test_set_data(%d)-> OK: acum %f\n",i,final_alg.best);
-
+	if(count<9000000)
+	{
+		printf("\ntest_application.c		test_set_data(%d)-> OK: acum %f\n",i,final_alg.best);
+	}
 
 	return 0;
 

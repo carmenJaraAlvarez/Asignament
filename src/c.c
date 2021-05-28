@@ -75,7 +75,7 @@ int main(int argc, char **argv)
 	}
 
 
-	if(argc>7 && strcmp(argv[1],"test")==0)
+	if(argc>8 && strcmp(argv[1],"test")==0)
 	{
 		tests=1;
 		strcpy(test,argv[2]);
@@ -83,7 +83,7 @@ int main(int argc, char **argv)
 		{
 			printf("\n test %s",test);
 		}
-		for(int i=0;i<5;i++)
+		for(int i=0;i<6;i++)
 		{
 			var_test[i]=atoi(argv[i+2]);
 		}
