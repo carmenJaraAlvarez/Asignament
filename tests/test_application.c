@@ -19,7 +19,7 @@ extern int type_best;
 
 
 
-double expected[9]={2.,38.,51.,5.,1025.,46.,7.,7.,8.};//matrix size >=2	<=10
+double expected[11]={2.,38.,51.,5.,1025.,46.,7.,7.,8.,9.,31.};//matrix size >=2	<=12
 
 
 int test_set(int np);
