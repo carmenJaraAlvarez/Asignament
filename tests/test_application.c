@@ -81,7 +81,8 @@ int test_set_data(Cadena t, int np){
 	{
 		if(count>=9000000)//Timeout
 		{
-			printf("\ntest_application.c		test_set_data(%d)-> TIMEOUT",i);
+			printf("\ntest_application.c		test_set_data(%d)-> TIMEOUT expected:%f",i, expected[i-2]);
+			printf("   final_alg.best->%f",final_alg.best);
 			break;
 		}
 		count++;

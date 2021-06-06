@@ -6,7 +6,7 @@
  */
 #include "PD_algorithm.h"
 
-
+AproblemPD appd_for_top_deep;
 
   Logico is_min(const PalgorithmPD palg)
   {
@@ -83,7 +83,7 @@
 	  MPI_Comm_rank(MPI_COMM_WORLD,&id);
 
 	  deep=first_search;
-	  if(1)
+	  if(print_all)
 	  {
 		  printf("\nPD_algorithm.c	exec_algorithm()	p%d deep:%d",id,deep);
 	  }
@@ -96,7 +96,7 @@
 			  pD(palg,buffer, request_b, buffer_w, request_w);
 		  }
 	  }while(palg->isRandomize && get_PDsolution(palg,&sol)!=0);
-	  if(1)
+	  if(print_all)
 	  {
 		  printf("\nPD_algorithm.c		exec_algorithm()		p%d outgoing",id);
 	  }
@@ -193,7 +193,7 @@
 	  int id;
 	  MPI_Comm_rank(MPI_COMM_WORLD,&id);
 
-	  if(1)
+	  if(print_all)
 	  {
 		  printf("\nPD_algorithm.c	 pD()		*******************p%d init . trasfered:",id);
 		  show_transfered(&transfered);
@@ -513,7 +513,7 @@
 	  else//DFS
 	  {
 		  int down=0;
-		  if(1)
+		  if(print_all)
 		  {
 			  printf("\nPD_algorithm.c		pD()	p%d deep",id);
 			  printf("\nPD_algorithm.c		pD()	p%d lengthNewArrayAppd: %d",id,lengthNewArrayAppd);
@@ -521,7 +521,7 @@
 		  while(lengthNewArrayAppd>0)
 		  {
 			  int m=lengthNewArrayAppd-1;
-			  if(1)
+			  if(print_all)
 			  {
 				  printf("\nPD_algorithm.c		pD()	p%d------------------------------m=%d",id,m);
 				  //printf("\nPD_algorithm.c		pD()	best final alg=%f",final_alg.best);
@@ -588,7 +588,7 @@
 
 				  if(is_base_case(&(palg->problems[m])))
 				  {
-					  if(1)
+					  if(print_all)
 					  {
 						  printf("\nPD_algorithm.c		pD		p%d before get solution case base",id);
 						  //show_aproblem_PD(&(palg->problems[m]));
@@ -598,7 +598,7 @@
 
 					  SpPD sp;
 					  get_solution_base_case((&(palg->problems[m])),&sp);
-					  if(1)
+					  if(print_all)
 					  {
 						  printf("\nPD_algorithm.c		pD		p%d case base post get solution",id);
 //						  printf("\nPD_algorithm.c		pD		post get solution case base. best palg: %f",palg->best);
@@ -669,6 +669,7 @@
 					  Logico ismax;
 					  AproblemPD aux[numAlternatives];//TODO to include more than one problem for each alternative
 					  int len_aux=0;
+					  int count=0;
 					  for(int u=0;u<numAlternatives;u++)
 					  {
 						  //prune control
@@ -682,7 +683,7 @@
 //								  	  	  	  	  	[
 //													(round+1)+as[u].indexResource*palg->ppd.aproblem.numTask
 //													];
-						  if(1)
+						  if(print_all)
 						  {
 							  printf("\nPD_algorithm.c		pD()		p%d as[u]:%d++++++++++++++",id,as[u].indexResource);
 //							  printf("\nPD_algorithm.c		pD()		problems[m].index: %d, ppd.index: %d, round %d:",palg->problems[m].index,palg->ppd.index,round);
@@ -745,9 +746,31 @@
 								  initAProblemPD(&appdNew,&(palg->ppd.aproblem));
 
 								  get_subproblem(&(palg->problems[m]), &appdNew, as[u],numSubproblems);
-								  copy_aproblem_PD( &aux[len_aux],appdNew);
-								  len_aux++;
-								  if(1)
+								  if(count==0)
+								  {
+									  //save_for_on_top &appdNew,
+									  copy_aproblem_PD(&appd_for_top_deep,appdNew);
+									  count++;
+									  if(1)
+									  {
+										  printf("\nPD_algorithm.c	pD()	appd for top:");
+										  show_aproblem_PD(&appd_for_top_deep);
+									  }
+								  }
+								  else
+								  {
+									  copy_aproblem_PD( &(palg->problems[lengthNewArrayAppd-1+count]),appdNew);
+
+									  if(1)
+									  {
+										  printf("\nPD_algorithm.c	pD()	copy on alg[%d]:",lengthNewArrayAppd-1+count);
+										  show_aproblem_PD(&(palg->problems[lengthNewArrayAppd-1+count]));
+									  }
+									  count++;
+								  }
+//								  copy_aproblem_PD( &aux[len_aux],appdNew);
+//								  len_aux++;
+								  if(print_all)
 								  {
 									  printf("\nPD_algorithm.c		pD		p%d %d of %d subproblems. len aux:%d",id,j, numSubproblems,len_aux);
 									  printf("\nPD_algorithm.c		pD		p%d acum post get subproblem father acum: %f",id,palg->problems[m].solution.acum);
@@ -771,22 +794,23 @@
 
 						  }
 					  }//end for alternatives
-					  for(int v=0;v<len_aux;v++)
-					  {
-						  //we must copy over the father,
-						  copy_aproblem_PD( &(palg->problems[lengthNewArrayAppd-1+v]),aux[v]);
-						  if(1)
-						  {
-							  printf("\nPD_algorithm.c		pD		show new %d problem copied in problems in pos:%d",v,lengthNewArrayAppd-1+v);
-							  //show_aproblem_PD(&(palg->problems[lengthNewArrayAppd-1+v]));
-
-						  }
-
-					  }
+//					  for(int v=0;v<len_aux;v++)
+//					  {
+//						  //we must copy over the father,
+//						  copy_aproblem_PD( &(palg->problems[lengthNewArrayAppd-1+v]),aux[v]);
+//						  if(print_all)
+//						  {
+//							  printf("\nPD_algorithm.c		pD		show new %d problem copied in problems in pos:%d",v,lengthNewArrayAppd-1+v);
+//							  //show_aproblem_PD(&(palg->problems[lengthNewArrayAppd-1+v]));
+//
+//						  }
+//
+//					  }
+					  copy_aproblem_PD( &(palg->problems[m]),appd_for_top_deep);
 
 					  lengthNewArrayAppd=lengthNewArrayAppd+len_aux-1;
 					  palg->num_problems=lengthNewArrayAppd;
-					  if(1)
+					  if(print_all)
 					  {
 						  printf("\nPD_algorithm.c		pD()	new len=%d",lengthNewArrayAppd);
 						  printf("\nPD_algorithm.c		pD()		end of not case base solution");

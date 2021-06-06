@@ -52,7 +52,7 @@ static Logico checkInt(const int);
 
 	 }
 	 pa->type=MAX;//default//TODO
-	 if(1)
+	 if(print_all)
 	 {
 		 printf("\n");
 		 show_aproblem(pa);

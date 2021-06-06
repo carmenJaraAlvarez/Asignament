@@ -84,7 +84,7 @@ void resolve_aPD(PAproblem pap, int num_processes)
     AproblemPD appd;
     initAProblemPD(&appd, pap);
 	init_algorithmPD(&final_alg, appd);
-	if(1)
+	if(print_all)
     {
     	printf("\naproblem_gui.c resolve_aPD()-> Resolving\n");
     }
@@ -119,19 +119,20 @@ void resolve_aPD(PAproblem pap, int num_processes)
 			  MPI_Test(&request,&all_finished, MPI_STATUS_IGNORE);//test barrier
 			  //sleep(2);
 		  }
-		  if(1)
+		  if(print_all)
 		  {
 			  printf("\naproblem_gui.c		resolve_aPD()	all finished ibarrier");
 		  }
 
 		  finish_work();
    }
-   if(1)
+   if(print_all)
    {
 	   printf("\naproblem_gui.c resolve_aPD()		pre show window");
    }
 	  //////////////////////////// Solved window
-
+   if(!tests)
+   {
 	  GtkWidget  *window_solved, *grid_solved;
 	  window_solved = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	    /* Sets the border width of the window. */
@@ -223,8 +224,7 @@ void resolve_aPD(PAproblem pap, int num_processes)
 												GTK_STYLE_PROVIDER(cssProvider),
 												GTK_STYLE_PROVIDER_PRIORITY_USER);
 		}
-	  if(!tests)
-	  {
+
 		  gtk_widget_show_all(window_solved);
 	  }
 
