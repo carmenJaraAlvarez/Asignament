@@ -13,7 +13,7 @@ extern int redistribution_rr;
 extern int redistribution_rr_all;
 extern GtkWidget *window;
 extern Cadena test;
-extern int var_test[5];
+extern int var_test[7];
 extern int fs;
 extern int type_best;
 
@@ -58,17 +58,21 @@ int test_set_data(Cadena t, int np){
 	printf("\n%s",cadena_url_init);
 	int e=read_aproblem_file(&pap_from_gui, numt, numr, cadena_url_init);
 
-	prune=var_test[0];
-	redistribution_rr=var_test[1];
-	tuple_p=var_test[2];
-	fs=var_test[3];
-	type_best=var_test[4];
-	redistribution_rr_all=var_test[5];
-	if(print_all)
+	prune=var_test[1];
+	redistribution_rr=var_test[2];
+	tuple_p=var_test[3];
+	fs=var_test[4];
+	type_best=var_test[5];
+	redistribution_rr_all=var_test[6];
+	if(1)
 	{
 		printf("\ntest_application.c		test_set_data()-> READED file  %d\n",e);
-		g_print ("\ntest_application.c		test_set_data()		prune->%d",prune);
-		g_print ("\ntest_application.c		test_set_data()	rr->%d",redistribution_rr);
+		printf("\ntest_application.c		test_set_data()		prune->%d",prune);
+		printf("\ntest_application.c		test_set_data()		rr->%d",redistribution_rr);
+		printf ("\ntest_application.c		test_set_data()		tuple->%d",tuple_p);
+		printf ("\ntest_application.c		test_set_data()		fs->%d",fs);
+		printf ("\ntest_application.c		test_set_data()		alg->%d",type_best);
+		printf ("\ntest_application.c		test_set_data()		rr_all->%d",redistribution_rr_all);
 	}
 
 	resolve_aPD(&pap_from_gui, np);

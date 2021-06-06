@@ -31,7 +31,7 @@ int print_all=0;//to help to debug. Simple logs for developer
 //to launch tests///////
 int tests=0;
 Cadena test;
-int var_test[5];
+int var_test[7];
 ///////////////////////
 
 
@@ -136,12 +136,12 @@ int main(int argc, char **argv)
 
 	  MPI_Bcast(&init_slaves,1,MPI_INT,0,MPI_COMM_WORLD);//waiting master's order
 	  rcv_work(&buffer,&request_b,&buffer_work);
-		if(print_all)
+		if(1)
 		{
 			printf("\nThis is %d previous ibarrier\n",myid);
 		}
 	  MPI_Ibarrier(MPI_COMM_WORLD, &request);//to know every process is finished
-		if(print_all)
+		if(1)
 		{
 			printf("\nThis is %d post ibarrier\n",myid);
 		}
@@ -166,6 +166,10 @@ int main(int argc, char **argv)
 	/////////////////////////////////////
 	if(!tests)
 	{
+		if(print_all)
+		{
+			printf("\nc.c	main()	No test");
+		}
 		gtk_main();
 	}
 

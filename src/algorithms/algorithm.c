@@ -68,6 +68,8 @@ int is_in_array(int ,int, int *);
   		show_transfered(&aux);
   	}
   	copy_transfered(transf,&aux);
+//  	free(aux.receivers);
+//  	free(aux.transfered);
   	return 0;
   }
 

@@ -21,7 +21,7 @@ extern int numprocs;
 extern int event6;//for MPE log
 extern int print_all;
 
-AproblemPD * newArrayAppd;
+//AproblemPD * newArrayAppd;
 Transfered_nodes transfered;//if redistribution
 Tuple_prune tuple_prune_data;//if tuple prune
 int deep;

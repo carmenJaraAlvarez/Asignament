@@ -84,7 +84,7 @@ void resolve_aPD(PAproblem pap, int num_processes)
     AproblemPD appd;
     initAProblemPD(&appd, pap);
 	init_algorithmPD(&final_alg, appd);
-	if(print_all)
+	if(1)
     {
     	printf("\naproblem_gui.c resolve_aPD()-> Resolving\n");
     }
@@ -117,17 +117,18 @@ void resolve_aPD(PAproblem pap, int num_processes)
 		  {
 			  scan_petition(&request_petition, &request_best, &request_bcast);
 			  MPI_Test(&request,&all_finished, MPI_STATUS_IGNORE);//test barrier
+			  //sleep(2);
 		  }
-		  if(print_all)
+		  if(1)
 		  {
 			  printf("\naproblem_gui.c		resolve_aPD()	all finished ibarrier");
 		  }
 
 		  finish_work();
    }
-   if(print_all)
+   if(1)
    {
-	   printf("\naproblem_gui.c resolve_aPD()		out serial");
+	   printf("\naproblem_gui.c resolve_aPD()		pre show window");
    }
 	  //////////////////////////// Solved window
 
@@ -234,7 +235,13 @@ void resolve_aPD(PAproblem pap, int num_processes)
 	   end_clock();
 
 
-	//delete_algorithmPD(&alg);
+//	free(final_alg.problems);
+//	free(final_alg.solvedProblems);
+//	free(transfered.receivers);
+//	free(transfered.transfered);
+//	free(tuple_prune_data.solution_tuples);
+//	free(tuple_prune_data.solution_values);
+
 
 }
 void button_toggled_cb (GtkWidget *button, gpointer   user_data)
