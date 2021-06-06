@@ -22,7 +22,7 @@ do
 					do
 						for ALG in 0 1 2
 						do
-							for SIZE in 7
+							for SIZE in 5
 							do
 								mpirun -np $NP -hosts master,$slave,slave1,slave2 $origin test $SIZE $PRUNE $RR $TUPLE $SEARCH $ALG $RRALL &
 								wait $!

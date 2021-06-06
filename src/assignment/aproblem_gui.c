@@ -23,6 +23,16 @@ int type_best=1;//dummy
 static void show_error();
 
 
+void resolve_aPD_test(PAproblem pap_from_gui, int np,int prune_test,int redistribution_rr_test,int tuple_p_test,int fs_test,int type_best_test,int redistribution_rr_all_test)
+{
+	prune=prune_test;
+	redistribution_rr=redistribution_rr_test;
+	redistribution_rr_all=redistribution_rr_all_test;
+	tuple_p=tuple_p_test;
+	fs=fs_test;
+	type_best=type_best_test;
+	resolve_aPD(pap_from_gui, np);
+}
 
 void get_data(GtkWidget *calculate, gpointer data) {
 
@@ -84,9 +94,17 @@ void resolve_aPD(PAproblem pap, int num_processes)
     AproblemPD appd;
     initAProblemPD(&appd, pap);
 	init_algorithmPD(&final_alg, appd);
-	if(print_all)
+	if(1)
     {
     	printf("\naproblem_gui.c resolve_aPD()-> Resolving\n");
+    	printf("\naproblem_gui.c resolve_aPD()-> prune %d\n", prune);
+    	printf("\naproblem_gui.c resolve_aPD()-> tuple_p %d\n",tuple_p);
+    	printf("\naproblem_gui.c resolve_aPD()-> fs %d\n", fs);
+    	printf("\naproblem_gui.c resolve_aPD()-> rr %d\n",redistribution_rr);
+    	printf("\naproblem_gui.c resolve_aPD()-> alg %d\n", type_best);
+    	printf("\naproblem_gui.c resolve_aPD()-> rr_all %d\n",redistribution_rr_all);
+
+
     }
    if(num_processes==1)//serial
    {
@@ -99,7 +117,7 @@ void resolve_aPD(PAproblem pap, int num_processes)
    }
    else//parallel
    {
-		distribution(&final_alg,prune,redistribution_rr,tuple_p,fs);
+		distribution(&final_alg,prune,redistribution_rr,tuple_p,fs,redistribution_rr_all,type_best);
 		init_slaves=1;
 		if(print_all)
 		{

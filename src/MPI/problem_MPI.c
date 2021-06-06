@@ -5,6 +5,7 @@
 static int pD_distribution(PalgorithmPD palg);
 static PResolved resolved_from_slaves;
 static Distribution_rr rr;
+
 static int index_rr=0;
 static int init_rr();
 static int init_resolved;
@@ -116,7 +117,7 @@ int init_redistribution(MPI_Request * request_work){
 
 	return 0;
 }
-int distribution(PalgorithmPD palg, int prune, int r_rr, int tuple_p, int fs)
+int distribution(PalgorithmPD palg, int prune, int r_rr, int tuple_p, int fs, int rr_all, int alg_best)
 {
 	int res=-1;
 	Solution sol;
@@ -171,7 +172,7 @@ int distribution(PalgorithmPD palg, int prune, int r_rr, int tuple_p, int fs)
 				printf("\nproblem_MPI.c		distribution()		num problems==num slaves: alternative->%d",alternatives[0]);
 			}
 
-			send_work(palg,&alternatives,1,i,prune,r_rr, tuple_p,fs,final_alg.best);//sending 1 alternative to process i
+			send_work(palg,&alternatives,1,i,prune,r_rr, tuple_p,fs,rr_all,final_alg.best);//sending 1 alternative to process i
 			if(r_rr)
 			{
 				rr.receivers_less[i-1]=i;
@@ -197,7 +198,7 @@ int distribution(PalgorithmPD palg, int prune, int r_rr, int tuple_p, int fs)
 				printf("\n num problems<num slaves: alternative->%d",alternatives[0]);
 			}
 
-			send_work(palg,&alternatives,1,i,prune,r_rr, tuple_p,fs,final_alg.best);
+			send_work(palg,&alternatives,1,i,prune,r_rr, tuple_p,fs,rr_all,final_alg.best);
 			if(r_rr)
 			{
 				rr.receivers_less[i-1]=i;
@@ -212,7 +213,7 @@ int distribution(PalgorithmPD palg, int prune, int r_rr, int tuple_p, int fs)
 		for(int j=palg->num_problems+1;j<num_slaves+1;j++)
 		{
 			int alternatives[0];
-			send_work(palg,&alternatives,0,j,prune,r_rr, tuple_p,fs,final_alg.best);
+			send_work(palg,&alternatives,0,j,prune,r_rr, tuple_p,fs,rr_all,final_alg.best);
 		}
 	}
 	else//num problems >num processes
@@ -244,7 +245,7 @@ int distribution(PalgorithmPD palg, int prune, int r_rr, int tuple_p, int fs)
 
 				alternatives[j]=a;//process i, distribution round j
 			}
-			send_work(palg,&alternatives,rounds+1,i,prune,r_rr, tuple_p,fs,final_alg.best);
+			send_work(palg,&alternatives,rounds+1,i,prune,r_rr, tuple_p,fs,rr_all,final_alg.best);
 			if(r_rr)
 			{
 				rr.receivers_plus[i-1]=i;
@@ -262,7 +263,7 @@ int distribution(PalgorithmPD palg, int prune, int r_rr, int tuple_p, int fs)
 			{
 				alternatives[j]=(i-1)+(j*num_slaves);//process i, distribution round j
 			}
-			send_work(palg,alternatives,rounds,i,prune,r_rr, tuple_p,fs,final_alg.best);
+			send_work(palg,alternatives,rounds,i,prune,r_rr, tuple_p,fs,rr_all,final_alg.best);
 			if(r_rr)
 			{
 				rr.receivers_less[i-1]=i;
@@ -297,25 +298,28 @@ int rcv_work(double * buffer,MPI_Request * request_b,int * buffer_w)
 	//getting work
 
 	MPI_Datatype work_mpi_datatype;
-	int blocklengths[9] = {1,1,1,1,1,1,1,1,1};
-	MPI_Datatype types[9] = {MPI_INT, MPI_INT,MPI_INT, MPI_INT, MPI_INT, MPI_INT, MPI_INT, MPI_INT,MPI_DOUBLE};
-	const MPI_Aint offsets[9]= { 0, sizeof(int),sizeof(int)*2,sizeof(int)*3,sizeof(int)*4,sizeof(int)*5,sizeof(int)*6,sizeof(int)*7,sizeof(int)*8};
-	MPI_Type_create_struct(9, blocklengths, offsets, types,  &work_mpi_datatype);
+	int blocklengths[10] = {1,1,1,1,1,1,1,1,1,1};
+	MPI_Datatype types[10] = {MPI_INT, MPI_INT,MPI_INT, MPI_INT, MPI_INT, MPI_INT, MPI_INT, MPI_INT, MPI_INT,MPI_DOUBLE};
+	const MPI_Aint offsets[10]= { 0, sizeof(int),sizeof(int)*2,sizeof(int)*3,sizeof(int)*4,sizeof(int)*5,sizeof(int)*6,sizeof(int)*7,sizeof(int)*8,sizeof(int)*9};
+	MPI_Type_create_struct(10, blocklengths, offsets, types,  &work_mpi_datatype);
 	MPI_Type_commit ( &work_mpi_datatype );
 	MPI_Status status;
 
     MPI_Recv(&work, 1, work_mpi_datatype , 0, tag_work, MPI_COMM_WORLD, &status);
 
-    if(print_all)
+    if(1)
     {
         printf("\nproblem_MPI.c		rcv_work()		p%d. received num task: %d",id,work.num_tasks);
     	printf("\nproblem_MPI.c		rcv_work()		p%d. received num resources: %d\n",id,work.num_resources);
     	printf("\nproblem_MPI.c		rcv_work()		p%d. received prune: %d",id,work.prune);
+    	printf("\nproblem_MPI.c		rcv_work()		p%d. received rr_all: %d",id,work.rrall);
     	printf("\nproblem_MPI.c		rcv_work()		p%d. received best: %f",id,work.best);
     }
     prune=work.prune;
     tuple_p=work.tuple_prune;
     fs=work.first_search;
+    redistribution_rr=work.redistribution;
+    redistribution_rr_all=work.rrall;
 	int size_values=work.num_tasks*work.num_resources;
 
 	//getting values
@@ -638,11 +642,17 @@ int init_work(
 				if(redistribution_rr_all)
 				{
 					send_resolved_data(1,resolved->value,pa->numTask,resolved->resources);//TODO num resolved
-					delete_algorithmPD(&alg);
 					if(1)
 					{
 						printf("\nproblem_MPI.c		init_work()		TIMEOUT rr_all send resolved data");
+						for(int d=0;d<pa->numTask;d++)
+						{
+							printf("\nproblem_MPI.c		init_work()		send %d:%d",d,resolved->resources[d]);
+						}
 					}
+
+					delete_algorithmPD(&alg);
+
 				}
 				else
 				{
@@ -972,7 +982,9 @@ int send_work(
 		int r_rr,//redistribution round robin
 		int tuple_prune,
 		int first_search,
+		int r_rr_all,
 		double best
+
 		)
 {
 	MPE_Log_event(event1a, 0, "start send");
@@ -1009,6 +1021,7 @@ int send_work(
 	work.tuple_prune=tuple_prune;
 	work.redistribution=r_rr;
 	work.first_search=first_search;
+	work.rrall=r_rr_all;
 	work.best=best;
 	int num_values=work.num_resources*work.num_tasks;
 	if(print_all)
@@ -1062,13 +1075,13 @@ int send_work(
 
 	//sending
 	MPI_Datatype work_mpi_datatype;
-	int blocklengths[9] = {1,1,1,1,1,1,1,1,1};
-	MPI_Datatype types[9] = {MPI_INT, MPI_INT,MPI_INT,MPI_INT, MPI_INT, MPI_INT, MPI_INT, MPI_INT,MPI_DOUBLE};
-    const MPI_Aint offsets[9]= { 0, sizeof(int),sizeof(int)*2, sizeof(int)*3, sizeof(int)*4,sizeof(int)*5,sizeof(int)*6,sizeof(int)*7,sizeof(int)*8};
-	MPI_Type_create_struct(9, blocklengths, offsets, types,  &work_mpi_datatype);
+	int blocklengths[10] = {1,1,1,1,1,1,1,1,1,1};
+	MPI_Datatype types[10] = {MPI_INT, MPI_INT,MPI_INT,MPI_INT, MPI_INT, MPI_INT, MPI_INT, MPI_INT,MPI_INT,MPI_DOUBLE};
+    const MPI_Aint offsets[10]= { 0, sizeof(int),sizeof(int)*2, sizeof(int)*3, sizeof(int)*4,sizeof(int)*5,sizeof(int)*6,sizeof(int)*7,sizeof(int)*8,sizeof(int)*9};
+	MPI_Type_create_struct(10, blocklengths, offsets, types,  &work_mpi_datatype);
 	MPI_Type_commit ( &work_mpi_datatype);
 
-	if(print_all)
+	if(1)
 	{
 		printf("\nproblem_MPI.c		send_work()		  sending num task: %d",work.num_tasks);
 		printf("\nproblem_MPI.c		send_work()		  sending num resources: %d\n",work.num_resources);
@@ -1076,6 +1089,7 @@ int send_work(
 		printf("\nproblem_MPI.c		send_work()		  sending prune: %d\n",work.prune);
 		printf("\nproblem_MPI.c		send_work()		  sending tuple_prune: %d\n",work.tuple_prune);
 		printf("\nproblem_MPI.c		send_work()		  sending first_search: %d\n",work.first_search);
+		printf("\nproblem_MPI.c		send_work()		  sending rr_all: %d\n",work.rrall);
 		printf("\nproblem_MPI.c		send_work()		  sending alternatives: %d\n",work.num_alternatives);
 		printf("\nproblem_MPI.c		send_work()		  sending best: %f\n",work.best);
 	}
@@ -1190,8 +1204,6 @@ int send_resolved_data(int num_resolved, double acum,int num_tasks, int position
 	if(1)
 	{
 		printf("\nPROCESS %d SENDING RESOLVED data TO MASTER. first position:%d",myid,*position);
-		printf("\nPROCESS %d SENDING RESOLVED data TO MASTER. first position:%d",myid,position);
-		//printf("\nPROCESS %d SENDING RESOLVED data TO MASTER. first position:%d",myid,**position);
 	}
 
 
@@ -1217,7 +1229,7 @@ int send_resolved_data(int num_resolved, double acum,int num_tasks, int position
 		for(int i=0;i<num_resolved;i++){
 			if(1)
 			{
-				printf("\nproblem_MPI.c		send_resolved()	----------RESOLVED %d",i);
+				printf("\nproblem_MPI.c		send_resolved()	----------RESOLVED num %d",i+1);
 				}
 			for(int j=0;j<num_tasks;j++){
 				resolved.resources[i*num_tasks+j]=position[j];

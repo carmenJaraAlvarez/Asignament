@@ -83,9 +83,13 @@ int main(int argc, char **argv)
 		{
 			printf("\n test %s",test);
 		}
-		for(int i=0;i<6;i++)
+		for(int i=0;i<7;i++)
 		{
 			var_test[i]=atoi(argv[i+2]);
+			if(1)
+			{
+				printf("\nc.c	main()	arg %d",var_test[i]);
+			}
 		}
 	}
 
