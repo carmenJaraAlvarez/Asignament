@@ -713,13 +713,13 @@ int init_work(
 
 				}
 				exec_algorithm(&alg,buffer,request_b, buffer_w, &request_work, fs);
-				if(print_all)
+				if(1)
 				{
 					printf("\nAfter exec algoritm\n");
 				}
 				Solution sol;
 				get_PDsolution(&alg, &sol);
-				if(print_all)
+				if(1)
 				{
 					for(int i=0;i<alg.ppd.solution.lengthArrays;i++){
 						printf("\nResources: \n*%s\n",alg.ppd.solution.resources[i].name);
@@ -729,10 +729,18 @@ int init_work(
 
 				if(redistribution_rr_all)
 				{
+					if(1)
+					{
+						printf("\nproblem_MPI.c		init_work()		inside redistribution_rr_all");
+					}
 				//select resolved
 				if(init_resolved==0)
 				{
 					//init resolved
+					if(1)
+					{
+						printf("\nproblem_MPI.c		init_work()		init_resolved=0");
+					}
 					if(alg.num_solved>0)
 					{
 						resolved->num_resolved=alg.num_solved;
@@ -742,16 +750,32 @@ int init_work(
 							resolved->resources[i]=alg.solvedProblems[0].solution.resources[i].position;
 						}
 						init_resolved=1;
+						if(1)
+						{
+							printf("\nproblem_MPI.c		init_work()		saved resolved:");
+							for(int i=0;i<alg.ppd.aproblem.numTask;i++)
+							{
+								printf("\n 		%d",resolved->resources[i]);
+							}
+						}
 					}
 
 				}
 				else
 				{
+					if(1)
+					{
+						printf("\nproblem_MPI.c		init_work()		init_resolved=1 so we compare");
+					}
 					if(alg.num_solved>0)
 					{
 						//compare
 						if(alg.solvedProblems[0].solution.acum>resolved->value)//new resolved is better
 						{
+							if(1)
+							{
+								printf("\nproblem_MPI.c		init_work()		new resolved is better");
+							}
 							resolved->num_resolved=alg.num_solved;
 							resolved->value=alg.solvedProblems[0].solution.acum;
 							for(int i=0;i<alg.ppd.aproblem.numTask;i++)
@@ -803,7 +827,7 @@ int init_work(
 		}
 		if(num_alternatives==1)
 		{
-			if(print_all)
+			if(1)
 			{
 				printf("\nproblem_MPI.c		init_work()	===========p%d only 1 alternative",id);
 			}
@@ -815,7 +839,7 @@ int init_work(
 			alg.ppd.solution.lengthArrays=alg.ppd.solution.lengthArrays+1;
 			alg.ppd.solution.acum=pa->values[0+alternatives[0]*alg.ppd.aproblem.numTask];
 			alg.problems[0]=alg.ppd;
-			if(print_all)
+			if(1)
 			{
 				printf("Assert index =1 in problems post work:%d ",alg.problems[0].index);
 			}
@@ -840,7 +864,7 @@ int init_work(
 				}
 
 				get_subproblem(&alg.ppd, &subproblems[i],alt[i], get_num_subproblems());
-				if(print_all)
+				if(1)
 				{
 					printf("\nproblem_MPI.c		init_work() "
 							"========================p%d Inside init work more than 1 alternative",id);
@@ -852,7 +876,7 @@ int init_work(
 				}
 
 				alg.problems[i]=subproblems[i];
-				if(print_all)
+				if(1)
 				{
 					printf("\n post get subproblems p%d",id);
 					printf("\n post get subproblems in alg solution.len: %d",alg.problems[i].solution.lengthArrays);
@@ -863,7 +887,7 @@ int init_work(
 
 				if(i>0)
 				{
-					if(print_all)
+					if(1)
 					{
 						printf("\nProblem i-1:\n");
 						show_aproblem_PD(&(alg.problems[i-1]));
@@ -873,7 +897,7 @@ int init_work(
 				//adding alt to solution
 				strcpy(alg.problems[i].solution.resources[alg.problems[i].solution.lengthArrays].name, pa->resources[alternatives[i]].name);
 				alg.problems[i].solution.resources[alg.problems[i].solution.lengthArrays].position=pa->resources[alternatives[i]].position;
-				if(print_all)
+				if(1)
 				{
 					printf("\nproblem_MPI.c	init_work() p%d. len solution %d ccccccccccccccccccccccccccccc",id,alg.problems[i].solution.lengthArrays);
 					printf("\nacum solution %f ccccccccccccccccccccccccccccc",alg.problems[i].solution.acum);
@@ -885,7 +909,7 @@ int init_work(
 			alg.ppd.index=1;
 			alg.num_problems=num_alternatives;//TODO
 		}
-		if(print_all)
+		if(1)
 		{
 			for(int i=0;i<alg.num_problems;i++){
 				show_aproblem_PD(&(alg.problems[i]));
@@ -894,14 +918,14 @@ int init_work(
 		}
 
 		exec_algorithm(&alg,buffer,request_b, buffer_w, &request_work,fs);
-		if(print_all)
+		if(1)
 		{
 			printf("\nproblem_MPI.c	init_work()	p%d After exec algoritm\n",id);
 		}
 		Solution sol;
 		get_PDsolution(&alg, &sol);
 
-		if(print_all)
+		if(1)
 		{
 			for(int i=0;i<alg.ppd.solution.lengthArrays;i++){
 				printf("\nResources: \n*%s\n",alg.ppd.solution.resources[i].name);

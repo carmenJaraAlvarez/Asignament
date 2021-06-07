@@ -8,23 +8,23 @@ slave=192.168.2.115
 
 echo "testing"
 
-for NP in 5 
+for NP in 3
 do
 	for PRUNE in 0 1
 	do
-		for SEARCH in 1
+		for SEARCH in 1 0
 		do
 			for TUPLE in 0 1
 			do
-				for RR in 0 1
+				for RR in 1
 				do
-					for RRALL in 0 1
+					for RRALL in 1
 					do
 						for ALG in 0 1 2
 						do
-							for SIZE in 5
+							for SIZE in 6
 							do
-								mpirun -np $NP -hosts master,$slave,slave1,slave2 $origin test $SIZE $PRUNE $RR $TUPLE $SEARCH $ALG $RRALL &
+								mpirun -np $NP -hosts master,slave1,slave2 $origin test $SIZE $PRUNE $RR $TUPLE $SEARCH $ALG $RRALL &
 								wait $!
 								echo "End np $NP data $SIZE prune $PRUNE distrib $RR tuple $TUPLE bd $SEARCH alg $ALG rr_all $RRALL"
 							done

@@ -751,7 +751,7 @@ AproblemPD appd_for_top_deep;
 									  //save_for_on_top &appdNew,
 									  copy_aproblem_PD(&appd_for_top_deep,appdNew);
 									  count++;
-									  if(1)
+									  if(print_all)
 									  {
 										  printf("\nPD_algorithm.c	pD()	appd for top:");
 										  show_aproblem_PD(&appd_for_top_deep);
@@ -761,7 +761,7 @@ AproblemPD appd_for_top_deep;
 								  {
 									  copy_aproblem_PD( &(palg->problems[lengthNewArrayAppd-1+count]),appdNew);
 
-									  if(1)
+									  if(print_all)
 									  {
 										  printf("\nPD_algorithm.c	pD()	copy on alg[%d]:",lengthNewArrayAppd-1+count);
 										  show_aproblem_PD(&(palg->problems[lengthNewArrayAppd-1+count]));
@@ -769,7 +769,7 @@ AproblemPD appd_for_top_deep;
 									  count++;
 								  }
 //								  copy_aproblem_PD( &aux[len_aux],appdNew);
-//								  len_aux++;
+								  len_aux++;
 								  if(print_all)
 								  {
 									  printf("\nPD_algorithm.c		pD		p%d %d of %d subproblems. len aux:%d",id,j, numSubproblems,len_aux);
