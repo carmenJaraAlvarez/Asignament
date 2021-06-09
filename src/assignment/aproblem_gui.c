@@ -94,6 +94,10 @@ void resolve_aPD(PAproblem pap, int num_processes)
     AproblemPD appd;
     initAProblemPD(&appd, pap);
 	init_algorithmPD(&final_alg, appd);
+	if(redistribution_rr_all==1 && redistribution_rr==0)
+	{
+		redistribution_rr=1;
+	}
 	if(1)
     {
     	printf("\naproblem_gui.c resolve_aPD()-> Resolving\n");
@@ -339,11 +343,13 @@ void button_toggled_rr_all (GtkWidget *button, gpointer   user_data)
   if(strcmp(button_label,"Always Round Robin") && strcmp(b_state,"on"))
   {
 	  redistribution_rr_all=1;
+
 	  g_print ("\naproblem_gui.c		button_toggled_cb()		rr_all");
   }
   else if(strcmp(button_label,"Always Round Robin") && strcmp(b_state,"off"))
   {
 	  redistribution_rr_all=0;
+
 	  g_print ("\naproblem_gui.c		button_toggled_cb()		NO rr_all");
   }
 

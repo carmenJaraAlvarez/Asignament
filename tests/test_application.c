@@ -74,7 +74,10 @@ int test_set_data(Cadena t, int np){
 		printf ("\ntest_application.c		test_set_data()		alg->%d",type_best);
 		printf ("\ntest_application.c		test_set_data()		rr_all->%d",redistribution_rr_all);
 	}
-
+	if(redistribution_rr_all==1)//preference
+	{
+		redistribution_rr=1;
+	}
 	resolve_aPD_test(&pap_from_gui, np,prune,redistribution_rr,tuple_p,fs,type_best,redistribution_rr_all);
 	int count=0;
 	while(final_alg.best!=expected[i-2])//matrix size <=2

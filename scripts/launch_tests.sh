@@ -10,15 +10,15 @@ echo "testing"
 
 for NP in 3
 do
-	for PRUNE in 0 1
+	for PRUNE in 1
 	do
-		for SEARCH in 1 0
+		for SEARCH in 0 
 		do
-			for TUPLE in 0 1
+			for TUPLE in 1
 			do
-				for RR in 1
+				for RR in 0 1
 				do
-					for RRALL in 1
+					for RRALL in 0 1
 					do
 						for ALG in 0 1 2
 						do

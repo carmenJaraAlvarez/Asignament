@@ -937,6 +937,10 @@ int init_work(
 			//select resolved
 			if(init_resolved==0)
 			{
+				if(1)
+				{
+					printf("\nproblem_MPI.c		init_work()		rrall and init resolved==0");
+				}
 				//init resolved
 				if(alg.num_solved>0)
 				{
@@ -945,6 +949,10 @@ int init_work(
 					for(int i=0;i<alg.ppd.aproblem.numTask;i++)
 					{
 						resolved->resources[i]=alg.solvedProblems[0].solution.resources[i].position;
+						if(1)
+						{
+							printf("\nproblem_MPI.c		init_work()		resource: %d",resolved->resources[i]);
+						}
 					}
 					init_resolved=1;
 				}
@@ -953,8 +961,17 @@ int init_work(
 			else{
 				if(alg.num_solved>0){
 					//compare
+					if(1)
+					{
+						printf("\nproblem_MPI.c		init_work()		rrall and init resolved>0 so compare");
+					}
 					if(alg.solvedProblems[0].solution.acum>resolved->value)//new resolved is better
 					{
+						if(1)
+						{
+							printf("\nproblem_MPI.c		init_work()		new resolved %d is better %d",alg.solvedProblems[0].solution.acum,resolved->value);
+						}
+
 						resolved->num_resolved=alg.num_solved;
 						resolved->value=alg.solvedProblems[0].solution.acum;
 						for(int i=0;i<alg.ppd.aproblem.numTask;i++)
@@ -1897,8 +1914,8 @@ int pD_distribution(PalgorithmPD palg)
 		  {
 			  printf("\nproblem_MPI.c		pD_distribution() finish ");
 		  }
-		  free(newArrayAppd);
-		  free(problems);
+//		  free(newArrayAppd);
+//		  free(problems);
 
   return res;
 }

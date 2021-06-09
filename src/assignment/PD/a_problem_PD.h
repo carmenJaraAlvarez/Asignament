@@ -18,7 +18,7 @@
 
 extern int print_all;
 extern int prune;
-extern int fs;
+//extern int fs;
 
 typedef struct
   {

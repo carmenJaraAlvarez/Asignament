@@ -41,7 +41,7 @@ AproblemPD appd_for_top_deep;
 		  palg->best=SMALL;
 	  }
 	  int num;
-	  if(fs)//deep
+	  if(deep)//deep
 	  {
 		  num=get_max_num_problems_deep(&(ap));
 	  }
@@ -51,7 +51,7 @@ AproblemPD appd_for_top_deep;
 	  }
 	  if(print_all)
 	  {
-		  printf("\nPD_algorithm.c **%d->%d",fs,num);
+		  printf("\nPD_algorithm.c **%d->%d",deep,num);
 	  }
 
 
@@ -83,7 +83,7 @@ AproblemPD appd_for_top_deep;
 	  MPI_Comm_rank(MPI_COMM_WORLD,&id);
 
 	  deep=first_search;
-	  if(print_all)
+	  if(1)
 	  {
 		  printf("\nPD_algorithm.c	exec_algorithm()	p%d deep:%d",id,deep);
 	  }
@@ -260,7 +260,7 @@ AproblemPD appd_for_top_deep;
 
 			  update_alg_best(palg);
 			  int max_num_problem;
-			  if(fs)
+			  if(deep)
 			  {
 				  max_num_problem=get_max_num_problems_deep(&appd);
 			  }
@@ -273,7 +273,7 @@ AproblemPD appd_for_top_deep;
 
 			  if(print_all)
 			  {
-				  printf("\n**%d->%d",fs,max_num_problem);
+				  printf("\n**%d->%d",deep,max_num_problem);
 				  printf("\nPD_algorithm.c		pD		first len array problem in PD = %d", lengthNewArrayAppd);
 				  printf("\nPD_algorithm.c		pD		len=max+lengnew->%d+%d=%d", max_num_problem,lengthNewArrayAppd,len);
 
@@ -389,7 +389,7 @@ AproblemPD appd_for_top_deep;
 								  	  	  	  	  	[
 													(round+1)+as[u].indexResource*palg->ppd.aproblem.numTask
 													];
-						  if(print_all)
+						  if(1)
 						  {
 							  printf("\nPD_algorithm.c		pD()		as[u]:%d",as[u].indexResource);
 							  printf("\nPD_algorithm.c		pD()		problems[m].index: %d, ppd.index: %d, round %d:",palg->problems[m].index,palg->ppd.index,round);
@@ -403,6 +403,10 @@ AproblemPD appd_for_top_deep;
 
 						  if(round==1)
 						  {
+							  if(1)
+							  {
+								  printf("\nPD_algorithm.c		pD()	round==1>>we check prune");
+							  }
 							  check_prune(
 							  		  &tuple_prune,
 							  		  &tuple_prune_data,
@@ -412,11 +416,12 @@ AproblemPD appd_for_top_deep;
 							  		  u,
 							  		  ismin,
 							  		  ismax);
+
 						  }
 
 						  //for dummy prune
 						  double b_estimated=get_best_estimate(&(palg->problems[m]));
-						  if(print_all)
+						  if(1)
 						  {
 							  printf("\nPD_algorithm.c		pD()		my best estimated in problem %d is: %f vs final alg:%f",m,b_estimated,final_alg.best);
 						  }
@@ -495,6 +500,10 @@ AproblemPD appd_for_top_deep;
 						  }//end if not prune
 						  else//prune
 						  {
+							  if(1)
+							  {
+								  printf("\nPD_algorithm.c		pD		prune");
+							  }
 							  MPE_Log_event(event6, 0, "prune in PD");
 
 						  }
