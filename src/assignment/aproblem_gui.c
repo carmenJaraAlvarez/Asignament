@@ -98,7 +98,7 @@ void resolve_aPD(PAproblem pap, int num_processes)
 	{
 		redistribution_rr=1;
 	}
-	if(1)
+	if(print_all)
     {
     	printf("\naproblem_gui.c resolve_aPD()-> Resolving\n");
     	printf("\naproblem_gui.c resolve_aPD()-> prune %d\n", prune);

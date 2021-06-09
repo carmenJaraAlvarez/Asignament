@@ -150,7 +150,7 @@ int is_in_array(int ,int, int *);
 		  //tuple_prune empty, save data sol
 		  	  if(tuple_prune_data->num_tuples==0)
 		  	  {
-		  		  if(1)
+		  		  if(print_all)
 		  		  {
 		  			 printf("\nalgorithm.c		check_prune()	adding new: %d,%d->%f",papd->solution.resources[papd->solution.lengthArrays-1].position,as[u].indexResource,papd->solution.acum+my_value);
 		  		  }
@@ -160,7 +160,7 @@ int is_in_array(int ,int, int *);
 		  					  papd->solution.resources[papd->solution.lengthArrays-1].position,
 		  					  as[u].indexResource,
 		  					  papd->solution.acum+my_value);
-		  			  if(1)
+		  			  if(print_all)
 		  			  {
 		  				show_tuple_prune(tuple_prune_data);
 		  			  }
@@ -168,7 +168,7 @@ int is_in_array(int ,int, int *);
 		  	  }
 		  	  else //if second round and tuple_prune NOT empty, compare
 		  	  {
-		  		  if(1)
+		  		  if(print_all)
 		  		  {
 		  			printf("\nalgorithm.c		check_prune()	if second round and tuple_prune NOT empty, compare. search");
 		  		  }
@@ -182,7 +182,7 @@ int is_in_array(int ,int, int *);
 		  				 tuple_prune_data->solution_tuples[j+1]==papd->solution.resources[papd->solution.lengthArrays-1].position  )
 		  			  {
 		  				  sym=j/2;
-		  				  if(1)
+		  				  if(print_all)
 		  				  {
 		  					show_tuple_prune(tuple_prune_data);
 		  				  	printf("\nalgorithm.c		check_prune()	tuple found: %d",sym);
@@ -202,13 +202,13 @@ int is_in_array(int ,int, int *);
 		  						  )
 		  				  )
 		  		  {
-		  			  if(1)
+		  			  if(print_all)
 		  			  {
 		  				printf("\nalgorithm.c		check_prune()	exists symmetric and acum is better>>prune");
 		  			  }
 		  			  *tuple_prune=TRUE;
 		  			  MPE_Log_event(event9, 0, "Tuple prune");
-		  			  if(1)
+		  			  if(print_all)
 		  			  {
 		  				 printf("\nalgorithm.c		check_prune()	tuple_prune=true");
 		  			  }
@@ -216,7 +216,7 @@ int is_in_array(int ,int, int *);
 		  		  }
 		  		  else//save and prune=FALSE to go on
 		  		  {
-		  			  if(1)
+		  			  if(print_all)
 		  			  {
 		  				printf("\nalgorithm.c		check_prune()	does not exist symmetric or acum is better>>no prune and save");
 		  			  }
@@ -225,7 +225,7 @@ int is_in_array(int ,int, int *);
 		  						  papd->solution.resources[papd->solution.lengthArrays-1].position,
 		  						  as[u].indexResource,
 		  						  my_value);
-		  			  if(1)
+		  			  if(print_all)
 		  			  {
 		  				show_tuple_prune(tuple_prune_data);
 		  			  }
@@ -237,7 +237,7 @@ int is_in_array(int ,int, int *);
 		  	  }
 
 	  }
-	  if(1)
+	  if(print_all)
 	  {
 		  printf("\nalgorithm.c		check_prune()		ending tuple_prune=%d",*tuple_prune);
 	  }

@@ -83,7 +83,7 @@ AproblemPD appd_for_top_deep;
 	  MPI_Comm_rank(MPI_COMM_WORLD,&id);
 
 	  deep=first_search;
-	  if(1)
+	  if(print_all)
 	  {
 		  printf("\nPD_algorithm.c	exec_algorithm()	p%d deep:%d",id,deep);
 	  }
@@ -389,7 +389,7 @@ AproblemPD appd_for_top_deep;
 								  	  	  	  	  	[
 													(round+1)+as[u].indexResource*palg->ppd.aproblem.numTask
 													];
-						  if(1)
+						  if(print_all)
 						  {
 							  printf("\nPD_algorithm.c		pD()		as[u]:%d",as[u].indexResource);
 							  printf("\nPD_algorithm.c		pD()		problems[m].index: %d, ppd.index: %d, round %d:",palg->problems[m].index,palg->ppd.index,round);
@@ -403,7 +403,7 @@ AproblemPD appd_for_top_deep;
 
 						  if(round==1)
 						  {
-							  if(1)
+							  if(print_all)
 							  {
 								  printf("\nPD_algorithm.c		pD()	round==1>>we check prune");
 							  }
@@ -421,7 +421,7 @@ AproblemPD appd_for_top_deep;
 
 						  //for dummy prune
 						  double b_estimated=get_best_estimate(&(palg->problems[m]));
-						  if(1)
+						  if(print_all)
 						  {
 							  printf("\nPD_algorithm.c		pD()		my best estimated in problem %d is: %f vs final alg:%f",m,b_estimated,final_alg.best);
 						  }
@@ -500,7 +500,7 @@ AproblemPD appd_for_top_deep;
 						  }//end if not prune
 						  else//prune
 						  {
-							  if(1)
+							  if(print_all)
 							  {
 								  printf("\nPD_algorithm.c		pD		prune");
 							  }

@@ -64,7 +64,7 @@ int test_set_data(Cadena t, int np){
 	fs=var_test[4];
 	type_best=var_test[5];
 	redistribution_rr_all=var_test[6];
-	if(1)
+	if(print_all)
 	{
 		printf("\ntest_application.c		test_set_data()-> READED file  %d\n",e);
 		printf("\ntest_application.c		test_set_data()		prune->%d",prune);
