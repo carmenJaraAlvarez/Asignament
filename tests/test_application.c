@@ -82,13 +82,14 @@ int test_set_data(Cadena t, int np){
 	int count=0;
 	while(final_alg.best!=expected[i-2])//matrix size <=2
 	{
+		count++;
 		if(count>=90000000)//Timeout
 		{
 			printf("\ntest_application.c		test_set_data(%d)-> TIMEOUT expected:%f",i, expected[i-2]);
 			printf("   final_alg.best->%f",final_alg.best);
 			break;
 		}
-		count++;
+
 	}
 	if(count<90000000)
 	{
