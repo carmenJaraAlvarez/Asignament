@@ -27,7 +27,7 @@ int test_set(int np);
 
 
 int test_set(int np){
-	if(print_all)
+	if(1)
 	{
 		printf("\n*** test_set ***\n");
 	}
@@ -36,7 +36,7 @@ int test_set(int np){
 	return 0;
 }
 int test_set_data(Cadena t, int np){
-	if(print_all)
+	if(1)
 	{
 		printf("\n*** test_set_data***\n");
 	}
@@ -64,7 +64,7 @@ int test_set_data(Cadena t, int np){
 	fs=var_test[4];
 	type_best=var_test[5];
 	redistribution_rr_all=var_test[6];
-	if(print_all)
+	if(1)
 	{
 		printf("\ntest_application.c		test_set_data()-> READED file  %d\n",e);
 		printf("\ntest_application.c		test_set_data()		prune->%d",prune);
@@ -77,6 +77,10 @@ int test_set_data(Cadena t, int np){
 	if(redistribution_rr_all==1)//preference
 	{
 		redistribution_rr=1;
+	}
+	if(1)
+	{
+		printf("\ntest_application.c		test_set_data()-> pre resolve apd test");
 	}
 	resolve_aPD_test(&pap_from_gui, np,prune,redistribution_rr,tuple_p,fs,type_best,redistribution_rr_all);
 	int count=0;

@@ -126,7 +126,7 @@ int distribution(PalgorithmPD palg, int prune, int r_rr, int tuple_p, int fs, in
     MPI_Status status;
     int flag;
 
-    if(print_all)
+    if(1)
     {
     	printf("\n num problems-num slaves: %d-%d",palg->num_problems,num_slaves);
     }
@@ -224,7 +224,7 @@ int distribution(PalgorithmPD palg, int prune, int r_rr, int tuple_p, int fs, in
 
 		for(int i=1; i<(more_round+1);i++)
 		{
-			if(print_all)
+			if(1)
 			{
 				printf("\nproblem_MPI		distribution()		sending case num problems >num processes. resource 0: %s",palg->ppd.aproblem.resources[0].name);
 
@@ -373,7 +373,7 @@ int rcv_work(double * buffer,MPI_Request * request_b,int * buffer_w)
 	MPE_Log_event(event2b, 0, "end receive work");
 	Aproblem a;
 	init_aproblem(&a,tasks,resources,work.num_tasks, work.num_resources, values);
-	if(print_all)
+	if(1)
 	{
 		printf("\n\nproblem_MPI.c	rcv_work()	p%d",id);
 		show_aproblem(&a);
@@ -382,8 +382,8 @@ int rcv_work(double * buffer,MPI_Request * request_b,int * buffer_w)
 
 	MPI_Type_free ( &work_mpi_datatype);
 	Resolved resolved;
-    init_work(&a, work.num_alternatives, &alternatives,buffer,request_b,buffer_w,work.best,&resolved);
-    if(print_all)
+    init_work(&a, work.num_alternatives, &alternatives,buffer,request_b,buffer_w,work.best,&resolved,fs);
+    if(1)
     {
         int id;
         MPI_Comm_rank(MPI_COMM_WORLD,&id);
@@ -536,7 +536,7 @@ int init_serial(
 	MPI_Request request_work=MPI_REQUEST_NULL;//not using in serial
 	int buffer_w=1;//not using in serial
 	AlgorithmPD alg;
-	init_algorithmPD(&alg, final_alg->ppd);
+	init_algorithmPD(&alg, final_alg->ppd, fs);
 	exec_algorithm(&alg,&buffer,request_b, &buffer_w, &request_work, fs);
 
 	for(int j=0;j<final_alg->ppd.aproblem.numTask;j++)
@@ -564,21 +564,22 @@ int init_work(
 		MPI_Request * request_b,
 		int * buffer_w,
 		double best,
-		Resolved *resolved)
+		Resolved *resolved,
+		int search)
 {
 	MPI_Request request_work=MPI_REQUEST_NULL;//to listen to masterś order
 	int res=0;
 	AproblemPD appd;
 	initAProblemPD(&appd, pa);
 	AlgorithmPD alg;
-	init_algorithmPD(&alg, appd);
+	init_algorithmPD(&alg, appd,search);
 	alg.best=best;
 	int id;
 	MPI_Comm_rank(MPI_COMM_WORLD,&id);
-	if(print_all)
+	if(1)
 	{
 		printf("\n problem_MPI.c		init_work()		p%d best post init: %f",id,alg.best);
-		show_aproblem(&(alg.ppd.aproblem));
+		//show_aproblem(&(alg.ppd.aproblem));
 		printf("\n*******************************");
 	}
 
@@ -587,9 +588,9 @@ int init_work(
 	MPI_Irecv(&new_best, 1, MPI_DOUBLE, master, tag_best, MPI_COMM_WORLD, &request_bcast);
 
 	if (num_alternatives==0){
-		if(print_all)
+		if(1)
 		{
-			printf("\nproblem_MPI.c		init_work() 0 alternative rr:%d",redistribution_rr);
+			printf("\nproblem_MPI.c		init_work() p%d -0 alternative rr:%d",id,redistribution_rr);
 		}
 
 		if(!redistribution_rr)
@@ -604,9 +605,9 @@ int init_work(
 		}
 		else
 		{
-			if(print_all)
+			if(1)
 			{
-				printf("\nproblem_MPI.c		init_work() asking work");
+				printf("\nproblem_MPI.c		init_work() asking work p%d",id);
 			}
 			ask_work();
 			Node_work node;
@@ -628,26 +629,26 @@ int init_work(
 			MPI_Irecv(&node, 1, node_mpi_datatype, MPI_ANY_SOURCE, tag_redistribution+myid, MPI_COMM_WORLD, &r);
 
 			int i=0;
-			while(!ready && i<900000)//TODO
+			while(!ready && i<90000)//TODO
 			{
 				MPI_Test(&r,&ready,&s);
 				i++;
 			}
 			if (!ready) {
 				MPE_Log_event(event8, 0, "TIMEOUT");
-				if(print_all)
+				if(1)
 				{
-					printf("\nproblem_MPI.c		init_work()		waiting work TIMEOUT");
+					printf("\nproblem_MPI.c		init_work()		p%d waiting work TIMEOUT",id);
 				}
 				if(redistribution_rr_all)
 				{
 					send_resolved_data(1,resolved->value,pa->numTask,resolved->resources);//TODO num resolved
-					if(print_all)
+					if(1)
 					{
-						printf("\nproblem_MPI.c		init_work()		TIMEOUT rr_all send resolved data");
+						printf("\nproblem_MPI.c		init_work()		p%d TIMEOUT rr_all send resolved data",id);
 						for(int d=0;d<pa->numTask;d++)
 						{
-							printf("\nproblem_MPI.c		init_work()		send %d:%d",d,resolved->resources[d]);
+							printf("\nproblem_MPI.c		init_work()		p%d send %d:%d",id,d,resolved->resources[d]);
 						}
 					}
 
@@ -658,9 +659,9 @@ int init_work(
 				{
 					alg.num_solved=0;
 					send_resolved(&alg);
-					if(print_all)
+					if(1)
 					{
-						printf("\nproblem_MPI.c		init_work()		TIMEOUT NO_rr_all send resolved(alg)");
+						printf("\nproblem_MPI.c		init_work()		p%d TIMEOUT NO_rr_all send resolved(alg)",id);
 					}
 				}
 
@@ -669,9 +670,9 @@ int init_work(
 			{
 				int sender=s.MPI_SOURCE;
 				confirming_work(sender);
-				if(print_all)
+				if(1)
 				{
-					printf("\nproblem_MPI.c		init_work()		ready. Index= %d", node.index);
+					printf("\nproblem_MPI.c		init_work()		ready. Index= %d in p%d", node.index,id);
 				}
 
 				alg.ppd.index=node.index;
@@ -702,20 +703,20 @@ int init_work(
 					}
 				}
 				alg.problems[0]=alg.ppd;
-				if(print_all)
+				if(1)
 				{
 					for(int i=0;i<node.index;i++)
 					{
-						printf("\nproblem_MPI.c		init_work()		rcv sol proble[0] %d: %d",i,alg.problems[0].solution.resources[i].position);
-						printf("\nproblem_MPI.c		init_work()		copied in ppd.solution %d: %d",i,alg.ppd.solution.resources[i].position);
+						printf("\nproblem_MPI.c		init_work()		p%d rcv sol proble[0] %d: %d",id,i,alg.problems[0].solution.resources[i].position);
+						printf("\nproblem_MPI.c		init_work()		p%d copied in ppd.solution %d: %d",id,i,alg.ppd.solution.resources[i].position);
 
 					}
 
 				}
 				exec_algorithm(&alg,buffer,request_b, buffer_w, &request_work, fs);
-				if(print_all)
+				if(1)
 				{
-					printf("\nAfter exec algoritm\n");
+					printf("\nAfter exec algoritm p%d \n",id);
 				}
 				Solution sol;
 				get_PDsolution(&alg, &sol);
@@ -729,78 +730,79 @@ int init_work(
 
 				if(redistribution_rr_all)
 				{
-					if(print_all)
+					if(1)
 					{
-						printf("\nproblem_MPI.c		init_work()		inside redistribution_rr_all");
+						printf("\nproblem_MPI.c		init_work()		p%d  inside redistribution_rr_all, no timeout",id);
 					}
-				//select resolved
-				if(init_resolved==0)
-				{
-					//init resolved
-					if(print_all)
+					//select resolved
+					if(init_resolved==0)
 					{
-						printf("\nproblem_MPI.c		init_work()		init_resolved=0");
-					}
-					if(alg.num_solved>0)
-					{
-						resolved->num_resolved=alg.num_solved;
-						resolved->value=alg.solvedProblems[0].solution.acum;
-						for(int i=0;i<alg.ppd.aproblem.numTask;i++)
-						{
-							resolved->resources[i]=alg.solvedProblems[0].solution.resources[i].position;
-						}
-						init_resolved=1;
+						//init resolved
 						if(print_all)
 						{
-							printf("\nproblem_MPI.c		init_work()		saved resolved:");
-							for(int i=0;i<alg.ppd.aproblem.numTask;i++)
-							{
-								printf("\n 		%d",resolved->resources[i]);
-							}
+							printf("\nproblem_MPI.c		init_work()		init_resolved=0");
 						}
-					}
-
-				}
-				else
-				{
-					if(print_all)
-					{
-						printf("\nproblem_MPI.c		init_work()		init_resolved=1 so we compare");
-					}
-					if(alg.num_solved>0)
-					{
-						//compare
-						if(alg.solvedProblems[0].solution.acum>resolved->value)//new resolved is better
+						if(alg.num_solved>0)
 						{
-							if(print_all)
-							{
-								printf("\nproblem_MPI.c		init_work()		new resolved is better");
-							}
 							resolved->num_resolved=alg.num_solved;
 							resolved->value=alg.solvedProblems[0].solution.acum;
 							for(int i=0;i<alg.ppd.aproblem.numTask;i++)
 							{
 								resolved->resources[i]=alg.solvedProblems[0].solution.resources[i].position;
 							}
+							init_resolved=1;
+							if(print_all)
+							{
+								printf("\nproblem_MPI.c		init_work()		saved resolved:");
+								for(int i=0;i<alg.ppd.aproblem.numTask;i++)
+								{
+									printf("\n 		%d",resolved->resources[i]);
+								}
+							}
+						}
+
+					}
+					else//if init resolved !=0
+					{
+						if(1)
+						{
+							printf("\nproblem_MPI.c		init_work()		init_resolved=1 so we compare");
+						}
+						if(alg.num_solved>0)
+						{
+							//compare
+							if(alg.solvedProblems[0].solution.acum>resolved->value)//new resolved is better
+							{
+								if(1)
+								{
+									printf("\nproblem_MPI.c		init_work()		new resolved is better");
+								}
+								resolved->num_resolved=alg.num_solved;
+								resolved->value=alg.solvedProblems[0].solution.acum;
+								for(int i=0;i<alg.ppd.aproblem.numTask;i++)
+								{
+									resolved->resources[i]=alg.solvedProblems[0].solution.resources[i].position;
+								}
+
+							 }
 
 						 }
-
 					 }
-				 }
-				delete_algorithmPD(&alg);
-				init_work(
-						pa,
-						0,
-						alternatives,
-						buffer,
-						request_b,
-						buffer_w,
-						best,
-						resolved);
+					delete_algorithmPD(&alg);
+					init_work(
+							pa,
+							0,
+							alternatives,
+							buffer,
+							request_b,
+							buffer_w,
+							best,
+							resolved,
+							search);
 				}
 				else
 				{
-					if(print_all)
+					if(1)
 					{
 						printf("\nproblem_MPI.c		no rr_all");
 					}
@@ -818,7 +820,6 @@ int init_work(
 	}//end num alternatives==0
 	else//more than 0 alternatives
 	{
-
 
 		MPI_Irecv(&buffer_work,1,MPI_INT,master,tag_give_work,MPI_COMM_WORLD, &request_work);
 		if(print_all)
@@ -937,7 +938,7 @@ int init_work(
 			//select resolved
 			if(init_resolved==0)
 			{
-				if(print_all)
+				if(1)
 				{
 					printf("\nproblem_MPI.c		init_work()		rrall and init resolved==0");
 				}
@@ -993,7 +994,8 @@ int init_work(
 					request_b,
 					buffer_w,
 					best,
-					resolved);
+					resolved,
+					search);
 		}
 		else
 		{
@@ -1534,7 +1536,7 @@ int waiting_petition(int * buffer_w, MPI_Request* r_w,PalgorithmPD palg,int m, i
 
 int scan_petition(MPI_Request *request_ask_work, MPI_Request *request_best, MPI_Request *request_bcast)
 {
-	MPE_Log_event(event2, 0, "listen");
+	//MPE_Log_event(event2, 0, "listen");
 	MPI_Status status;
 	MPI_Status status_best;
 	int flag=0;

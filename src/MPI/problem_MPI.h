@@ -125,7 +125,7 @@ AproblemPD *problems;
 //slaves
 int rcv_work(double *,MPI_Request * ,int *);
 int ask_work();
-int init_work(PAproblem, int, int*,double *,MPI_Request *,int *, double, Resolved *);
+int init_work(PAproblem, int, int*,double *,MPI_Request *,int *, double, Resolved *, int);
 int send_resolved(const PalgorithmPD);
 int send_resolved_data(int , double ,int , int *);
 int send_best(const PalgorithmPD);

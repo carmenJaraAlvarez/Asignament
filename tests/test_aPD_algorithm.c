@@ -40,7 +40,8 @@ void testInit9(){
 	testInitAProblemPD(&appd, ap);
 	AlgorithmPD alg;
 	printf("\n 9 \n");
-	init_algorithmPD(&alg, appd);
+	int search =1;
+	init_algorithmPD(&alg, appd,search);
 
 	printf("best post init: %f",alg.best);
 	show_aproblem(&(alg.ppd.aproblem));

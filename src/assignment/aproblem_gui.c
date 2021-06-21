@@ -25,12 +25,17 @@ static void show_error();
 
 void resolve_aPD_test(PAproblem pap_from_gui, int np,int prune_test,int redistribution_rr_test,int tuple_p_test,int fs_test,int type_best_test,int redistribution_rr_all_test)
 {
+	if(1)
+	{
+	printf("\naproblem_gui.c resolve_aPD_test()");
+	}
 	prune=prune_test;
 	redistribution_rr=redistribution_rr_test;
 	redistribution_rr_all=redistribution_rr_all_test;
 	tuple_p=tuple_p_test;
 	fs=fs_test;
 	type_best=type_best_test;
+
 	resolve_aPD(pap_from_gui, np);
 }
 
@@ -93,12 +98,12 @@ void resolve_aPD(PAproblem pap, int num_processes)
 	all_finished=0;
     AproblemPD appd;
     initAProblemPD(&appd, pap);
-	init_algorithmPD(&final_alg, appd);
+	init_algorithmPD(&final_alg, appd,fs);
 	if(redistribution_rr_all==1 && redistribution_rr==0)
 	{
 		redistribution_rr=1;
 	}
-	if(print_all)
+	if(1)
     {
     	printf("\naproblem_gui.c resolve_aPD()-> Resolving\n");
     	printf("\naproblem_gui.c resolve_aPD()-> prune %d\n", prune);
@@ -461,7 +466,7 @@ void create_aproblem_window(int num_processes)
 		if(tests)
 		{
 				test_set(num_processes);
-				if(print_all)
+				if(1)
 				{
 					printf("\naproblem_gui.c 		create_aproblem_window() 		post test_set");
 				}
