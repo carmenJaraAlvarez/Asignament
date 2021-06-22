@@ -68,8 +68,8 @@ AproblemPD appd_for_top_deep;
 	  //palg->problems[0]=palg->ppd;
 	  palg->num_solved=0;
 	  int num_leaves;
-	  num_leaves=get_max_num_problems(&(ap));
-
+	  //num_leaves=get_max_num_problems(&(ap));
+	  num_leaves=10;//TODO TESTS
 	  palg->solvedProblems=(AproblemPD*)malloc(sizeof(AproblemPD)*num_leaves);
 	  return res;
   }
@@ -155,9 +155,11 @@ AproblemPD appd_for_top_deep;
 
 	  }else{
 		  for(int i=0;i<palg->num_solved;i++){
-			  	  if(palg->solvedProblems[i].solution.acum>=palg->best){
+			  	  if(palg->solvedProblems[i].solution.acum>=palg->best)
+			  	  {
 			  		palg->ppd=palg->solvedProblems[i];
 			  		palg->best=palg->solvedProblems[i].solution.acum;//TODO
+			  		break;
 			  	  }
 			  }
 		  if(print_all)
@@ -167,7 +169,7 @@ AproblemPD appd_for_top_deep;
 
 	  }
 
-	  return res;;
+	  return res;
   }
   void update_alg_best(PalgorithmPD palg)
   {
@@ -319,12 +321,11 @@ AproblemPD appd_for_top_deep;
 						  printf("\nPD_algorithm.c		pD		post get solution case base. best final: %f",final_alg.best);
 						  printf("\nPD_algorithm.c		pD		in base case. acum: %f",palg->problems[m].solution.acum);
 					  }
-
-					  if(palg->num_solved>0 && palg->problems[m].solution.acum==palg->solvedProblems[0].solution.acum)//more than one solution
+					  //TODO limit resolved
+					  if(palg->num_solved>0 && palg->num_solved<9 && palg->problems[m].solution.acum==palg->solvedProblems[0].solution.acum)//more than one solution
 					  {
 						  copy_aproblem_PD( &(palg->solvedProblems[palg->num_solved]),palg->problems[m]);
 						  palg->num_solved++;
-						  update_best(palg,&(palg->solvedProblems[0]) );
 						  if(print_all)
 						  {
 							  printf("\nPD_algorithm.c		pD		more than one solution");
@@ -342,18 +343,19 @@ AproblemPD appd_for_top_deep;
 							  printf("\nPD_algorithm.c		pD		pre update best palg: %f",palg->best);
 							  printf("\nPD_algorithm.c		pD		pre update best final_alg: %f", final_alg.best);
 						  }
-						  update_best(palg,&(palg->solvedProblems[0]) );
-						  if(print_all)
-						  {
-							  printf("\nPD_algorithm.c		pD		post update best");
-							  //show_aproblem_PD(&(palg->problems[39]));//TODO check
-							  printf("\nPD_algorithm.c		pD		NUM SOLVED: %d",palg->num_solved);
-							  printf("\nPD_algorithm.c		pD		post update best palg: %f",palg->best);
-							  printf("\nPD_algorithm.c		pD		post update best final_alg: %f", final_alg.best);
-							  printf("\nPD_algorithm.c		pD		we are going to copy the problem in solved");
-						  }
+
+//						  if(print_all)
+//						  {
+//							  printf("\nPD_algorithm.c		pD		post update best");
+//							  //show_aproblem_PD(&(palg->problems[39]));//TODO check
+//							  printf("\nPD_algorithm.c		pD		NUM SOLVED: %d",palg->num_solved);
+//							  printf("\nPD_algorithm.c		pD		post update best palg: %f",palg->best);
+//							  printf("\nPD_algorithm.c		pD		post update best final_alg: %f", final_alg.best);
+//							  printf("\nPD_algorithm.c		pD		we are going to copy the problem in solved");
+//						  }
 
 					  }
+					  update_best(palg,&(palg->solvedProblems[0]) );
 					  update_alg_best(palg);
 					  if(1)
 					  {
@@ -614,8 +616,8 @@ AproblemPD appd_for_top_deep;
 //						  printf("\nPD_algorithm.c		pD		post get solution case base. best final: %f",final_alg.best);
 //						  printf("\nPD_algorithm.c		pD		in base case. acum: %f",palg->problems[m].solution.acum);
 					  }
-
-					  if(palg->num_solved>0 && palg->problems[m].solution.acum==palg->solvedProblems[0].solution.acum)//more than one solution
+					  //TODO limit resolved
+					  if(palg->num_solved>0 && palg->num_solved<9 && palg->problems[m].solution.acum==palg->solvedProblems[0].solution.acum)//more than one solution
 					  {
 						  copy_aproblem_PD( &(palg->solvedProblems[palg->num_solved]),palg->problems[m]);
 						  palg->num_solved++;
@@ -633,7 +635,7 @@ AproblemPD appd_for_top_deep;
 							  printf("\nPD_algorithm.c		pD		pre update best palg: %f",palg->best);
 							  printf("\nPD_algorithm.c		pD		pre update best final_alg: %f", final_alg.best);
 						  }
-						  update_best(palg,&(palg->solvedProblems[m]) );
+						  update_best(palg,&(palg->solvedProblems[0]) );
 						  if(print_all)
 						  {
 							  printf("\nPD_algorithm.c		pD		post update best");
