@@ -63,9 +63,9 @@ static Logico checkInt(const int);
  int delete_aproblem(PAproblem pa)//let memory free
  {
 	 int res=0;
-//	 free(pa->values);
-//	 free(pa->tasks);
-//	 free(pa->resources);
+	 free(pa->values);
+	 free(pa->tasks);
+	 free(pa->resources);
 	 return res;
  }
  void show_aproblem(const PAproblem pap)

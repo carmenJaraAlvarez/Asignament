@@ -3,18 +3,19 @@
 
 #var
 origin=/home/practica/eclipse-workspace/c/Debug/c
-slave=192.168.2.115
+master=192.168.2.100
+slaves=192.168.2.101,192.168.2.102,192.168.2.103,192.168.2.104
 #
 
 echo "testing"
 
-for NP in 10
+for NP in 1 2 3 4
 do
-	for PRUNE in 0
+	for PRUNE in 0 1
 	do
-		for SEARCH in 1 
+		for SEARCH in 0 1
 		do
-			for TUPLE in 1 
+			for TUPLE in 0 1 
 			do
 				for RR in 0 1
 				do
@@ -22,9 +23,9 @@ do
 					do
 						for ALG in 1 2 3
 						do
-							for SIZE in 11
+							for SIZE in 3 4 5
 							do
-								mpirun -np $NP -hosts 192.168.2.100,192.168.2.101,192.168.2.102,192.168.2.103,192.168.2.104 $origin test $SIZE $PRUNE $RR $TUPLE $SEARCH $ALG $RRALL &
+								mpirun -np $NP -hosts $master,$slaves $origin test $SIZE $PRUNE $RR $TUPLE $SEARCH $ALG $RRALL &
 								wait $!
 								echo "End np $NP data $SIZE prune $PRUNE distrib $RR tuple $TUPLE bd $SEARCH alg $ALG rr_all $RRALL"
 							done

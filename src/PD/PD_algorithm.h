@@ -14,7 +14,7 @@
 //***************************************************
 #include "../assignment/PD/a_problem_PD.h"
 //***************************************************
-//#define NUM_MAX_SOLVED 1000
+#define NUM_LEAVES 10 //num máx leaves resolved we will save
 
 
 extern int numprocs;

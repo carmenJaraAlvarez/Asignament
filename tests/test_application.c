@@ -27,7 +27,7 @@ int test_set(int np);
 
 
 int test_set(int np){
-	if(1)
+	if(print_all)
 	{
 		printf("\n*** test_set ***\n");
 	}
@@ -36,7 +36,7 @@ int test_set(int np){
 	return 0;
 }
 int test_set_data(Cadena t, int np){
-	if(1)
+	if(print_all)
 	{
 		printf("\n*** test_set_data***\n");
 	}
@@ -64,7 +64,7 @@ int test_set_data(Cadena t, int np){
 	fs=var_test[4];
 	type_best=var_test[5];
 	redistribution_rr_all=var_test[6];
-	if(1)
+	if(print_all)
 	{
 		printf("\ntest_application.c		test_set_data()-> READED file  %d\n",e);
 		printf("\ntest_application.c		test_set_data()		prune->%d",prune);
@@ -78,7 +78,7 @@ int test_set_data(Cadena t, int np){
 	{
 		redistribution_rr=1;
 	}
-	if(1)
+	if(print_all)
 	{
 		printf("\ntest_application.c		test_set_data()-> pre resolve apd test");
 	}
@@ -87,7 +87,7 @@ int test_set_data(Cadena t, int np){
 	while(final_alg.best!=expected[i-2])//matrix size <=2
 	{
 		count++;
-		if(count>=90000000)//Timeout
+		if(count>=900000)//Timeout
 		{
 			printf("\ntest_application.c		test_set_data(%d)-> TIMEOUT expected:%f",i, expected[i-2]);
 			printf("   final_alg.best->%f",final_alg.best);
@@ -95,7 +95,7 @@ int test_set_data(Cadena t, int np){
 		}
 
 	}
-	if(count<90000000)
+	if(count<900000)
 	{
 		printf("\ntest_application.c		test_set_data(%d)-> OK: acum %f\n",i,final_alg.best);
 	}

@@ -25,7 +25,7 @@ static void show_error();
 
 void resolve_aPD_test(PAproblem pap_from_gui, int np,int prune_test,int redistribution_rr_test,int tuple_p_test,int fs_test,int type_best_test,int redistribution_rr_all_test)
 {
-	if(1)
+	if(print_all)
 	{
 	printf("\naproblem_gui.c resolve_aPD_test()");
 	}
@@ -103,7 +103,7 @@ void resolve_aPD(PAproblem pap, int num_processes)
 	{
 		redistribution_rr=1;
 	}
-	if(1)
+	if(print_all)
     {
     	printf("\naproblem_gui.c resolve_aPD()-> Resolving\n");
     	printf("\naproblem_gui.c resolve_aPD()-> prune %d\n", prune);
@@ -262,12 +262,12 @@ void resolve_aPD(PAproblem pap, int num_processes)
 	   end_clock();
 
 
-//	free(final_alg.problems);
-//	free(final_alg.solvedProblems);
-//	free(transfered.receivers);
-//	free(transfered.transfered);
-//	free(tuple_prune_data.solution_tuples);
-//	free(tuple_prune_data.solution_values);
+	free(final_alg.problems);
+	free(final_alg.solvedProblems);
+	free(transfered.receivers);
+	free(transfered.transfered);
+	free(tuple_prune_data.solution_tuples);
+	free(tuple_prune_data.solution_values);
 
 
 }
@@ -455,18 +455,10 @@ void create_aproblem_window(int num_processes)
 		g_print ("\naproblem_gui.c 		create_aproblem_window()		rr->%d",redistribution_rr);
 	}
 
-
-
-
-		GtkWidget *grid, *done;
-		GtkWidget *radio_rr_all, *radio_no_rr_all;
-		GtkWidget *radio_prune,*radio_no_prune,*radio_rr, *radio_no_rr, *radio_tp,*radio_no_tp,*radio_dfs,*radio_bfs;
-		GtkWidget *combo_box;
-
 		if(tests)
 		{
 				test_set(num_processes);
-				if(1)
+				if(print_all)
 				{
 					printf("\naproblem_gui.c 		create_aproblem_window() 		post test_set");
 				}
@@ -474,6 +466,15 @@ void create_aproblem_window(int num_processes)
 		}
 		else
 		{
+			if(print_all)
+			{
+				printf("\naproblem_gui.c 		create_aproblem_window() 		NO test");
+			}
+			GtkWidget *grid, *done;
+			GtkWidget *radio_rr_all, *radio_no_rr_all;
+			GtkWidget *radio_prune,*radio_no_prune,*radio_rr, *radio_no_rr, *radio_tp,*radio_no_tp,*radio_dfs,*radio_bfs;
+			GtkWidget *combo_box;
+
 			  window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 
 
@@ -646,6 +647,10 @@ void create_aproblem_window(int num_processes)
 				                                            GTK_STYLE_PROVIDER_PRIORITY_USER);
 				    }
 
+					    if(print_all)
+					    {
+					    	printf("\naproblem_gui.c create_aproblem_window()	pre show");
+					    }
 
 						gtk_widget_show_all(window);
 

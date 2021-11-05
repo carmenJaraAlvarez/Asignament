@@ -52,13 +52,19 @@ AproblemPD appd_for_top_deep;
 	  {
 		  num=get_max_num_problems(&(ap));
 	  }
-	  if(1)
+	  if(print_all)
 	  {
 		  printf("\nPD_algorithm.c deep**%d fs**%d->%d",deep, search,num);
 	  }
+	  if(search)//deep
+	  {
+		  palg->problems=(AproblemPD*)malloc(sizeof(AproblemPD)*num);
+	  }
+	  else
+	  {
+		  palg->problems=(AproblemPD*)malloc(sizeof(AproblemPD)*num*2);
+	  }
 
-
-	  palg->problems=(AproblemPD*)malloc(sizeof(AproblemPD)*num*2);
 
 	  palg->ppd=ap;
 	  copy_aproblem_PD(&(palg->problems[0]),ap);
@@ -67,10 +73,8 @@ AproblemPD appd_for_top_deep;
 
 	  //palg->problems[0]=palg->ppd;
 	  palg->num_solved=0;
-	  int num_leaves;
-	  //num_leaves=get_max_num_problems(&(ap));
-	  num_leaves=10;//TODO TESTS
-	  palg->solvedProblems=(AproblemPD*)malloc(sizeof(AproblemPD)*num_leaves);
+
+	  palg->solvedProblems=(AproblemPD*)malloc(sizeof(AproblemPD)*NUM_LEAVES);
 	  return res;
   }
 
@@ -88,7 +92,7 @@ AproblemPD appd_for_top_deep;
 	  MPI_Comm_rank(MPI_COMM_WORLD,&id);
 
 	  deep=first_search;
-	  if(1)
+	  if(print_all)
 	  {
 		  printf("\nPD_algorithm.c	exec_algorithm()	p%d deep:%d",id,deep);
 	  }
@@ -101,7 +105,7 @@ AproblemPD appd_for_top_deep;
 			  pD(palg,buffer, request_b, buffer_w, request_w);
 		  }
 	  }while(palg->isRandomize && get_PDsolution(palg,&sol)!=0);
-	  if(1)
+	  if(print_all)
 	  {
 		  printf("\nPD_algorithm.c		exec_algorithm()		p%d outgoing",id);
 	  }
@@ -146,7 +150,7 @@ AproblemPD appd_for_top_deep;
 		  }
 	  }
 	  else if(palg->num_solved==1){
-		  palg->ppd=palg->solvedProblems[0];//TODO needed??
+		  palg->ppd=palg->solvedProblems[0];
 		  palg->best=palg->solvedProblems[0].solution.acum;
 		  if(print_all)
 		  {
@@ -158,7 +162,7 @@ AproblemPD appd_for_top_deep;
 			  	  if(palg->solvedProblems[i].solution.acum>=palg->best)
 			  	  {
 			  		palg->ppd=palg->solvedProblems[i];
-			  		palg->best=palg->solvedProblems[i].solution.acum;//TODO
+			  		palg->best=palg->solvedProblems[i].solution.acum;
 			  		break;
 			  	  }
 			  }
@@ -200,7 +204,7 @@ AproblemPD appd_for_top_deep;
 	  int id;
 	  MPI_Comm_rank(MPI_COMM_WORLD,&id);
 
-	  if(1)
+	  if(print_all)
 	  {
 		  printf("\nPD_algorithm.c	 pD()		*******************p%d init . trasfered:",id);
 		 // show_transfered(&transfered);
@@ -233,7 +237,7 @@ AproblemPD appd_for_top_deep;
 	  }
 	  if(!deep)//BFS
 	  {
-		  if(1)
+		  if(print_all)
 		  {
 			  printf("\nPD_algorithm.c		pD		p%d BFS lengthNewArrayAppd %d",id,lengthNewArrayAppd);
 		  }
@@ -321,8 +325,8 @@ AproblemPD appd_for_top_deep;
 						  printf("\nPD_algorithm.c		pD		post get solution case base. best final: %f",final_alg.best);
 						  printf("\nPD_algorithm.c		pD		in base case. acum: %f",palg->problems[m].solution.acum);
 					  }
-					  //TODO limit resolved
-					  if(palg->num_solved>0 && palg->num_solved<9 && palg->problems[m].solution.acum==palg->solvedProblems[0].solution.acum)//more than one solution
+
+					  if(palg->num_solved>0 && palg->num_solved<(NUM_LEAVES-1) && palg->problems[m].solution.acum==palg->solvedProblems[0].solution.acum)//more than one solution
 					  {
 						  copy_aproblem_PD( &(palg->solvedProblems[palg->num_solved]),palg->problems[m]);
 						  palg->num_solved++;
@@ -347,7 +351,6 @@ AproblemPD appd_for_top_deep;
 //						  if(print_all)
 //						  {
 //							  printf("\nPD_algorithm.c		pD		post update best");
-//							  //show_aproblem_PD(&(palg->problems[39]));//TODO check
 //							  printf("\nPD_algorithm.c		pD		NUM SOLVED: %d",palg->num_solved);
 //							  printf("\nPD_algorithm.c		pD		post update best palg: %f",palg->best);
 //							  printf("\nPD_algorithm.c		pD		post update best final_alg: %f", final_alg.best);
@@ -357,7 +360,7 @@ AproblemPD appd_for_top_deep;
 					  }
 					  update_best(palg,&(palg->solvedProblems[0]) );
 					  update_alg_best(palg);
-					  if(1)
+					  if(print_all)
 					  {
 						  printf("\nPD_algorithm.c		pD		p%d is base case and takes alternative: %d\n",id, sp.alternative.indexResource);
 					  }
@@ -365,7 +368,7 @@ AproblemPD appd_for_top_deep;
 				  else//not case base
 				  {
 					  //get new problems
-					  if(1)
+					  if(print_all)
 					  {
 						  printf("\nPD_algorithm.c		pD		p%d Not case base. Alternatives: ",id);
 	//					  for(int k=0;k<numAlternatives;k++)
@@ -405,7 +408,7 @@ AproblemPD appd_for_top_deep;
 
 						  if(round==1)
 						  {
-							  if(1)
+							  if(print_all)
 							  {
 								  printf("\nPD_algorithm.c		pD()	p%d round==1>>we check prune",id);
 							  }
@@ -616,8 +619,8 @@ AproblemPD appd_for_top_deep;
 //						  printf("\nPD_algorithm.c		pD		post get solution case base. best final: %f",final_alg.best);
 //						  printf("\nPD_algorithm.c		pD		in base case. acum: %f",palg->problems[m].solution.acum);
 					  }
-					  //TODO limit resolved
-					  if(palg->num_solved>0 && palg->num_solved<9 && palg->problems[m].solution.acum==palg->solvedProblems[0].solution.acum)//more than one solution
+
+					  if(palg->num_solved>0 && palg->num_solved<(NUM_LEAVES-1) && palg->problems[m].solution.acum==palg->solvedProblems[0].solution.acum)//more than one solution
 					  {
 						  copy_aproblem_PD( &(palg->solvedProblems[palg->num_solved]),palg->problems[m]);
 						  palg->num_solved++;
@@ -639,7 +642,6 @@ AproblemPD appd_for_top_deep;
 						  if(print_all)
 						  {
 							  printf("\nPD_algorithm.c		pD		post update best");
-							  //show_aproblem_PD(&(palg->problems[39]));//TODO check
 							  printf("\nPD_algorithm.c		pD		NUM SOLVED: %d",palg->num_solved);
 							  printf("\nPD_algorithm.c		pD		post update best palg: %f",palg->best);
 							  printf("\nPD_algorithm.c		pD		post update best final_alg: %f", final_alg.best);
@@ -877,9 +879,10 @@ AproblemPD appd_for_top_deep;
 
   int delete_algorithmPD(PalgorithmPD palg)
   {
-//	  free(palg->solvedProblems);
-//	  free(palg->problems);
 	  delete_problem_PD(&(palg->ppd));
+	  free(palg->solvedProblems);
+	  free(palg->problems);
+
 	  return 0;
   }
 
@@ -897,7 +900,7 @@ AproblemPD appd_for_top_deep;
 		  res=GREAT;
 	  }
 
-	  if(print_all)//prune //TODO
+	  if(print_all)//prune
 	  {
 		  if(numprocs>2)//more than 1 slave
 		  {

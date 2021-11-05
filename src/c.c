@@ -63,6 +63,7 @@ extern int init_slaves;
 extern MPI_Request request;
 MPI_Request request_b=MPI_REQUEST_NULL;
 
+
 double best;
 int main(int argc, char **argv)
 {
@@ -86,7 +87,7 @@ int main(int argc, char **argv)
 		for(int i=0;i<7;i++)
 		{
 			var_test[i]=atoi(argv[i+2]);
-			if(1)
+			if(print_all)
 			{
 				printf("\nc.c	main()	arg %d",var_test[i]);
 			}
@@ -162,7 +163,7 @@ int main(int argc, char **argv)
 	}
 
 
-	//gtk_init(&argc, &argv);
+	gtk_init(&argc, &argv);
 
 	//the particular problem/////////////
     // PAproblem pap;
