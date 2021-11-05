@@ -9,7 +9,7 @@
 #define ALGORITHM_ALGORITHM_H_
 #include "../assignment/PD/a_problem_PD.h"
 
-#define MAX_NUM 100
+#define MAX_NUM 1000
 extern int event9;//for MPE log
 extern int tuple_p;
 //Redistribution////////////////////////////////////

@@ -56,7 +56,7 @@ extern int tuple_p;
 extern int fs;
 extern int type_best;
 extern int master;
-extern int numprocs;
+
 AlgorithmPD final_alg;
 int n;//buffer for ask work
 double b;//buffer for best
@@ -78,6 +78,7 @@ AproblemPD *problems;
 		int tuple_prune;
 		int redistribution;
 		int first_search;
+		int rrall;
 		//alternative the process will select
 		int num_alternatives;
 		double best;
@@ -124,7 +125,7 @@ AproblemPD *problems;
 //slaves
 int rcv_work(double *,MPI_Request * ,int *);
 int ask_work();
-int init_work(PAproblem, int, int*,double *,MPI_Request *,int *, double, Resolved *);
+int init_work(PAproblem, int, int*,double *,MPI_Request *,int *, double, Resolved *, int);
 int send_resolved(const PalgorithmPD);
 int send_resolved_data(int , double ,int , int *);
 int send_best(const PalgorithmPD);
@@ -138,8 +139,8 @@ int waiting_confirming(Transfered_nodes *);
 
 //master
 int init_serial(PalgorithmPD ,int,int,int,int);
-int distribution(PalgorithmPD, int, int,int,int);
-int send_work(const PalgorithmPD,int *, int, int, int,int,int,int,double);
+int distribution(PalgorithmPD, int, int,int,int,int,int);
+int send_work(const PalgorithmPD,int *, int, int, int,int,int,int,int,double);
 int broadcast_best(const double);
 int rcv_resolved();
 int rcv_best(double b, MPI_Request*);

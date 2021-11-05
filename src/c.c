@@ -31,7 +31,7 @@ int print_all=0;//to help to debug. Simple logs for developer
 //to launch tests///////
 int tests=0;
 Cadena test;
-int var_test[5];
+int var_test[7];
 ///////////////////////
 
 
@@ -63,6 +63,7 @@ extern int init_slaves;
 extern MPI_Request request;
 MPI_Request request_b=MPI_REQUEST_NULL;
 
+
 double best;
 int main(int argc, char **argv)
 {
@@ -83,9 +84,13 @@ int main(int argc, char **argv)
 		{
 			printf("\n test %s",test);
 		}
-		for(int i=0;i<6;i++)
+		for(int i=0;i<7;i++)
 		{
 			var_test[i]=atoi(argv[i+2]);
+			if(print_all)
+			{
+				printf("\nc.c	main()	arg %d",var_test[i]);
+			}
 		}
 	}
 
@@ -166,6 +171,10 @@ int main(int argc, char **argv)
 	/////////////////////////////////////
 	if(!tests)
 	{
+		if(print_all)
+		{
+			printf("\nc.c	main()	No test");
+		}
 		gtk_main();
 	}
 

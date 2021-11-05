@@ -68,6 +68,8 @@ int is_in_array(int ,int, int *);
   		show_transfered(&aux);
   	}
   	copy_transfered(transf,&aux);
+//  	free(aux.receivers);
+//  	free(aux.transfered);
   	return 0;
   }
 
@@ -164,11 +166,11 @@ int is_in_array(int ,int, int *);
 		  			  }
 
 		  	  }
-		  	  else //si second round and tuple_prune NOT empty, compare
+		  	  else //if second round and tuple_prune NOT empty, compare
 		  	  {
 		  		  if(print_all)
 		  		  {
-		  			printf("\nalgorithm.c		check_prune()	search");
+		  			printf("\nalgorithm.c		check_prune()	if second round and tuple_prune NOT empty, compare. search");
 		  		  }
 
 		  		  //search
@@ -200,6 +202,10 @@ int is_in_array(int ,int, int *);
 		  						  )
 		  				  )
 		  		  {
+		  			  if(print_all)
+		  			  {
+		  				printf("\nalgorithm.c		check_prune()	exists symmetric and acum is better>>prune");
+		  			  }
 		  			  *tuple_prune=TRUE;
 		  			  MPE_Log_event(event9, 0, "Tuple prune");
 		  			  if(print_all)
@@ -210,6 +216,10 @@ int is_in_array(int ,int, int *);
 		  		  }
 		  		  else//save and prune=FALSE to go on
 		  		  {
+		  			  if(print_all)
+		  			  {
+		  				printf("\nalgorithm.c		check_prune()	does not exist symmetric or acum is better>>no prune and save");
+		  			  }
 		  			  add_tuple(
 		  						  tuple_prune_data,
 		  						  papd->solution.resources[papd->solution.lengthArrays-1].position,
@@ -227,7 +237,10 @@ int is_in_array(int ,int, int *);
 		  	  }
 
 	  }
-
+	  if(print_all)
+	  {
+		  printf("\nalgorithm.c		check_prune()		ending tuple_prune=%d",*tuple_prune);
+	  }
   }
   double best_diagonal(const PAproblem pap)
   {

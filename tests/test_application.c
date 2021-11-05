@@ -13,13 +13,13 @@ extern int redistribution_rr;
 extern int redistribution_rr_all;
 extern GtkWidget *window;
 extern Cadena test;
-extern int var_test[5];
+extern int var_test[7];
 extern int fs;
 extern int type_best;
 
 
 
-double expected[9]={2.,38.,51.,5.,1025.,46.,7.,7.,8.};//matrix size >=2	<=10
+double expected[11]={2.,38.,51.,5.,1025.,46.,7.,7.,8.,10.,18.};//matrix size >=2	<=12
 
 
 int test_set(int np);
@@ -58,31 +58,44 @@ int test_set_data(Cadena t, int np){
 	printf("\n%s",cadena_url_init);
 	int e=read_aproblem_file(&pap_from_gui, numt, numr, cadena_url_init);
 
-	prune=var_test[0];
-	redistribution_rr=var_test[1];
-	tuple_p=var_test[2];
-	fs=var_test[3];
-	type_best=var_test[4];
-	redistribution_rr_all=var_test[5];
+	prune=var_test[1];
+	redistribution_rr=var_test[2];
+	tuple_p=var_test[3];
+	fs=var_test[4];
+	type_best=var_test[5];
+	redistribution_rr_all=var_test[6];
 	if(print_all)
 	{
 		printf("\ntest_application.c		test_set_data()-> READED file  %d\n",e);
-		g_print ("\ntest_application.c		test_set_data()		prune->%d",prune);
-		g_print ("\ntest_application.c		test_set_data()	rr->%d",redistribution_rr);
+		printf("\ntest_application.c		test_set_data()		prune->%d",prune);
+		printf("\ntest_application.c		test_set_data()		rr->%d",redistribution_rr);
+		printf ("\ntest_application.c		test_set_data()		tuple->%d",tuple_p);
+		printf ("\ntest_application.c		test_set_data()		fs->%d",fs);
+		printf ("\ntest_application.c		test_set_data()		alg->%d",type_best);
+		printf ("\ntest_application.c		test_set_data()		rr_all->%d",redistribution_rr_all);
 	}
-
-	resolve_aPD(&pap_from_gui, np);
+	if(redistribution_rr_all==1)//preference
+	{
+		redistribution_rr=1;
+	}
+	if(print_all)
+	{
+		printf("\ntest_application.c		test_set_data()-> pre resolve apd test");
+	}
+	resolve_aPD_test(&pap_from_gui, np,prune,redistribution_rr,tuple_p,fs,type_best,redistribution_rr_all);
 	int count=0;
 	while(final_alg.best!=expected[i-2])//matrix size <=2
 	{
-		if(count>=9000000)//Timeout
+		count++;
+		if(count>=900000)//Timeout
 		{
-			printf("\ntest_application.c		test_set_data(%d)-> TIMEOUT",i);
+			printf("\ntest_application.c		test_set_data(%d)-> TIMEOUT expected:%f",i, expected[i-2]);
+			printf("   final_alg.best->%f",final_alg.best);
 			break;
 		}
-		count++;
+
 	}
-	if(count<9000000)
+	if(count<900000)
 	{
 		printf("\ntest_application.c		test_set_data(%d)-> OK: acum %f\n",i,final_alg.best);
 	}

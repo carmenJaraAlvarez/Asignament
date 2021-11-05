@@ -445,7 +445,7 @@ Type get_type(PAproblemPD appd)
   {
 	  int res=-1;
 //	  int res1=delete_aproblem(&(papd->aproblem));
-//	  int res2=delete_solution(&(papd->solution));
+	  int res2=delete_solution(&(papd->solution));
 //	  res= res1+res2;
 	  return 0;
   }

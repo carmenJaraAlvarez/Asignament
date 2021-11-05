@@ -46,5 +46,6 @@ void create_aproblem_window(int );
 void button_toggled_cb (GtkWidget * ,gpointer );
 void button_toggled_rr (GtkWidget * ,gpointer );
 void resolve_aPD(PAproblem , int );
+void resolve_aPD_test(PAproblem , int, int, int, int, int, int, int);
   
 #endif /* INCLUDES_APROBLEM_GUI_H_ */

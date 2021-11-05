@@ -7,10 +7,10 @@ compiled_dir=/home/practica/eclipse-workspace/c/Debug
 origin=/home/practica/slave_env/.ssh
 dest=/home/practica/
 
-#no needed in lab
+#no needed in US lab
 #sudo apt-get update
 #sudo apt-get install -y mpi
-#sudo apt-get install -y mpich ?????
+#sudo apt-get install -y mpich
 
 #commands
 echo "setting slave env"

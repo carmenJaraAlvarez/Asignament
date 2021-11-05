@@ -14,17 +14,18 @@
 //***************************************************
 #include "../assignment/PD/a_problem_PD.h"
 //***************************************************
-//#define NUM_MAX_SOLVED 1000
+#define NUM_LEAVES 10 //num máx leaves resolved we will save
 
 
 extern int numprocs;
 extern int event6;//for MPE log
 extern int print_all;
 
-AproblemPD * newArrayAppd;
+//AproblemPD * newArrayAppd;
 Transfered_nodes transfered;//if redistribution
 Tuple_prune tuple_prune_data;//if tuple prune
 int deep;
+extern int fs;
 extern int first_search;
 
 typedef struct
@@ -49,7 +50,7 @@ typedef struct
 
   Logico is_min(const PalgorithmPD);
   Logico is_max(const PalgorithmPD);
-  int init_algorithmPD(PalgorithmPD, AproblemPD);
+  int init_algorithmPD(PalgorithmPD, AproblemPD, int);
   int randomize(PalgorithmPD,PAlternative);
   int exec_algorithm(PalgorithmPD,double *,MPI_Request *, int *,MPI_Request * ,int );
   int update_best(PalgorithmPD,const PAproblemPD);
