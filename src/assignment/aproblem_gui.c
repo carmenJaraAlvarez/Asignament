@@ -544,8 +544,8 @@ void create_aproblem_window(int num_processes)
 											 radio_rr_all = gtk_radio_button_new_with_label (NULL, "Always Round Robin");
 											 /*Create a second radio button, and add it to the same group as Button 1*/
 											 radio_no_rr_all = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON (radio_rr_all), "No Always Round Robin");
-											 gtk_grid_attach (GTK_GRID (grid), radio_rr_all, 0, 12, 1, 1);
-											 gtk_grid_attach (GTK_GRID (grid), radio_no_rr_all, 1, 12, 1, 1);
+											 gtk_grid_attach (GTK_GRID (grid), radio_rr_all, 0, 9, 1, 1);
+											 gtk_grid_attach (GTK_GRID (grid), radio_no_rr_all, 1, 9, 1, 1);
 											 /*set the initial state of each button*/
 											 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio_rr_all), TRUE);
 											 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radio_no_rr_all), FALSE);
@@ -620,7 +620,7 @@ void create_aproblem_window(int num_processes)
 
 
 					   /* Add it to the window */
-					   gtk_grid_attach (GTK_GRID (grid), combo_box, 0, 9, 1, 1);
+					   gtk_grid_attach (GTK_GRID (grid), combo_box, 0, 10, 1, 1);
 
 
 					 done = gtk_button_new_with_label("Done");
@@ -634,7 +634,7 @@ void create_aproblem_window(int num_processes)
 						g_signal_connect(done, "clicked", G_CALLBACK(get_data), n);
 						g_signal_connect(done, "clicked", G_CALLBACK(show_error), message);
 
-				    gtk_grid_attach(GTK_GRID(grid), done, 0, 10, 1, 1);
+				    gtk_grid_attach(GTK_GRID(grid), done, 0, 11, 1, 1);
 
 				    /////////////////////// CSS
 
