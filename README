@@ -1,1 +1,4 @@
-this program resolve assigment problem in clusters
+This program resolve assigment problem with Branch and Bound algorithm in parallel architectures.
+It has a generalist structure that allows to be adapted to different combinational problems. It also has different optional branching, pruning and distribution algorithms.
+The graphical interface with gtk can be bypassed launching by parameters for massive tets. There is a script "launch_tests.sh" where you can configurate them.
+The mpe2 library has been used to display logs graphically. The "launch_jumpshot.sh" script can be used to automatically display them.
