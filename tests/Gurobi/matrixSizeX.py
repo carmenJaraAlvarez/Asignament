@@ -120,7 +120,7 @@ def test(size):
         print('Encountered an attribute error')
 
 
-for k in range(10):
+for k in range(11):
     test(k+2)
 
 print(expected)
