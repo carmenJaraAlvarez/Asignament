@@ -5,6 +5,7 @@ import numpy as np
 import scipy.sparse as sp
 import gurobipy as gp
 from gurobipy import GRB
+import sys
 
 def test(size):
     try:
@@ -124,3 +125,11 @@ for k in range(11):
     test(k+2)
 
 print(expected)
+
+original_stdout=sys.stdout
+filename='../expected'
+f = open (filename,'w')
+sys.stdout = f # Change the standard output to the file we created.
+print(expected)
+sys.stdout = original_stdout # Reset the standard output to its original value
+f.close()
